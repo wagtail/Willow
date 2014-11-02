@@ -26,10 +26,6 @@ Examples
 Resizing a PNG file
 ```````````````````
 
-This will open the image file with Pillow or Wand (if Pillow is unavailable).
-
-It will then resize it to 100x100 pixels and save it back out as a PNG file.
-
 .. code-block:: python
 
    from willow.image import Image
@@ -43,12 +39,13 @@ It will then resize it to 100x100 pixels and save it back out as a PNG file.
    img.save_as_png("test_thumbnail.png")
 
 
+This will open the image file with Pillow or Wand (if Pillow is unavailable).
+
+It will then resize it to 100x100 pixels and save it back out as a PNG file.
+
+
 Detecting faces
 ```````````````
-
-Like above, the image file will be loaded with either Pillow or Wand.
-
-As neither Pillow nor Wand support detecting faces, Willow would automatically convert the image to OpenCV and use that to perform the detection.
 
 .. code-block:: python
 
@@ -58,3 +55,9 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 
    # Find faces
    faces = img.detect_faces()
+
+
+Like above, the image file will be loaded with either Pillow or Wand.
+
+As neither Pillow nor Wand support detecting faces, Willow would automatically convert the image to OpenCV and use that to perform the detection.
+
