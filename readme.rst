@@ -2,8 +2,8 @@
     :target: https://travis-ci.org/kaedroho/Willow
 
 
-Willow imaging library
-======================
+Willow image library
+====================
 
 Willow provides a unified and extensible interface to the many imaging libraries that are available for Python. It can also automatically switch between libraries at runtime allowing you to use features in all of the imaging libraries with any image. 
 
