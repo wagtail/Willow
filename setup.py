@@ -20,7 +20,7 @@ except ImportError:
 
 setup(
     name='Willow',
-    version='0.1a1',
+    version='0.1',
     description='',
     author='Karl Hobley',
     author_email='karlhobley10@gmail.com',

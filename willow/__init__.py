@@ -1,3 +1,3 @@
 from willow.image import Image
 
-__version__ = '0.1a1'
+__version__ = '0.1'
