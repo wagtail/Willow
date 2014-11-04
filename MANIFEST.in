@@ -1,0 +1,1 @@
+include willow/backends/face_detection/*.xml
