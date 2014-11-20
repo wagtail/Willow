@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/kaedroho/Willow.svg?branch=master
-    :target: https://travis-ci.org/kaedroho/Willow
+.. image:: https://travis-ci.org/torchbox/Willow.svg?branch=master
+    :target: https://travis-ci.org/torchbox/Willow
 
 
 Willow image library
