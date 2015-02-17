@@ -32,23 +32,11 @@ class Transform(object):
         new._apply_offset(x, y)
         return new
 
-    def atob(self, x, y):
-        pass
-
-    def btoa(self, x, y):
-        pass
-
-    @property
-    def width(self):
-        return self._width
-
-    @property
-    def height(self):
-        return self._height
-
-    @property
-    def size(self):
+    def get_size(self):
         return self._width, self._height
+
+    def get_matrix(self):
+        return self._matrix
 
     def _apply_size(self, width, height):
         self._width = width
