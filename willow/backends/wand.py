@@ -64,3 +64,8 @@ def wand_has_alpha(backend):
 @WandBackend.register_operation('has_animation')
 def wand_has_animation(backend):
     return backend.image.animation
+
+
+@WandBackend.register_operation('get_wand_image')
+def wand_get_wand_image(backend):
+    return backend.image.clone()

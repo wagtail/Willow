@@ -83,3 +83,8 @@ def pillow_has_alpha(backend):
 def pillow_has_animation(backend):
     # Animation not supported by PIL
     return False
+
+
+@PillowBackend.register_operation('get_pillow_image')
+def pillow_get_pillow_image(backend):
+    return backend.image.copy()
