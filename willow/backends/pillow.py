@@ -42,12 +42,12 @@ class PillowBackend(ImageBackend):
 
 
 @PillowBackend.register_operation('get_size')
-def pillow_get_size(backend):
+def get_size(backend):
     return backend.image.size
 
 
 @PillowBackend.register_operation('resize')
-def pillow_resize(backend, width, height):
+def resize(backend, width, height):
     if backend.image.mode in ['1', 'P']:
         backend.image = backend.image.convert('RGB')
 
@@ -56,12 +56,12 @@ def pillow_resize(backend, width, height):
 
 
 @PillowBackend.register_operation('crop')
-def pillow_crop(backend, left, top, right, bottom):
+def crop(backend, left, top, right, bottom):
     backend.image = backend.image.crop((left, top, right, bottom))
 
 
 @PillowBackend.register_operation('save_as_jpeg')
-def pillow_save_as_jpeg(backend, f, quality=85):
+def save_as_jpeg(backend, f, quality=85):
     if backend.image.mode in ['1', 'P']:
         backend.image = backend.image.convert('RGB')
 
@@ -69,22 +69,22 @@ def pillow_save_as_jpeg(backend, f, quality=85):
 
 
 @PillowBackend.register_operation('save_as_png')
-def pillow_save_as_png(backend, f):
+def save_as_png(backend, f):
     backend.image.save(f, 'PNG')
 
 
 @PillowBackend.register_operation('has_alpha')
-def pillow_has_alpha(backend):
+def has_alpha(backend):
     img = backend.image
     return img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)
 
 
 @PillowBackend.register_operation('has_animation')
-def pillow_has_animation(backend):
+def has_animation(backend):
     # Animation not supported by PIL
     return False
 
 
 @PillowBackend.register_operation('get_pillow_image')
-def pillow_get_pillow_image(backend):
+def get_pillow_image(backend):
     return backend.image.copy()

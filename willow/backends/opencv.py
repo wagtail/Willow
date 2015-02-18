@@ -44,7 +44,7 @@ class OpenCVBackend(ImageBackend):
 
 
 @OpenCVBackend.register_operation('detect_features')
-def opencv_detect_features(backend):
+def detect_features(backend):
     cv = backend.get_opencv()
 
     image = backend.opencv_grey_image()

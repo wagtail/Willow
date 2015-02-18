@@ -42,30 +42,30 @@ class WandBackend(ImageBackend):
 
 
 @WandBackend.register_operation('get_size')
-def wand_get_size(backend):
+def get_size(backend):
     return backend.image.size
 
 
 @WandBackend.register_operation('resize')
-def wand_resize(backend, width, height):
+def resize(backend, width, height):
     backend.image.resize(width, height)
 
 
 @WandBackend.register_operation('crop')
-def wand_crop(backend, left, top, right, bottom):
+def crop(backend, left, top, right, bottom):
     backend.image.crop(left=left, top=top, right=right, bottom=bottom)
 
 
 @WandBackend.register_operation('has_alpha')
-def wand_has_alpha(backend):
+def has_alpha(backend):
     return backend.image.alpha_channel
 
 
 @WandBackend.register_operation('has_animation')
-def wand_has_animation(backend):
+def has_animation(backend):
     return backend.image.animation
 
 
 @WandBackend.register_operation('get_wand_image')
-def wand_get_wand_image(backend):
+def get_wand_image(backend):
     return backend.image.clone()
