@@ -71,3 +71,15 @@ def pillow_save_as_jpeg(backend, f, quality=85):
 @PillowBackend.register_operation('save_as_png')
 def pillow_save_as_png(backend, f):
     backend.image.save(f, 'PNG')
+
+
+@PillowBackend.register_operation('has_alpha')
+def pillow_has_alpha(backend):
+    img = backend.image
+    return img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)
+
+
+@PillowBackend.register_operation('has_animation')
+def pillow_has_animation(backend):
+    # Animation not supported by PIL
+    return False

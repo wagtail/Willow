@@ -54,3 +54,13 @@ def wand_resize(backend, width, height):
 @WandBackend.register_operation('crop')
 def wand_crop(backend, left, top, right, bottom):
     backend.image.crop(left=left, top=top, right=right, bottom=bottom)
+
+
+@WandBackend.register_operation('has_alpha')
+def wand_has_alpha(backend):
+    return backend.image.alpha_channel
+
+
+@WandBackend.register_operation('has_animation')
+def wand_has_animation(backend):
+    return backend.image.animation
