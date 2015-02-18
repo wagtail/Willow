@@ -62,6 +62,9 @@ def pillow_crop(backend, left, top, right, bottom):
 
 @PillowBackend.register_operation('save_as_jpeg')
 def pillow_save_as_jpeg(backend, f, quality=85):
+    if backend.image.mode in ['1', 'P']:
+        backend.image = backend.image.convert('RGB')
+
     backend.image.save(f, 'JPEG', quality=quality)
 
 
