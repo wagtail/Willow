@@ -1,12 +1,12 @@
 import types
-import unittest2
+import unittest
 
 from willow.image import Image, setup
 
 from willow.backends.base import ImageBackend
 
 
-class ImageTestCase(unittest2.TestCase):
+class ImageTestCase(unittest.TestCase):
     def setUp(self):
         # Reset Image class
         self.reset()
@@ -677,4 +677,4 @@ class TestSwitchBackend(ImageTestCase):
 
 
 if __name__ == '__main__':
-    unittest2.main()
+    unittest.main()

@@ -1,9 +1,9 @@
-import unittest2
+import unittest
 
 from willow.backends import pillow as pillow_backend
 
 
-class TestPillowOperations(unittest2.TestCase):
+class TestPillowOperations(unittest.TestCase):
     def setUp(self):
         with open('tests/images/transparent.png', 'rb') as f:
             self.backend = pillow_backend.PillowBackend.from_file(f)

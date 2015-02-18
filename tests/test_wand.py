@@ -1,9 +1,9 @@
-import unittest2
+import unittest
 
 from willow.backends import wand as wand_backend
 
 
-class TestWandOperations(unittest2.TestCase):
+class TestWandOperations(unittest.TestCase):
     def setUp(self):
         with open('tests/images/transparent.png', 'rb') as f:
             self.backend = wand_backend.WandBackend.from_file(f)

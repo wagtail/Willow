@@ -8,7 +8,7 @@ python:
 
 # Package installation
 install:
-  - pip install unittest2 Pillow Wand
+  - pip install Pillow Wand
   - python setup.py install
 
 # Run the tests
