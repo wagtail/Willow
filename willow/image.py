@@ -170,14 +170,14 @@ def setup(cls):
     cls.register_backend(OpenCVBackend)
 
 
-    # Pillow is very good at loading PNG and JPEG files
-    cls.register_loader(['.png', '.jpg', '.jpeg'], PillowBackend, priority=100)
+    # Pillow is very good at loading PNG, JPEG and BMP files
+    cls.register_loader(['.png', '.jpg', '.jpeg', '.bmp'], PillowBackend, priority=100)
 
     # Pillow can load gifs too, but without animation
     cls.register_loader('.gif', PillowBackend, priority=-100)
 
-    # Wand can load PNG, JPEG and GIF (with animation), but doesn't work as fast as Pillow
-    cls.register_loader(['.png', '.jpg', '.jpeg', '.gif'], WandBackend)
+    # Wand can load PNG, JPEG, BMP and GIF (with animation), but doesn't work as fast as Pillow
+    cls.register_loader(['.png', '.jpg', '.jpeg', '.bmp', '.gif'], WandBackend)
 
 
 setup(Image)
