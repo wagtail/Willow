@@ -17,7 +17,7 @@ Features
 * Basic resize and crop operations
 * Animated GIFs
 * Face and feature detection
-* Supports Python 2.6, 2.7, 3.2, 3.3 and 3.4
+* Supports Python 2.7, 3.3 and 3.4
 
 
 Examples
