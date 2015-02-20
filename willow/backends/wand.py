@@ -1,3 +1,4 @@
+from willow.utils import deprecation
 from .base import ImageBackend
 
 
@@ -47,13 +48,15 @@ def get_size(backend):
 
 
 @WandBackend.register_operation('resize')
-def resize(backend, width, height):
-    backend.image.resize(width, height)
+@deprecation.deprecated_resize_parameters
+def resize(backend, size):
+    backend.image.resize(size[0], size[1])
 
 
 @WandBackend.register_operation('crop')
-def crop(backend, left, top, right, bottom):
-    backend.image.crop(left=left, top=top, right=right, bottom=bottom)
+@deprecation.deprecated_crop_parameters
+def crop(backend, rect):
+    backend.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
 
 
 @WandBackend.register_operation('has_alpha')

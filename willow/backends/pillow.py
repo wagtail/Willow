@@ -1,3 +1,4 @@
+from willow.utils import deprecation
 from .base import ImageBackend
 
 
@@ -47,17 +48,19 @@ def get_size(backend):
 
 
 @PillowBackend.register_operation('resize')
-def resize(backend, width, height):
+@deprecation.deprecated_resize_parameters
+def resize(backend, size):
     if backend.image.mode in ['1', 'P']:
         backend.image = backend.image.convert('RGB')
 
     backend.image = backend.image.resize(
-        (width, height), backend.get_pillow_image().ANTIALIAS)
+        size, backend.get_pillow_image().ANTIALIAS)
 
 
 @PillowBackend.register_operation('crop')
-def crop(backend, left, top, right, bottom):
-    backend.image = backend.image.crop((left, top, right, bottom))
+@deprecation.deprecated_crop_parameters
+def crop(backend, rect):
+    backend.image = backend.image.crop(rect)
 
 
 @PillowBackend.register_operation('save_as_jpeg')
