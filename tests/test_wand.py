@@ -17,9 +17,9 @@ class TestWandOperations(unittest2.TestCase):
         wand_backend.resize(self.backend, 100, 75)
         self.assertEqual(self.backend.image.size, (100, 75))
 
-    def test_resize(self):
-        wand_backend.resize(self.backend, 100, 75)
-        self.assertEqual(self.backend.image.size, (100, 75))
+    def test_crop(self):
+        wand_backend.crop(self.backend, 10, 10, 100, 100)
+        self.assertEqual(self.backend.image.size, (90, 90))
 
     def test_has_alpha(self):
         has_alpha = wand_backend.has_alpha(self.backend)
