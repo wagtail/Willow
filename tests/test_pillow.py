@@ -17,9 +17,9 @@ class TestPillowOperations(unittest.TestCase):
         pillow_backend.resize(self.backend, 100, 75)
         self.assertEqual(self.backend.image.size, (100, 75))
 
-    def test_resize(self):
-        pillow_backend.resize(self.backend, 100, 75)
-        self.assertEqual(self.backend.image.size, (100, 75))
+    def test_crop(self):
+        pillow_backend.crop(self.backend, 10, 10, 100, 100)
+        self.assertEqual(self.backend.image.size, (90, 90))
 
     def test_has_alpha(self):
         has_alpha = pillow_backend.has_alpha(self.backend)
