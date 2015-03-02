@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from willow.utils import deprecation
+
 from .base import ImageBackend
 
 
