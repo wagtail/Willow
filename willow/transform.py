@@ -59,4 +59,4 @@ class Transform(object):
 
     def _apply_offset(self, x, y):
         self._offset_x += self._scale_x * x
-        self._offset_y += x + self._scale_y * y
+        self._offset_y += self._scale_y * y
