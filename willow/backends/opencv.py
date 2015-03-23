@@ -62,14 +62,17 @@ def detect_features(backend):
 
 
 @OpenCVBackend.register_operation('detect_faces')
-def detect_faces(backend):
+def detect_faces(backend, cascade_filename='haarcascade_frontalface_alt2.xml'):
     cv = backend.get_opencv()
 
-    cascade_filename = os.path.join(
-        os.path.dirname(__file__),
-        'face_detection',
-        'haarcascade_frontalface_alt2.xml',
-    )
+    # If a relative path was provided, check local cascades directory
+    if not os.path.isabs(cascade_filename):
+        cascade_filename = os.path.join(
+            os.path.dirname(__file__),
+            'face_detection',
+            cascade_filename,
+        )
+
     cascade = cv.Load(cascade_filename)
     image = backend.opencv_grey_image()
 
