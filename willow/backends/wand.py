@@ -62,6 +62,24 @@ def crop(backend, rect):
     backend.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
 
 
+@WandBackend.register_operation('save_as_jpeg')
+def save_as_jpeg(backend, f, quality=85):
+    with backend.image.convert('jpeg') as converted:
+        converted.save(file=f)
+
+
+@WandBackend.register_operation('save_as_png')
+def save_as_png(backend, f):
+    with backend.image.convert('png') as converted:
+        converted.save(file=f)
+
+
+@WandBackend.register_operation('save_as_gif')
+def save_as_gif(backend, f):
+    with backend.image.convert('gif') as converted:
+        converted.save(file=f)
+
+
 @WandBackend.register_operation('has_alpha')
 def has_alpha(backend):
     return backend.image.alpha_channel
