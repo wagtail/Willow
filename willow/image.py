@@ -1,6 +1,7 @@
 import os.path
 from io import BytesIO
 import bisect
+import imghdr
 
 import six
 
@@ -57,9 +58,9 @@ class Image(object):
             f = open(f, 'rb')
 
         if not initial_backend:
-            # Work out best initial backend based on file extension
-            ext = os.path.splitext(f.name)[1].lower()
-            initial_backend = cls.find_loader(ext)
+            # Work out best initial backend based on file format
+            image_format = imghdr.what(f)
+            initial_backend = cls.find_loader(image_format)
 
         if initial_backend:
             return cls(initial_backend.from_file(f))
@@ -118,31 +119,27 @@ class Image(object):
     loaders = {}
 
     @classmethod
-    def register_loader(cls, extension, backend, priority=0):
-        # If extension is a list or tuple, call this method for each one
-        if isinstance(extension, (list, tuple)):
-            for ext in extension:
+    def register_loader(cls, image_format, backend, priority=0):
+        # If format is a list or tuple, call this method for each one
+        if isinstance(image_format, (list, tuple)):
+            for ext in image_format:
                 cls.register_loader(ext, backend, priority=priority)
             return
 
-        # Normalise the extension
-        if not extension.startswith('.'):
-            extension = '.' + extension
-
-        # Register extension in loaders
-        if extension not in cls.loaders:
-            cls.loaders[extension] = []
+        # Register format in loaders
+        if image_format not in cls.loaders:
+            cls.loaders[image_format] = []
 
         # Add the backend
-        bisect.insort_right(cls.loaders[extension], (priority, backend))
+        bisect.insort_right(cls.loaders[image_format], (priority, backend))
 
     @classmethod
-    def find_loader(cls, extension):
-        if extension not in cls.loaders or not cls.loaders[extension]:
+    def find_loader(cls, image_format):
+        if image_format not in cls.loaders or not cls.loaders[image_format]:
             raise cls.LoaderError("Cannot find backend that can load this image file")
 
-        # Find all backends that can load images with this extension
-        backends = [backend for priority, backend in cls.loaders[extension]]
+        # Find all backends that can load images with this format
+        backends = [backend for priority, backend in cls.loaders[image_format]]
 
         # Now filter that list to only include backends that are available
         available_backends, unavailable_backends = cls.check_backends(backends)
@@ -171,13 +168,13 @@ def setup(cls):
 
 
     # Pillow is very good at loading PNG, JPEG and BMP files
-    cls.register_loader(['.png', '.jpg', '.jpeg', '.bmp'], PillowBackend, priority=100)
+    cls.register_loader(['png', 'jpeg', 'bmp'], PillowBackend, priority=100)
 
     # Pillow can load gifs too, but without animation
-    cls.register_loader('.gif', PillowBackend, priority=-100)
+    cls.register_loader('gif', PillowBackend, priority=-100)
 
     # Wand can load PNG, JPEG, BMP and GIF (with animation), but doesn't work as fast as Pillow
-    cls.register_loader(['.png', '.jpg', '.jpeg', '.bmp', '.gif'], WandBackend)
+    cls.register_loader(['png', 'jpeg', 'bmp', 'gif'], WandBackend)
 
 
 setup(Image)

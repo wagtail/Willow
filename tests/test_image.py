@@ -20,12 +20,20 @@ class ImageTestCase(unittest.TestCase):
             def from_buffer(cls, buf):
                 return cls()
 
+            @classmethod
+            def from_file(cls, f):
+                return cls()
+
         class AnotherFakeBackend(ImageBackend):
             def to_buffer(self):
                 pass
 
             @classmethod
             def from_buffer(cls, buf):
+                return cls()
+
+            @classmethod
+            def from_file(cls, f):
                 return cls()
 
         class BadFakeBackend(ImageBackend):
@@ -62,10 +70,10 @@ class TestRegisterLoader(ImageTestCase):
         """
         Tests basic usage of register_loader
         """
-        Image.register_loader('.jpg', self.FakeBackend)
+        Image.register_loader('jpeg', self.FakeBackend)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
         })
@@ -74,10 +82,10 @@ class TestRegisterLoader(ImageTestCase):
         """
         Tests that register_loader saves priority
         """
-        Image.register_loader('.jpg', self.FakeBackend, priority=100)
+        Image.register_loader('jpeg', self.FakeBackend, priority=100)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (100, self.FakeBackend),
             ],
         })
@@ -86,11 +94,11 @@ class TestRegisterLoader(ImageTestCase):
         """
         Tests that register_loader keeps the loaders list sorted by priority
         """
-        Image.register_loader('.jpg', self.FakeBackend, priority=100)
-        Image.register_loader('.jpg', self.AnotherFakeBackend, priority=200)
+        Image.register_loader('jpeg', self.FakeBackend, priority=100)
+        Image.register_loader('jpeg', self.AnotherFakeBackend, priority=200)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (100, self.FakeBackend),
                 (200, self.AnotherFakeBackend),
             ],
@@ -103,11 +111,11 @@ class TestRegisterLoader(ImageTestCase):
         Same as above test, just inserting in opposite way to make sure the
         loaders are being sorted by priority (and not insertion order)
         """
-        Image.register_loader('.jpg', self.FakeBackend, priority=200)
-        Image.register_loader('.jpg', self.AnotherFakeBackend, priority=100)
+        Image.register_loader('jpeg', self.FakeBackend, priority=200)
+        Image.register_loader('jpeg', self.AnotherFakeBackend, priority=100)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (100, self.AnotherFakeBackend),
                 (200, self.FakeBackend),
             ],
@@ -118,14 +126,14 @@ class TestRegisterLoader(ImageTestCase):
         Tests that register_loader stores loaders for different extensions
         separately
         """
-        Image.register_loader('.jpg', self.FakeBackend)
-        Image.register_loader('.gif', self.FakeBackend)
+        Image.register_loader('jpeg', self.FakeBackend)
+        Image.register_loader('gif', self.FakeBackend)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
-            '.gif': [
+            'gif': [
                 (0, self.FakeBackend),
             ],
         })
@@ -135,13 +143,13 @@ class TestRegisterLoader(ImageTestCase):
         Tests that a single backend can be assigned to load two extensions
         with a single call to register_loader
         """
-        Image.register_loader(['.jpg', '.gif'], self.FakeBackend)
+        Image.register_loader(['jpeg', 'gif'], self.FakeBackend)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
-            '.gif': [
+            'gif': [
                 (0, self.FakeBackend),
             ],
         })
@@ -151,13 +159,13 @@ class TestRegisterLoader(ImageTestCase):
         Tests that a single backend can be assigned to load two extensions with
         a single call to register_loader using a tuple
         """
-        Image.register_loader(('.jpg', '.gif'), self.FakeBackend)
+        Image.register_loader(('jpeg', 'gif'), self.FakeBackend)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
-            '.gif': [
+            'gif': [
                 (0, self.FakeBackend),
             ],
         })
@@ -166,13 +174,13 @@ class TestRegisterLoader(ImageTestCase):
         """
         Tests that register_loader saves priority when using multipe extensions
         """
-        Image.register_loader(['.jpg', '.gif'], self.FakeBackend, priority=100)
+        Image.register_loader(['jpeg', 'gif'], self.FakeBackend, priority=100)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (100, self.FakeBackend),
             ],
-            '.gif': [
+            'gif': [
                 (100, self.FakeBackend),
             ],
         })
@@ -182,11 +190,11 @@ class TestRegisterLoader(ImageTestCase):
         Tests that new loaders are placed after loaders that have the same
         priority
         """
-        Image.register_loader('.jpg', self.FakeBackend)
-        Image.register_loader('.jpg', self.AnotherFakeBackend)
+        Image.register_loader('jpeg', self.FakeBackend)
+        Image.register_loader('jpeg', self.AnotherFakeBackend)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
                 (0, self.AnotherFakeBackend),
             ],
@@ -200,11 +208,11 @@ class TestRegisterLoader(ImageTestCase):
         Same as above test, just inserting in opposite way to make sure the
         loaders are being sorted by insertion time (and not name)
         """
-        Image.register_loader('.jpg', self.AnotherFakeBackend)
-        Image.register_loader('.jpg', self.FakeBackend)
+        Image.register_loader('jpeg', self.AnotherFakeBackend)
+        Image.register_loader('jpeg', self.FakeBackend)
 
         self.assertEqual(Image.loaders, {
-            '.jpg': [
+            'jpeg': [
                 (0, self.AnotherFakeBackend),
                 (0, self.FakeBackend),
             ],
@@ -220,12 +228,12 @@ class TestFindLoader(ImageTestCase):
         Tests basic usage of find_loader
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
         }
 
-        self.assertEqual(Image.find_loader('.jpg'), self.FakeBackend)
+        self.assertEqual(Image.find_loader('jpeg'), self.FakeBackend)
 
     def test_find_loader_unknown_extension(self):
         """
@@ -233,7 +241,7 @@ class TestFindLoader(ImageTestCase):
         unknown extension
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
         }
@@ -246,28 +254,28 @@ class TestFindLoader(ImageTestCase):
         registered
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
             ],
-            '.gif': [
+            'gif': [
                 (100, self.AnotherFakeBackend),
             ],
         }
 
-        self.assertEqual(Image.find_loader('.jpg'), self.FakeBackend)
+        self.assertEqual(Image.find_loader('jpeg'), self.FakeBackend)
 
     def test_find_loader_priority(self):
         """
         Tests that find_loader gets the backend with the highest priority
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (100, self.FakeBackend),
                 (200, self.AnotherFakeBackend),
             ],
         }
 
-        self.assertEqual(Image.find_loader('.jpg'), self.AnotherFakeBackend)
+        self.assertEqual(Image.find_loader('jpeg'), self.AnotherFakeBackend)
 
     def test_find_loader_priority_same(self):
         """
@@ -275,13 +283,13 @@ class TestFindLoader(ImageTestCase):
         backends with the same priority
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
                 (0, self.AnotherFakeBackend),
             ],
         }
 
-        self.assertEqual(Image.find_loader('.jpg'), self.AnotherFakeBackend)
+        self.assertEqual(Image.find_loader('jpeg'), self.AnotherFakeBackend)
 
     def test_find_loader_priority_same_other_way(self):
         """
@@ -289,13 +297,13 @@ class TestFindLoader(ImageTestCase):
         backends with the same priority
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (0, self.AnotherFakeBackend),
                 (0, self.FakeBackend),
             ],
         }
 
-        self.assertEqual(Image.find_loader('.jpg'), self.FakeBackend)
+        self.assertEqual(Image.find_loader('jpeg'), self.FakeBackend)
 
     def test_find_loader_with_bad_image_backend(self):
         """
@@ -303,13 +311,13 @@ class TestFindLoader(ImageTestCase):
         priority
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (0, self.FakeBackend),
                 (100, self.BadFakeBackend),
             ],
         }
 
-        self.assertEqual(Image.find_loader('.jpg'), self.FakeBackend)
+        self.assertEqual(Image.find_loader('jpeg'), self.FakeBackend)
 
     def test_find_loader_with_only_bad_image_backend(self):
         """
@@ -317,18 +325,31 @@ class TestFindLoader(ImageTestCase):
         backends available
         """
         Image.loaders = {
-            '.jpg': [
+            'jpeg': [
                 (100, self.BadFakeBackend),
             ],
         }
 
-        self.assertRaises(Image.LoaderError, Image.find_loader, '.jpg')
+        self.assertRaises(Image.LoaderError, Image.find_loader, 'jpeg')
+
+
+class TestOpen(ImageTestCase):
+    def test_image_format_detection(self):
+        Image.loaders = {
+            'png': [
+                (0, self.FakeBackend),
+            ],
+            'jpeg': [
+                (100, self.AnotherFakeBackend),
+            ],
+        }
+
+        self.assertIsInstance(Image.open('tests/images/transparent.png').backend, self.FakeBackend)
+        self.assertIsInstance(Image.open('tests/images/flower.jpg').backend, self.AnotherFakeBackend)
 
 
 class TestLoaderDefaultConfiguration(ImageTestCase):
     pass
-
-    # TODO
 
 
 class TestRegisterOperation(ImageTestCase):
