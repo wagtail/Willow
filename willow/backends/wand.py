@@ -65,6 +65,7 @@ def crop(backend, rect):
 @WandBackend.register_operation('save_as_jpeg')
 def save_as_jpeg(backend, f, quality=85):
     with backend.image.convert('jpeg') as converted:
+        converted.compression_quality = quality
         converted.save(file=f)
 
 
