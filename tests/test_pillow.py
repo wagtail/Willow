@@ -1,4 +1,6 @@
 import unittest
+import io
+import imghdr
 
 from willow.backends import pillow as pillow_backend
 
@@ -20,6 +22,20 @@ class TestPillowOperations(unittest.TestCase):
     def test_crop(self):
         pillow_backend.crop(self.backend, 10, 10, 100, 100)
         self.assertEqual(self.backend.image.size, (90, 90))
+
+    def test_save_as_jpeg(self):
+        output = io.BytesIO()
+        pillow_backend.save_as_jpeg(self.backend, output)
+        output.seek(0)
+
+        self.assertEqual(imghdr.what(output), 'jpeg')
+
+    def test_save_as_png(self):
+        output = io.BytesIO()
+        pillow_backend.save_as_png(self.backend, output)
+        output.seek(0)
+
+        self.assertEqual(imghdr.what(output), 'png')
 
     def test_has_alpha(self):
         has_alpha = pillow_backend.has_alpha(self.backend)
