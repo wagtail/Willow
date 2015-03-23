@@ -54,9 +54,6 @@ class Image(object):
 
     @classmethod
     def open(cls, f, initial_backend=None):
-        if isinstance(f, six.string_types):
-            f = open(f, 'rb')
-
         if not initial_backend:
             # Work out best initial backend based on file format
             image_format = imghdr.what(f)
