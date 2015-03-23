@@ -64,6 +64,11 @@ class Image(object):
         if initial_backend:
             return cls(initial_backend.from_file(f), image_format)
 
+    def save(self, image_format, output):
+        # Get operation name
+        operation_name = 'save_as_' + image_format
+        return getattr(self, operation_name)(output)
+
     backends = []
 
     @classmethod
