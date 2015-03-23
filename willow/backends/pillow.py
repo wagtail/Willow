@@ -79,6 +79,11 @@ def save_as_png(backend, f):
     backend.image.save(f, 'PNG')
 
 
+@PillowBackend.register_operation('save_as_gif')
+def save_as_gif(backend, f):
+    backend.image.save(f, 'GIF')
+
+
 @PillowBackend.register_operation('has_alpha')
 def has_alpha(backend):
     img = backend.image

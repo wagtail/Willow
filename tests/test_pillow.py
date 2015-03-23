@@ -37,6 +37,13 @@ class TestPillowOperations(unittest.TestCase):
 
         self.assertEqual(imghdr.what(output), 'png')
 
+    def test_save_as_gif(self):
+        output = io.BytesIO()
+        pillow_backend.save_as_gif(self.backend, output)
+        output.seek(0)
+
+        self.assertEqual(imghdr.what(output), 'gif')
+
     def test_has_alpha(self):
         has_alpha = pillow_backend.has_alpha(self.backend)
         self.assertTrue(has_alpha)
