@@ -14,8 +14,9 @@ class Image(object):
     class LoaderError(RuntimeError):
         pass
 
-    def __init__(self, initial_backend):
+    def __init__(self, initial_backend, image_format):
         self.backend = initial_backend
+        self.original_format = image_format
 
     def __getattr__(self, attr):
         operation = self.find_operation(attr, preferred_backend=type(self.backend))
@@ -54,13 +55,14 @@ class Image(object):
 
     @classmethod
     def open(cls, f, initial_backend=None):
+        image_format = imghdr.what(f)
+
         if not initial_backend:
             # Work out best initial backend based on file format
-            image_format = imghdr.what(f)
             initial_backend = cls.find_loader(image_format)
 
         if initial_backend:
-            return cls(initial_backend.from_file(f))
+            return cls(initial_backend.from_file(f), image_format)
 
     backends = []
 

@@ -545,7 +545,7 @@ class TestGetAttribute(ImageTestCase):
             'test': myop,
         }
 
-        image = Image(self.FakeBackend())
+        image = Image(self.FakeBackend(), 'jpeg')
 
         self.assertIsInstance(image.test, types.FunctionType)
 
@@ -561,7 +561,7 @@ class TestGetAttribute(ImageTestCase):
             'test': myop,
         }
 
-        image = Image(self.FakeBackend())
+        image = Image(self.FakeBackend(), 'jpeg')
 
         self.assertRaises(AttributeError, getattr, image, 'test2')
 
@@ -581,7 +581,7 @@ class TestCallOperation(ImageTestCase):
             'test': myop,
         }
 
-        image = Image(self.FakeBackend())
+        image = Image(self.FakeBackend(), 'jpeg')
         image.backend.func_called = False
         image.test()
 
@@ -599,7 +599,7 @@ class TestCallOperation(ImageTestCase):
             'test': myop,
         }
 
-        image = Image(self.FakeBackend())
+        image = Image(self.FakeBackend(), 'jpeg')
         image.backend.passed_args = None
         image.backend.passed_kwargs = None
         image.test('Hello', 'World', name="Karl")
@@ -619,7 +619,7 @@ class TestCallOperation(ImageTestCase):
             'test': myop,
         }
 
-        image = Image(self.FakeBackend())
+        image = Image(self.FakeBackend(), 'jpeg')
 
         self.assertEqual(image.test(), "Hello world!")
 
@@ -642,7 +642,7 @@ class TestCallOperation(ImageTestCase):
             'say_goodbye': say_goodbye,
         }
 
-        image = Image(self.FakeBackend())
+        image = Image(self.FakeBackend(), 'jpeg')
         self.assertIsInstance(image.backend, self.FakeBackend)
 
         image.say_goodbye()
