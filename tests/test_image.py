@@ -20,12 +20,20 @@ class ImageTestCase(unittest.TestCase):
             def from_buffer(cls, buf):
                 return cls()
 
+            @classmethod
+            def from_file(cls, f):
+                return cls()
+
         class AnotherFakeBackend(ImageBackend):
             def to_buffer(self):
                 pass
 
             @classmethod
             def from_buffer(cls, buf):
+                return cls()
+
+            @classmethod
+            def from_file(cls, f):
                 return cls()
 
         class BadFakeBackend(ImageBackend):
@@ -325,10 +333,23 @@ class TestFindLoader(ImageTestCase):
         self.assertRaises(Image.LoaderError, Image.find_loader, '.jpg')
 
 
+class TestOpen(ImageTestCase):
+    def test_image_format_detection(self):
+        Image.loaders = {
+            '.png': [
+                (0, self.FakeBackend),
+            ],
+            '.jpg': [
+                (100, self.AnotherFakeBackend),
+            ],
+        }
+
+        self.assertIsInstance(Image.open('tests/images/transparent.png').backend, self.FakeBackend)
+        self.assertIsInstance(Image.open('tests/images/flower.jpg').backend, self.AnotherFakeBackend)
+
+
 class TestLoaderDefaultConfiguration(ImageTestCase):
     pass
-
-    # TODO
 
 
 class TestRegisterOperation(ImageTestCase):
