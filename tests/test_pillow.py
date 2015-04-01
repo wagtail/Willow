@@ -74,6 +74,24 @@ class TestPillowOperations(unittest.TestCase):
         # Check that the alpha of pixel 1,1 is 0
         self.assertEqual(backend.image.convert('RGBA').getpixel((1, 1))[3], 0)
 
+    def test_save_transparent_gif(self):
+        with open('tests/images/transparent.gif', 'rb') as f:
+            backend = pillow_backend.PillowBackend.from_file(f)
+
+        # Save it into memory
+        f = io.BytesIO()
+        pillow_backend.save_as_gif(backend, f)
+
+        # Reload it
+        f.seek(0)
+        backend = pillow_backend.PillowBackend.from_file(f)
+
+        self.assertTrue(pillow_backend.has_alpha(backend))
+        self.assertFalse(pillow_backend.has_animation(backend))
+
+        # Check that the alpha of pixel 1,1 is 0
+        self.assertEqual(backend.image.convert('RGBA').getpixel((1, 1))[3], 0)
+
     @unittest.expectedFailure # Pillow doesn't support animation
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:

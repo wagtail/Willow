@@ -81,7 +81,10 @@ def save_as_png(backend, f):
 
 @PillowBackend.register_operation('save_as_gif')
 def save_as_gif(backend, f):
-    backend.image.save(f, 'GIF')
+    if 'transparency' in backend.image.info:
+        backend.image.save(f, 'GIF', transparency=backend.image.info['transparency'])
+    else:
+        backend.image.save(f, 'GIF')
 
 
 @PillowBackend.register_operation('has_alpha')
