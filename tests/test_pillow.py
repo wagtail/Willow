@@ -51,3 +51,37 @@ class TestPillowOperations(unittest.TestCase):
     def test_has_animation(self):
         has_animation = pillow_backend.has_animation(self.backend)
         self.assertFalse(has_animation)
+
+    def test_transparent_gif(self):
+        with open('tests/images/transparent.gif', 'rb') as f:
+            backend = pillow_backend.PillowBackend.from_file(f)
+
+        self.assertTrue(pillow_backend.has_alpha(backend))
+        self.assertFalse(pillow_backend.has_animation(backend))
+
+    def test_resize_transparent_gif(self):
+        with open('tests/images/transparent.gif', 'rb') as f:
+            backend = pillow_backend.PillowBackend.from_file(f)
+
+        pillow_backend.resize(self.backend, 100, 75)
+
+        self.assertTrue(pillow_backend.has_alpha(backend))
+        self.assertFalse(pillow_backend.has_animation(backend))
+
+    @unittest.expectedFailure # Pillow doesn't support animation
+    def test_animated_gif(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            backend = pillow_backend.PillowBackend.from_file(f)
+
+        self.assertFalse(pillow_backend.has_alpha(backend))
+        self.assertTrue(pillow_backend.has_animation(backend))
+
+    @unittest.expectedFailure # Pillow doesn't support animation
+    def test_resize_animated_gif(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            backend = pillow_backend.PillowBackend.from_file(f)
+
+        pillow_backend.resize(self.backend, 100, 75)
+
+        self.assertFalse(pillow_backend.has_alpha(backend))
+        self.assertTrue(pillow_backend.has_animation(backend))
