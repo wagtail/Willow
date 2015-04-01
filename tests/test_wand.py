@@ -59,6 +59,9 @@ class TestWandOperations(unittest.TestCase):
         self.assertTrue(wand_backend.has_alpha(backend))
         self.assertFalse(wand_backend.has_animation(backend))
 
+        # Check that the alpha of pixel 1,1 is 0
+        self.assertEqual(backend.image[1][1].alpha, 0)
+
     def test_resize_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
             backend = wand_backend.WandBackend.from_file(f)
@@ -67,6 +70,9 @@ class TestWandOperations(unittest.TestCase):
 
         self.assertTrue(wand_backend.has_alpha(backend))
         self.assertFalse(wand_backend.has_animation(backend))
+
+        # Check that the alpha of pixel 1,1 is 0
+        self.assertAlmostEqual(backend.image[1][1].alpha, 0, places=6)
 
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
