@@ -51,3 +51,33 @@ class TestWandOperations(unittest.TestCase):
     def test_has_animation(self):
         has_animation = wand_backend.has_animation(self.backend)
         self.assertFalse(has_animation)
+
+    def test_transparent_gif(self):
+        with open('tests/images/transparent.gif', 'rb') as f:
+            backend = wand_backend.WandBackend.from_file(f)
+
+        self.assertTrue(wand_backend.has_alpha(backend))
+        self.assertFalse(wand_backend.has_animation(backend))
+
+    def test_resize_transparent_gif(self):
+        with open('tests/images/transparent.gif', 'rb') as f:
+            backend = wand_backend.WandBackend.from_file(f)
+
+        wand_backend.resize(backend, 100, 75)
+
+        self.assertTrue(wand_backend.has_alpha(backend))
+        self.assertFalse(wand_backend.has_animation(backend))
+
+    def test_animated_gif(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            backend = wand_backend.WandBackend.from_file(f)
+
+        self.assertTrue(wand_backend.has_animation(backend))
+
+    def test_resize_animated_gif(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            backend = wand_backend.WandBackend.from_file(f)
+
+        wand_backend.resize(self.backend, 100, 75)
+
+        self.assertTrue(wand_backend.has_animation(backend))
