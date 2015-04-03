@@ -1,9 +1,6 @@
-import os.path
 from io import BytesIO
 import bisect
 import imghdr
-
-import six
 
 from willow.backends.pillow import PillowBackend
 from willow.backends.wand import WandBackend
