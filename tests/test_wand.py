@@ -16,11 +16,11 @@ class TestWandOperations(unittest.TestCase):
         self.assertEqual(height, 150)
 
     def test_resize(self):
-        wand_backend.resize(self.backend, 100, 75)
+        wand_backend.resize(self.backend, (100, 75))
         self.assertEqual(self.backend.image.size, (100, 75))
 
     def test_crop(self):
-        wand_backend.crop(self.backend, 10, 10, 100, 100)
+        wand_backend.crop(self.backend, (10, 10, 100, 100))
         self.assertEqual(self.backend.image.size, (90, 90))
 
     def test_save_as_jpeg(self):
@@ -66,7 +66,7 @@ class TestWandOperations(unittest.TestCase):
         with open('tests/images/transparent.gif', 'rb') as f:
             backend = wand_backend.WandBackend.from_file(f)
 
-        wand_backend.resize(backend, 100, 75)
+        wand_backend.resize(backend, (100, 75))
 
         self.assertTrue(wand_backend.has_alpha(backend))
         self.assertFalse(wand_backend.has_animation(backend))
@@ -84,6 +84,6 @@ class TestWandOperations(unittest.TestCase):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             backend = wand_backend.WandBackend.from_file(f)
 
-        wand_backend.resize(self.backend, 100, 75)
+        wand_backend.resize(self.backend, (100, 75))
 
         self.assertTrue(wand_backend.has_animation(backend))

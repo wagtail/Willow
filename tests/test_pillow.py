@@ -16,11 +16,11 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(height, 150)
 
     def test_resize(self):
-        pillow_backend.resize(self.backend, 100, 75)
+        pillow_backend.resize(self.backend, (100, 75))
         self.assertEqual(self.backend.image.size, (100, 75))
 
     def test_crop(self):
-        pillow_backend.crop(self.backend, 10, 10, 100, 100)
+        pillow_backend.crop(self.backend, (10, 10, 100, 100))
         self.assertEqual(self.backend.image.size, (90, 90))
 
     def test_save_as_jpeg(self):
@@ -66,7 +66,7 @@ class TestPillowOperations(unittest.TestCase):
         with open('tests/images/transparent.gif', 'rb') as f:
             backend = pillow_backend.PillowBackend.from_file(f)
 
-        pillow_backend.resize(self.backend, 100, 75)
+        pillow_backend.resize(self.backend, (100, 75))
 
         self.assertTrue(pillow_backend.has_alpha(backend))
         self.assertFalse(pillow_backend.has_animation(backend))
@@ -105,7 +105,7 @@ class TestPillowOperations(unittest.TestCase):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             backend = pillow_backend.PillowBackend.from_file(f)
 
-        pillow_backend.resize(self.backend, 100, 75)
+        pillow_backend.resize(self.backend, (100, 75))
 
         self.assertFalse(pillow_backend.has_alpha(backend))
         self.assertTrue(pillow_backend.has_animation(backend))

@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-from willow.utils import deprecation
-
 from .base import ImageBackend
 
 
@@ -51,7 +49,6 @@ def get_size(backend):
 
 
 @PillowBackend.register_operation('resize')
-@deprecation.deprecated_resize_parameters
 def resize(backend, size):
     if backend.image.mode in ['1', 'P']:
         backend.image = backend.image.convert('RGB')
@@ -61,7 +58,6 @@ def resize(backend, size):
 
 
 @PillowBackend.register_operation('crop')
-@deprecation.deprecated_crop_parameters
 def crop(backend, rect):
     backend.image = backend.image.crop(rect)
 
