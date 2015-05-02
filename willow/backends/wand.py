@@ -35,7 +35,7 @@ class WandBackend(ImageBackend):
         return wand.image
 
     @classmethod
-    def get_wand_api(cls):    
+    def get_wand_api(cls):
         import wand.api
         return wand.api
 

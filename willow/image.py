@@ -22,7 +22,7 @@ class Image(object):
             backend, func = operation
 
             def operation(*args, **kwargs):
-                if backend is not type(self.backend):
+                if not isinstance(self.backend, backend):
                     self.switch_backend(backend)
 
                 return func(self.backend, *args, **kwargs)
@@ -166,7 +166,6 @@ def setup(cls):
     cls.register_backend(PillowBackend)
     cls.register_backend(WandBackend)
     cls.register_backend(OpenCVBackend)
-
 
     # Pillow is very good at loading PNG, JPEG and BMP files
     cls.register_loader(['png', 'jpeg', 'bmp'], PillowBackend, priority=100)
