@@ -178,3 +178,11 @@ def setup(cls):
 
 
 setup(Image)
+
+
+# 12 - Make imghdr detect JPEGs based on first two bytes
+def test_jpeg(h, f):
+    if h[0:1] == b'\377':
+        return 'jpeg'
+
+imghdr.tests.append(test_jpeg)
