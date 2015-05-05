@@ -698,10 +698,6 @@ class TestSwitchBackend(ImageTestCase):
     # TODO
 
 
-if __name__ == '__main__':
-    unittest.main()
-
-
 class TestImghdrJPEGPatch(unittest.TestCase):
     def test_detects_photoshop3_jpeg(self):
         import imghdr
@@ -724,3 +720,7 @@ class TestImghdrJPEGPatch(unittest.TestCase):
         image_format = imghdr.what(f)
 
         self.assertIsNone(image_format)
+
+
+if __name__ == '__main__':
+    unittest.main()
