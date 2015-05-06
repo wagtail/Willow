@@ -62,6 +62,23 @@ def crop(backend, rect):
     backend.image = backend.image.crop(rect)
 
 
+@PillowBackend.register_operation('transform')
+def pillow_transform(backend, transform):
+    Image = backend.get_pillow_image()
+
+    width, height = transform.get_size()
+    m = transform.get_matrix()
+
+    # We transform 4 times too big then downsize with Image.resize as that has a
+    # much better downsampling filter
+    transform = transform.resize(width * 4, height * 4)
+    backend.image = backend.image.transform(
+        transform.size,
+        Image.AFFINE,
+        [m[0], m[1], m[4], m[2], m[3], m[5]],
+    ).resize((width, height), resample=Image.ANTIALIAS)
+
+
 @PillowBackend.register_operation('save_as_jpeg')
 def save_as_jpeg(backend, f, quality=85):
     if backend.image.mode in ['1', 'P']:
