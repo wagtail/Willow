@@ -93,11 +93,11 @@ class Image(object):
     def find_operation(cls, operation_name, preferred_backend=None):
         # Try finding the operation in the preferred backend
         if preferred_backend is not None:
-            if operation_name in preferred_backend.operations.keys():
-                return preferred_backend, preferred_backend.operations[operation_name]
+            if operation_name in preferred_backend.get_operations().keys():
+                return preferred_backend, preferred_backend.get_operations()[operation_name]
 
         # Operation doesn't exist in preferred backend, find all backends that implement it
-        backends = [backend for backend in cls.backends if operation_name in backend.operations]
+        backends = [backend for backend in cls.backends if operation_name in backend.get_operations()]
         if backends:
             # Now filter that list to only include backends that are available
             available_backends, unavailable_backends = cls.check_backends(backends)
@@ -105,7 +105,7 @@ class Image(object):
             if available_backends:
                 # TODO: Think of a way to select the best backend if multiple backends are found
                 # Select the first available backend
-                return available_backends[0], available_backends[0].operations[operation_name]
+                return available_backends[0], available_backends[0].get_operations()[operation_name]
 
             else:
                 # Some backends were found but none of them are available, raise an error

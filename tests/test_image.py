@@ -1,6 +1,7 @@
 import types
 import unittest
 import io
+from mock import MagicMock
 
 from willow.image import Image, setup
 
@@ -365,7 +366,7 @@ class TestRegisterOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.assertEqual(self.FakeBackend.operations, {
+        self.assertEqual(self.FakeBackend.get_operations(), {
             'test': myop,
         })
 
@@ -381,7 +382,7 @@ class TestRegisterOperation(ImageTestCase):
         def myotherop(backend):
             pass
 
-        self.assertEqual(self.FakeBackend.operations, {
+        self.assertEqual(self.FakeBackend.get_operations(), {
             'test': myop,
             'test2': myotherop,
         })
@@ -399,7 +400,7 @@ class TestRegisterOperation(ImageTestCase):
         def myotherop(backend):
             pass
 
-        self.assertEqual(self.FakeBackend.operations, {
+        self.assertEqual(self.FakeBackend.get_operations(), {
             'test': myotherop,
         })
 
@@ -416,7 +417,7 @@ class TestRegisterOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.assertEqual(self.FakeBackend.operations, {
+        self.assertEqual(self.FakeBackend.get_operations(), {
             'test': myop,
         })
 
@@ -432,7 +433,8 @@ class TestFindOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -449,7 +451,8 @@ class TestFindOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -463,11 +466,13 @@ class TestFindOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
-        self.AnotherFakeBackend.operations = {
+        self.AnotherFakeBackend.get_operations = MagicMock()
+        self.AnotherFakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -483,11 +488,13 @@ class TestFindOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
-        self.AnotherFakeBackend.operations = {
+        self.AnotherFakeBackend.get_operations = MagicMock()
+        self.AnotherFakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -503,11 +510,13 @@ class TestFindOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.BadFakeBackend.operations = {
+        self.BadFakeBackend.get_operations = MagicMock()
+        self.BadFakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
-        self.AnotherFakeBackend.operations = {
+        self.AnotherFakeBackend.get_operations = MagicMock()
+        self.AnotherFakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -524,7 +533,8 @@ class TestFindOperation(ImageTestCase):
         def myop(backend):
             pass
 
-        self.BadFakeBackend.operations = {
+        self.BadFakeBackend.get_operations = MagicMock()
+        self.BadFakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -542,7 +552,8 @@ class TestGetAttribute(ImageTestCase):
         def myop(backend):
             pass
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -558,7 +569,8 @@ class TestGetAttribute(ImageTestCase):
         def myop(backend):
             pass
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -578,7 +590,8 @@ class TestCallOperation(ImageTestCase):
         def myop(backend):
             backend.func_called = True
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -596,7 +609,8 @@ class TestCallOperation(ImageTestCase):
             backend.passed_args = args
             backend.passed_kwargs = kwargs
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -616,7 +630,8 @@ class TestCallOperation(ImageTestCase):
         def myop(backend):
             return "Hello world!"
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'test': myop,
         }
 
@@ -632,14 +647,16 @@ class TestCallOperation(ImageTestCase):
         def say_hello(backend):
             return "Hello world!"
 
-        self.FakeBackend.operations = {
+        self.FakeBackend.get_operations = MagicMock()
+        self.FakeBackend.get_operations.return_value = {
             'say_hello': say_hello,
         }
 
         def say_goodbye(backend):
             return "Goodbye!"
 
-        self.AnotherFakeBackend.operations = {
+        self.AnotherFakeBackend.get_operations = MagicMock()
+        self.AnotherFakeBackend.get_operations.return_value = {
             'say_goodbye': say_goodbye,
         }
 

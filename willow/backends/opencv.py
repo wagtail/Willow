@@ -14,7 +14,6 @@ def import_opencv():
     return cv
 
 
-
 class OpenCVBackend(ImageBackend):
     def __init__(self, image_mode, image_size, image_data):
         self.image_mode = image_mode
@@ -46,54 +45,54 @@ class OpenCVBackend(ImageBackend):
         import_opencv()
 
 
-@OpenCVBackend.register_operation('detect_features')
-def detect_features(backend):
-    cv = import_opencv()
+    @ImageBackend.operation
+    def detect_features(backend):
+        cv = import_opencv()
 
-    image = backend.opencv_grey_image()
-    rows = backend.image_size[0]
-    cols = backend.image_size[1]
+        image = backend.opencv_grey_image()
+        rows = backend.image_size[0]
+        cols = backend.image_size[1]
 
-    eig_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
-    temp_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
-    points = cv.GoodFeaturesToTrack(
-        image, eig_image, temp_image, 20, 0.04, 1.0, useHarris=False)
+        eig_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
+        temp_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
+        points = cv.GoodFeaturesToTrack(
+            image, eig_image, temp_image, 20, 0.04, 1.0, useHarris=False)
 
-    return points
+        return points
 
 
-@OpenCVBackend.register_operation('detect_faces')
-def detect_faces(backend, cascade_filename='haarcascade_frontalface_alt2.xml'):
-    cv = import_opencv()
+    @ImageBackend.operation
+    def detect_faces(backend, cascade_filename='haarcascade_frontalface_alt2.xml'):
+        cv = import_opencv()
 
-    # If a relative path was provided, check local cascades directory
-    if not os.path.isabs(cascade_filename):
-        cascade_filename = os.path.join(
-            os.path.dirname(__file__),
-            'face_detection',
-            cascade_filename,
+        # If a relative path was provided, check local cascades directory
+        if not os.path.isabs(cascade_filename):
+            cascade_filename = os.path.join(
+                os.path.dirname(__file__),
+                'face_detection',
+                cascade_filename,
+            )
+
+        cascade = cv.Load(cascade_filename)
+        image = backend.opencv_grey_image()
+
+        cv.EqualizeHist(image, image)
+
+        min_size = (40, 40)
+        haar_scale = 1.1
+        min_neighbors = 3
+        haar_flags = 0
+
+        faces = cv.HaarDetectObjects(
+            image, cascade, cv.CreateMemStorage(0),
+            haar_scale, min_neighbors, haar_flags, min_size
         )
 
-    cascade = cv.Load(cascade_filename)
-    image = backend.opencv_grey_image()
-
-    cv.EqualizeHist(image, image)
-
-    min_size = (40, 40)
-    haar_scale = 1.1
-    min_neighbors = 3
-    haar_flags = 0
-
-    faces = cv.HaarDetectObjects(
-        image, cascade, cv.CreateMemStorage(0),
-        haar_scale, min_neighbors, haar_flags, min_size
-    )
-
-    return [
-        (
-            face[0][0],
-            face[0][1],
-            face[0][0] + face[0][2],
-            face[0][1] + face[0][3],
-        ) for face in faces
-    ]
+        return [
+            (
+                face[0][0],
+                face[0][1],
+                face[0][0] + face[0][2],
+                face[0][1] + face[0][3],
+            ) for face in faces
+        ]
