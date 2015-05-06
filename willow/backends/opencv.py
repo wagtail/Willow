@@ -5,6 +5,16 @@ import os
 from .base import ImageBackend
 
 
+def import_opencv():
+    try:
+        import cv
+    except ImportError:
+        import cv2.cv as cv
+
+    return cv
+
+
+
 class OpenCVBackend(ImageBackend):
     def __init__(self, image_mode, image_size, image_data):
         self.image_mode = image_mode
@@ -20,7 +30,7 @@ class OpenCVBackend(ImageBackend):
         return cls(mode, size, data)
 
     def opencv_grey_image(self):
-        cv = self.get_opencv()
+        cv = import_opencv()
 
         image = cv.CreateImageHeader(self.image_size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image, self.image_data)
@@ -32,22 +42,13 @@ class OpenCVBackend(ImageBackend):
         return grey_image
 
     @classmethod
-    def get_opencv(cls):
-        try:
-            import cv
-        except ImportError:
-            import cv2.cv as cv
-
-        return cv
-
-    @classmethod
     def check(cls):
-        cls.get_opencv()
+        import_opencv()
 
 
 @OpenCVBackend.register_operation('detect_features')
 def detect_features(backend):
-    cv = backend.get_opencv()
+    cv = import_opencv()
 
     image = backend.opencv_grey_image()
     rows = backend.image_size[0]
@@ -63,7 +64,7 @@ def detect_features(backend):
 
 @OpenCVBackend.register_operation('detect_faces')
 def detect_faces(backend, cascade_filename='haarcascade_frontalface_alt2.xml'):
-    cv = backend.get_opencv()
+    cv = import_opencv()
 
     # If a relative path was provided, check local cascades directory
     if not os.path.isabs(cascade_filename):

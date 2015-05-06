@@ -3,6 +3,11 @@ from __future__ import absolute_import
 from .base import ImageBackend
 
 
+def import_pil_image():
+    import PIL.Image
+    return PIL.Image
+
+
 class PillowBackend(ImageBackend):
     def __init__(self, image):
         self.image = image
@@ -21,7 +26,7 @@ class PillowBackend(ImageBackend):
     @classmethod
     def from_buffer(cls, buf):
         mode, size, data = buf
-        return cls(cls.get_pillow_image().frombytes(mode, size, data))
+        return cls(import_pil_image().frombytes(mode, size, data))
 
     def to_file(self, f):
         return self.image.save(f, 'PNG')
@@ -29,18 +34,13 @@ class PillowBackend(ImageBackend):
     @classmethod
     def from_file(cls, f):
         f.seek(0)
-        image = cls.get_pillow_image().open(f)
+        image = import_pil_image().open(f)
         image.load()
         return cls(image)
 
     @classmethod
-    def get_pillow_image(cls):
-        import PIL.Image
-        return PIL.Image
-
-    @classmethod
     def check(cls):
-        cls.get_pillow_image()
+        import_pil_image()
 
 
 @PillowBackend.register_operation('get_size')
@@ -54,7 +54,7 @@ def resize(backend, size):
         backend.image = backend.image.convert('RGB')
 
     backend.image = backend.image.resize(
-        size, backend.get_pillow_image().ANTIALIAS)
+        size, import_pil_image().ANTIALIAS)
 
 
 @PillowBackend.register_operation('crop')

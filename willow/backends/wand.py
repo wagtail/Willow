@@ -3,6 +3,16 @@ from __future__ import absolute_import
 from .base import ImageBackend
 
 
+def import_wand_image():
+    import wand.image
+    return wand.image
+
+
+def import_wand_api():
+    import wand.api
+    return wand.api
+
+
 class WandBackend(ImageBackend):
     def __init__(self, image):
         self.image = image
@@ -18,8 +28,8 @@ class WandBackend(ImageBackend):
 
     @classmethod
     def from_file(cls, f):
-        wand_image = cls.get_wand_image()
-        wand_api = cls.get_wand_api()
+        wand_image = import_wand_image()
+        wand_api = import_wand_api()
 
         f.seek(0)
 
@@ -28,19 +38,9 @@ class WandBackend(ImageBackend):
         return cls(image)
 
     @classmethod
-    def get_wand_image(cls):
-        import wand.image
-        return wand.image
-
-    @classmethod
-    def get_wand_api(cls):
-        import wand.api
-        return wand.api
-
-    @classmethod
     def check(cls):
-        cls.get_wand_image()
-        cls.get_wand_api()
+        import_wand_image()
+        import_wand_api()
 
 
 @WandBackend.register_operation('get_size')
