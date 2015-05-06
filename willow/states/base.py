@@ -1,11 +1,8 @@
 class ImageState(object):
     @staticmethod
-    def operation(operation_name):
-        def wrapper(func):
-            func._willow_operation = operation_name
-            return func
-
-        return wrapper
+    def operation(func):
+        func._willow_operation = True
+        return func
 
     @staticmethod
     def converter_to(state_class):

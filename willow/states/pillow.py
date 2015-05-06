@@ -12,7 +12,7 @@ class PillowImageState(ImageState):
     def __init__(self, image):
         self.image = image
 
-    @ImageState.operation('get_size')
+    @ImageState.operation
     def get_size(self):
         return self.image.size
 

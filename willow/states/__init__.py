@@ -24,7 +24,7 @@ class StatesRegistry(object):
         for attr in dir(state_class):
             val = getattr(state_class, attr)
             if hasattr(val, '_willow_operation'):
-                self.register_operation(state_class, val._willow_operation, val)
+                self.register_operation(state_class, val.__name__, val)
             elif hasattr(val, '_willow_converter_to'):
                 self.register_converter(state_class, val._willow_converter_to, val)
             elif hasattr(val, '_willow_converter_from'):
