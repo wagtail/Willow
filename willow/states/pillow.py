@@ -7,6 +7,8 @@ from .files import (
     GIFImageFileState,
 )
 
+import PIL.Image
+
 
 class PillowImageState(ImageState):
     def __init__(self, image):
@@ -64,5 +66,5 @@ class PillowImageState(ImageState):
     @ImageState.converter_from(JPEGImageFileState)
     @ImageState.converter_from(PNGImageFileState)
     @ImageState.converter_from(GIFImageFileState)
-    def open(f):
-        return PillowImageState(PIL.Image.open(f))
+    def open(state):
+        return PillowImageState(PIL.Image.open(state.f))

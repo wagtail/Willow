@@ -37,5 +37,22 @@ class WillowRegistry(object):
     def get_initial_state(self, image_format):
         return self._registered_image_formats[image_format]
 
+    def get_operation(self, state_class, operation_name):
+        return self._registered_operations[state_class][operation_name]
+
+    def get_converter(self, from_state_class, to_state_class):
+        return self._registered_converters[from_state_class, to_state_class]
+
+    def find_state(self, with_operation=None, with_converter_from=None):
+        states = self._registered_states
+
+        if with_operation is not None:
+            states = filter(lambda state: state in self._registered_operations and with_operation in self._registered_operations[state], states)
+
+        if with_converter_from is not None:
+            states = filter(lambda state: (with_converter_from, state) in self._registered_converters, states)
+
+        return list(states)[0]
+
 
 registry = WillowRegistry()
