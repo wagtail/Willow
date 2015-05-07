@@ -1,5 +1,6 @@
 from willow.image import Image
-from willow import states, loader
+from willow.registry import registry as _registry
+from willow import loader as _loader
 
 from willow.states.files import (
     JPEGImageFileState,
@@ -8,14 +9,15 @@ from willow.states.files import (
 )
 from willow.states.pillow import PillowImageState
 
-states.register_state(JPEGImageFileState)
-states.register_state(PNGImageFileState)
-states.register_state(GIFImageFileState)
-states.register_state(PillowImageState)
 
-loader.register_format('jpeg', JPEGImageFileState)
-loader.register_format('png', PNGImageFileState)
-loader.register_format('gif', GIFImageFileState)
+_registry.register_state(JPEGImageFileState)
+_registry.register_state(PNGImageFileState)
+_registry.register_state(GIFImageFileState)
+_registry.register_state(PillowImageState)
+
+_loader.register_format('jpeg', JPEGImageFileState)
+_loader.register_format('png', PNGImageFileState)
+_loader.register_format('gif', GIFImageFileState)
 
 
 __version__ = '0.1'
