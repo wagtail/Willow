@@ -7,12 +7,14 @@ from willow.states.files import (
     GIFImageFileState,
 )
 from willow.states.pillow import PillowImageState
+from willow.states.wand import WandImageState
 
 
 _registry.register_state_class(JPEGImageFileState)
 _registry.register_state_class(PNGImageFileState)
 _registry.register_state_class(GIFImageFileState)
 _registry.register_state_class(PillowImageState)
+_registry.register_state_class(WandImageState)
 
 _registry.register_format('jpeg', JPEGImageFileState)
 _registry.register_format('png', PNGImageFileState)
