@@ -68,7 +68,7 @@ class OpenCVBackend(ImageBackend):
         # If a relative path was provided, check local cascades directory
         if not os.path.isabs(cascade_filename):
             cascade_filename = os.path.join(
-                os.path.dirname(__file__),
+                os.path.dirname(os.path.dirname(__file__)),
                 'face_detection',
                 cascade_filename,
             )
