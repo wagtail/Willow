@@ -53,10 +53,11 @@ class WandImageState(ImageState):
         with self.image.convert('gif') as converted:
             converted.save(file=f)
 
+    @classmethod
     @ImageState.converter_from(JPEGImageFileState)
     @ImageState.converter_from(PNGImageFileState)
     @ImageState.converter_from(GIFImageFileState)
-    def open(state):
+    def open(cls, state):
         image = wand.image.Image(file=state.f)
         image.wand = wand.api.library.MagickCoalesceImages(image.wand)
-        return WandImageState(image)
+        return cls(image)

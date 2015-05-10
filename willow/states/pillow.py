@@ -63,11 +63,12 @@ class PillowImageState(ImageState):
         else:
             self.image.save(f, 'GIF')
 
+    @classmethod
     @ImageState.converter_from(JPEGImageFileState)
     @ImageState.converter_from(PNGImageFileState)
     @ImageState.converter_from(GIFImageFileState)
-    def open(state):
+    def open(cls, state):
         state.f.seek(0)
         image = PIL.Image.open(state.f)
         image.load()
-        return PillowImageState(image)
+        return cls(image)
