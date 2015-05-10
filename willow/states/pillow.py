@@ -67,4 +67,7 @@ class PillowImageState(ImageState):
     @ImageState.converter_from(PNGImageFileState)
     @ImageState.converter_from(GIFImageFileState)
     def open(state):
-        return PillowImageState(PIL.Image.open(state.f))
+        state.f.seek(0)
+        image = PIL.Image.open(state.f)
+        image.load()
+        return PillowImageState(image)
