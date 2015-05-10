@@ -6,6 +6,10 @@ from .files import (
     PNGImageFileState,
     GIFImageFileState,
 )
+from .buffers import (
+    RGBImageBufferState,
+    RGBAImageBufferState,
+)
 
 import PIL.Image
 
@@ -72,3 +76,21 @@ class PillowImageState(ImageState):
         image = PIL.Image.open(state.f)
         image.load()
         return cls(image)
+
+    @ImageState.converter_to(RGBImageBufferState)
+    def to_buffer_rgb(self):
+        image = self.image
+
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        return RGBImageBufferState(image.size, image.tobytes())
+
+    @ImageState.converter_to(RGBAImageBufferState)
+    def to_buffer_rgba(self):
+        image = self.image
+
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
+
+        return RGBAImageBufferState(image.size, image.tobytes())
