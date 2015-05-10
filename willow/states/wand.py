@@ -6,6 +6,10 @@ from .files import (
     PNGImageFileState,
     GIFImageFileState,
 )
+from .buffers import (
+    RGBImageBufferState,
+    RGBAImageBufferState,
+)
 
 import wand.image
 import wand.api
@@ -61,3 +65,11 @@ class WandImageState(ImageState):
         image = wand.image.Image(file=state.f)
         image.wand = wand.api.library.MagickCoalesceImages(image.wand)
         return cls(image)
+
+    @ImageState.converter_to(RGBImageBufferState)
+    def to_buffer_rgb(self):
+        return RGBImageBufferState(self.image.size, self.image.make_blob('RGB'))
+
+    @ImageState.converter_to(RGBAImageBufferState)
+    def to_buffer_rgba(self):
+        return RGBImageBufferState(self.image.size, self.image.make_blob('RGBA'))
