@@ -1,5 +1,3 @@
-image: debian:jessie
+image: willow
 script:
- - apt-get update -y
- - apt-get install -y python python-opencv python-numpy python-pillow python-wand
  - python runtests.py --opencv
