@@ -11,7 +11,10 @@ from .buffers import (
     RGBAImageBufferState,
 )
 
-import PIL.Image
+
+def _PIL_Image():
+    import PIL.Image
+    return PIL.Image
 
 
 class PillowImageState(ImageState):
@@ -39,7 +42,7 @@ class PillowImageState(ImageState):
         else:
             image = self.image
 
-        image = image.resize(size, PIL.Image.ANTIALIAS)
+        image = image.resize(size, _PIL_Image().ANTIALIAS)
 
         return PillowImageState(image)
 
@@ -73,7 +76,7 @@ class PillowImageState(ImageState):
     @ImageState.converter_from(GIFImageFileState)
     def open(cls, state):
         state.f.seek(0)
-        image = PIL.Image.open(state.f)
+        image = _PIL_Image().open(state.f)
         image.load()
         return cls(image)
 

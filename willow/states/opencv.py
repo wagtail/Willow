@@ -6,7 +6,10 @@ import os
 from .base import ImageState
 from .buffers import RGBImageBufferState
 
-import cv
+
+def _cv():
+    import cv
+    return cv
 
 
 class BaseOpenCVImageState(ImageState):
@@ -33,6 +36,8 @@ class OpenCVColorImageState(BaseOpenCVImageState):
     @classmethod
     @ImageState.converter_from(RGBImageBufferState)
     def from_buffer_rgb(cls, state):
+        cv = _cv()
+
         image = cv.CreateImageHeader(state.size, cv.IPL_DEPTH_8U, 3)
         cv.SetData(image, state.data)
         return cls(image, state.size)
@@ -43,6 +48,7 @@ class OpenCVColorImageState(BaseOpenCVImageState):
 class OpenCVGreyscaleImageState(BaseOpenCVImageState):
     @ImageState.operation
     def detect_features(self):
+        cv = _cv()
         rows, cols = self.size
 
         eig_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
@@ -53,6 +59,8 @@ class OpenCVGreyscaleImageState(BaseOpenCVImageState):
 
     @ImageState.operation
     def detect_faces(self, cascade_filename='haarcascade_frontalface_alt2.xml'):
+        cv = _cv()
+
         # If a relative path was provided, check local cascades directory
         if not os.path.isabs(cascade_filename):
             cascade_filename = os.path.join(
@@ -91,6 +99,8 @@ class OpenCVGreyscaleImageState(BaseOpenCVImageState):
     @classmethod
     @ImageState.converter_from(OpenCVColorImageState)
     def from_color(cls, state):
+        cv = _cv()
+
         image = cv.CreateImage(state.size, 8, 1)
         cv.CvtColor(state.image, image, cv.CV_RGB2GRAY)
         return cls(image, state.size)

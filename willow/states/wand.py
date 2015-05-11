@@ -11,8 +11,15 @@ from .buffers import (
     RGBAImageBufferState,
 )
 
-import wand.image
-import wand.api
+
+def _wand_image():
+    import wand.image
+    return wand.image
+
+
+def _wand_api():
+    import wand.api
+    return wand.api
 
 
 class WandImageState(ImageState):
@@ -62,8 +69,8 @@ class WandImageState(ImageState):
     @ImageState.converter_from(PNGImageFileState)
     @ImageState.converter_from(GIFImageFileState)
     def open(cls, state):
-        image = wand.image.Image(file=state.f)
-        image.wand = wand.api.library.MagickCoalesceImages(image.wand)
+        image = _wand_image().Image(file=state.f)
+        image.wand = _wand_api().library.MagickCoalesceImages(image.wand)
         return cls(image)
 
     @ImageState.converter_to(RGBImageBufferState)
