@@ -43,18 +43,17 @@ class WillowRegistry(object):
     def get_converter(self, from_state_class, to_state_class):
         return self._registered_converters[from_state_class, to_state_class]
 
-    def find_state_class(self, with_operation=None, with_converter_from=None):
+    def find_operation(self, operation_name, with_converter_from=None):
         state_classes = self._registered_state_classes
 
-        if with_operation is not None:
-            state_classes = filter(lambda state: state in self._registered_operations and with_operation in self._registered_operations[state], state_classes)
+        state_classes = filter(lambda state: state in self._registered_operations and operation_name in self._registered_operations[state], state_classes)
 
         if with_converter_from is not None:
             state_classes = filter(lambda state: (with_converter_from, state) in self._registered_converters, state_classes)
 
         # Raise error if no state classes available
         if not state_classes:
-            raise LookupError("Could not find state class")
+            raise LookupError("Could not find state that has the operation '{0}".format(operation_name))
 
         # Check each state class
         state_class_check_errors = {}
@@ -70,7 +69,9 @@ class WillowRegistry(object):
 
         # Raise error if all state classes failed the check
         if not available_state_classes:
-            raise LookupError("State classes were found but they all raised errors: \n" + "\n".join([
+            raise LookupError('\n'.join([
+                "The operation '{0}' is available in the following states but they all raised errors:".format(operation_name)
+            ] + [
                 "{state_class_name}: {error_message}".format(
                     state_class_name=state_class.__name__,
                     error_message=str(error)
@@ -78,7 +79,10 @@ class WillowRegistry(object):
                 for state_class, error in state_class_check_errors.items()
             ]))
 
-        return list(available_state_classes)[0]
+        # Choose a state class
+        state_class = list(available_state_classes)[0]
+
+        return self.get_operation(state_class, operation_name), state_class
 
 
 registry = WillowRegistry()

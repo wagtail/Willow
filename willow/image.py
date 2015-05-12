@@ -14,8 +14,7 @@ class Image(object):
             operation = registry.get_operation(type(self.state), attr)
         except LookupError:
             try:
-                new_state_class = registry.find_state_class(with_converter_from=type(self.state), with_operation=attr)
-                operation = registry.get_operation(new_state_class, attr)
+                operation, new_state_class = registry.find_operation(attr, with_converter_from=type(self.state))
             except LookupError:
                 raise AttributeError("%r object has no attribute %r" % (
                     self.__class__.__name__, attr
