@@ -26,6 +26,11 @@ class WandImageState(ImageState):
     def __init__(self, image):
         self.image = image
 
+    @classmethod
+    def check(cls):
+        _wand_image()
+        _wand_api()
+
     @ImageState.operation
     def get_size(self):
         return self.image.size

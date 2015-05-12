@@ -21,6 +21,10 @@ class PillowImageState(ImageState):
     def __init__(self, image):
         self.image = image
 
+    @classmethod
+    def check(cls):
+        _PIL_Image()
+
     @ImageState.operation
     def get_size(self):
         return self.image.size

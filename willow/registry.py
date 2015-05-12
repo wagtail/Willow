@@ -52,7 +52,33 @@ class WillowRegistry(object):
         if with_converter_from is not None:
             state_classes = filter(lambda state: (with_converter_from, state) in self._registered_converters, state_classes)
 
-        return list(state_classes)[0]
+        # Raise error if no state classes available
+        if not state_classes:
+            raise LookupError("Could not find state class")
+
+        # Check each state class
+        state_class_check_errors = {}
+        available_state_classes = set()
+
+        for state_class in state_classes:
+            try:
+                state_class.check()
+            except Exception as e:
+                state_class_check_errors[state_class] = e
+            else:
+                available_state_classes.add(state_class)
+
+        # Raise error if all state classes failed the check
+        if not available_state_classes:
+            raise LookupError("State classes were found but they all raised errors: \n" + "\n".join([
+                "{state_class_name}: {error_message}".format(
+                    state_class_name=state_class.__name__,
+                    error_message=str(error)
+                )
+                for state_class, error in state_class_check_errors.items()
+            ]))
+
+        return list(available_state_classes)[0]
 
 
 registry = WillowRegistry()

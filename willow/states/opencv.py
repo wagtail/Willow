@@ -17,6 +17,10 @@ class BaseOpenCVImageState(ImageState):
         self.image = image
         self.size = size
 
+    @classmethod
+    def check(cls):
+        _cv()
+
     @ImageState.operation
     def get_size(self):
         return self.size

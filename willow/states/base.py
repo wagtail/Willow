@@ -1,4 +1,8 @@
 class ImageState(object):
+    @classmethod
+    def check(cls):
+        pass
+
     @staticmethod
     def operation(func):
         func._willow_operation = True
