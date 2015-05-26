@@ -2,10 +2,11 @@ from collections import defaultdict
 
 
 class WillowRegistry(object):
-    _registered_state_classes = set()
-    _registered_operations = defaultdict(dict)
-    _registered_converters = dict()
-    _registered_image_formats = {}
+    def __init__(self):
+        self._registered_state_classes = set()
+        self._registered_operations = defaultdict(dict)
+        self._registered_converters = dict()
+        self._registered_image_formats = {}
 
     def register_operation(self, state_class, operation_name, func):
         self._registered_operations[state_class][operation_name] = func
