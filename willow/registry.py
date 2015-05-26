@@ -31,7 +31,7 @@ class WillowRegistry(object):
             elif hasattr(val, '_willow_converter_from'):
                 self.register_converter(val._willow_converter_from, state_class, val)
 
-    def register_format(self, image_format, initial_state):
+    def register_image_format(self, image_format, initial_state):
         self._registered_image_formats[image_format] = initial_state
 
     def get_initial_state_class(self, image_format):

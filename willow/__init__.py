@@ -29,9 +29,9 @@ _registry.register_state_class(WandImageState)
 _registry.register_state_class(OpenCVColorImageState)
 _registry.register_state_class(OpenCVGreyscaleImageState)
 
-_registry.register_format('jpeg', JPEGImageFileState)
-_registry.register_format('png', PNGImageFileState)
-_registry.register_format('gif', GIFImageFileState)
+_registry.register_image_format('jpeg', JPEGImageFileState)
+_registry.register_image_format('png', PNGImageFileState)
+_registry.register_image_format('gif', GIFImageFileState)
 
 
 __version__ = '0.1'
