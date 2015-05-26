@@ -1,6 +1,7 @@
 import sys
 import unittest
 
+from tests.test_registry import *
 from tests.test_pillow import *
 from tests.test_wand import *
 
