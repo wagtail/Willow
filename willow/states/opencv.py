@@ -49,7 +49,7 @@ class OpenCVColorImageState(BaseOpenCVImageState):
     # TODO: Converter back to RGBImageBufferState
 
 
-class OpenCVGreyscaleImageState(BaseOpenCVImageState):
+class OpenCVGrayscaleImageState(BaseOpenCVImageState):
     @ImageState.operation
     def detect_features(self):
         cv = _cv()

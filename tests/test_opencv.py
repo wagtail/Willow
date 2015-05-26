@@ -4,7 +4,7 @@ import imghdr
 
 from willow.states.files import JPEGImageFileState
 from willow.states.pillow import PillowImageState
-from willow.states.opencv import OpenCVColorImageState, OpenCVGreyscaleImageState
+from willow.states.opencv import OpenCVColorImageState, OpenCVGrayscaleImageState
 
 
 class TestOpenCVOperations(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestOpenCVOperations(unittest.TestCase):
             pillow_image = PillowImageState.open(JPEGImageFileState(f))
             buffer_rgb = pillow_image.to_buffer_rgb()
             colour_image = OpenCVColorImageState.from_buffer_rgb(buffer_rgb)
-            self.image = OpenCVGreyscaleImageState.from_color(colour_image)
+            self.image = OpenCVGrayscaleImageState.from_color(colour_image)
 
     def test_get_size(self):
         width, height = self.image.get_size()
