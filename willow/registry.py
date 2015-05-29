@@ -35,6 +35,24 @@ class WillowRegistry(object):
     def register_image_format(self, image_format, initial_state):
         self._registered_image_formats[image_format] = initial_state
 
+    def register_plugin(self, plugin):
+        state_classes = getattr(plugin, 'willow_state_classes', [])
+        operations = getattr(plugin, 'willow_operations', [])
+        converters = getattr(plugin, 'willow_converters', [])
+        image_formats = getattr(plugin, 'willow_image_formats', [])
+
+        for state_class in state_classes:
+            self.register_state_class(state_class)
+
+        for operation in operations:
+            self.register_operation(operatin[0], operation[1], operation[2])
+
+        for converter in converters:
+            self.register_converter(converter[0], converter[1], converter[2])
+
+        for image_format in image_formats:
+            self.register_image_format(image_format[0], image_format[1])
+
     def get_initial_state_class(self, image_format):
         return self._registered_image_formats[image_format]
 
