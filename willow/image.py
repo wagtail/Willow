@@ -1,4 +1,5 @@
-from . import loader
+import imghdr
+
 from .registry import registry
 from .states import ImageState
 
@@ -38,7 +39,10 @@ class Image(object):
 
     @classmethod
     def open(cls, f):
-        return cls(loader.load_image(f))
+        image_format = imghdr.what(f)
+        initial_state_class = registry.get_initial_state_class(image_format)
+        initial_state = initial_state_class(f)
+        return cls(initial_state)
 
     def save(self, image_format, output):
         # Get operation name
