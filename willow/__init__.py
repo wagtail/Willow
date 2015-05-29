@@ -1,12 +1,10 @@
 from willow.image import Image
 from willow.registry import registry as _registry
 
-from willow.states.files import (
+from willow.states import (
     JPEGImageFileState,
     PNGImageFileState,
     GIFImageFileState,
-)
-from willow.states.buffers import (
     RGBImageBufferState,
     RGBAImageBufferState,
 )
@@ -15,7 +13,6 @@ from willow.plugins import pillow, wand, opencv
 _registry.register_state_class(JPEGImageFileState)
 _registry.register_state_class(PNGImageFileState)
 _registry.register_state_class(GIFImageFileState)
-
 _registry.register_state_class(RGBImageBufferState)
 _registry.register_state_class(RGBAImageBufferState)
 

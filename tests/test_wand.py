@@ -2,7 +2,7 @@ import unittest
 import io
 import imghdr
 
-from willow.states.files import PNGImageFileState, GIFImageFileState
+from willow.states import PNGImageFileState, GIFImageFileState
 from willow.plugins.wand import WandImageState
 
 

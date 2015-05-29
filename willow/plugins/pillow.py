@@ -1,12 +1,10 @@
 from __future__ import absolute_import
 
-from willow.states.base import ImageState
-from willow.states.files import (
+from willow.states import (
+    ImageState,
     JPEGImageFileState,
     PNGImageFileState,
     GIFImageFileState,
-)
-from willow.states.buffers import (
     RGBImageBufferState,
     RGBAImageBufferState,
 )

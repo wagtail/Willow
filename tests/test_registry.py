@@ -1,6 +1,6 @@
 import unittest
 
-from willow.states.base import ImageState
+from willow.states import ImageState
 from willow.registry import WillowRegistry
 
 

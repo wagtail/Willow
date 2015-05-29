@@ -2,7 +2,7 @@ import unittest
 import io
 import imghdr
 
-from willow.states.files import JPEGImageFileState
+from willow.states import JPEGImageFileState
 from willow.plugins.pillow import PillowImageState
 from willow.plugins.opencv import OpenCVColorImageState, OpenCVGrayscaleImageState
 

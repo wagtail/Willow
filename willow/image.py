@@ -1,6 +1,6 @@
 from . import loader
 from .registry import registry
-from .states.base import ImageState
+from .states import ImageState
 
 
 class Image(object):

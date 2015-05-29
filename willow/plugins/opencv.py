@@ -3,8 +3,7 @@ from __future__ import absolute_import
 import io
 import os
 
-from willow.states.base import ImageState
-from willow.states.buffers import RGBImageBufferState
+from willow.states import ImageState, RGBImageBufferState
 
 
 def _cv():
