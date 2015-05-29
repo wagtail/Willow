@@ -1,28 +1,31 @@
 from willow.image import Image
-from willow.registry import registry as _registry
 
-from willow.states import (
-    JPEGImageFileState,
-    PNGImageFileState,
-    GIFImageFileState,
-    RGBImageBufferState,
-    RGBAImageBufferState,
-)
-from willow.plugins import pillow, wand, opencv
+def setup():
+    from willow.registry import registry
 
-_registry.register_state_class(JPEGImageFileState)
-_registry.register_state_class(PNGImageFileState)
-_registry.register_state_class(GIFImageFileState)
-_registry.register_state_class(RGBImageBufferState)
-_registry.register_state_class(RGBAImageBufferState)
+    from willow.states import (
+        JPEGImageFileState,
+        PNGImageFileState,
+        GIFImageFileState,
+        RGBImageBufferState,
+        RGBAImageBufferState,
+    )
+    from willow.plugins import pillow, wand, opencv
 
-_registry.register_image_format('jpeg', JPEGImageFileState)
-_registry.register_image_format('png', PNGImageFileState)
-_registry.register_image_format('gif', GIFImageFileState)
+    registry.register_state_class(JPEGImageFileState)
+    registry.register_state_class(PNGImageFileState)
+    registry.register_state_class(GIFImageFileState)
+    registry.register_state_class(RGBImageBufferState)
+    registry.register_state_class(RGBAImageBufferState)
 
-_registry.register_plugin(pillow)
-_registry.register_plugin(wand)
-_registry.register_plugin(opencv)
+    registry.register_image_format('jpeg', JPEGImageFileState)
+    registry.register_image_format('png', PNGImageFileState)
+    registry.register_image_format('gif', GIFImageFileState)
 
+    registry.register_plugin(pillow)
+    registry.register_plugin(wand)
+    registry.register_plugin(opencv)
+
+setup()
 
 __version__ = '0.1'
