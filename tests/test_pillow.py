@@ -3,7 +3,7 @@ import io
 import imghdr
 
 from willow.states.files import PNGImageFileState, GIFImageFileState
-from willow.states.pillow import PillowImageState
+from willow.plugins.pillow import PillowImageState
 
 
 class TestPillowOperations(unittest.TestCase):

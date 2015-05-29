@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import io
 import os
 
-from .base import ImageState
-from .buffers import RGBImageBufferState
+from willow.states.base import ImageState
+from willow.states.buffers import RGBImageBufferState
 
 
 def _cv():
@@ -108,3 +108,6 @@ class OpenCVGrayscaleImageState(BaseOpenCVImageState):
         image = cv.CreateImage(state.size, 8, 1)
         cv.CvtColor(state.image, image, cv.CV_RGB2GRAY)
         return cls(image, state.size)
+
+
+willow_state_classes = [OpenCVColorImageState, OpenCVGrayscaleImageState]

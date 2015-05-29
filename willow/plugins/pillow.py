@@ -1,12 +1,12 @@
 from __future__ import absolute_import
 
-from .base import ImageState
-from .files import (
+from willow.states.base import ImageState
+from willow.states.files import (
     JPEGImageFileState,
     PNGImageFileState,
     GIFImageFileState,
 )
-from .buffers import (
+from willow.states.buffers import (
     RGBImageBufferState,
     RGBAImageBufferState,
 )
@@ -101,3 +101,6 @@ class PillowImageState(ImageState):
             image = image.convert('RGBA')
 
         return RGBAImageBufferState(image.size, image.tobytes())
+
+
+willow_state_classes = [PillowImageState]

@@ -3,8 +3,8 @@ import io
 import imghdr
 
 from willow.states.files import JPEGImageFileState
-from willow.states.pillow import PillowImageState
-from willow.states.opencv import OpenCVColorImageState, OpenCVGrayscaleImageState
+from willow.plugins.pillow import PillowImageState
+from willow.plugins.opencv import OpenCVColorImageState, OpenCVGrayscaleImageState
 
 
 class TestOpenCVOperations(unittest.TestCase):

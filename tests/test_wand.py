@@ -3,7 +3,7 @@ import io
 import imghdr
 
 from willow.states.files import PNGImageFileState, GIFImageFileState
-from willow.states.wand import WandImageState
+from willow.plugins.wand import WandImageState
 
 
 class TestWandOperations(unittest.TestCase):
