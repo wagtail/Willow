@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import functools
 
-<<<<<<< HEAD
 from willow.image import (
     Image,
     JPEGImageFile,
@@ -11,15 +10,6 @@ from willow.image import (
     BMPImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
-=======
-from willow.states import (
-    ImageState,
-    JPEGImageFileState,
-    PNGImageFileState,
-    GIFImageFileState,
-    RGBImageBufferState,
-    RGBAImageBufferState,
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
 )
 
 
