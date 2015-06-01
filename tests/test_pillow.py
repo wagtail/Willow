@@ -113,7 +113,7 @@ class TestPillowOperations(unittest.TestCase):
         # Check that the alpha of pixel 1,1 is 0
         self.assertEqual(image.image.convert('RGBA').getpixel((1, 1))[3], 0)
 
-    @unittest.expectedFailure # Pillow doesn't support animation
+    @unittest.expectedFailure  # Pillow doesn't support animation
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             image = PillowImage.open(GIFImageFile(f))
@@ -121,7 +121,7 @@ class TestPillowOperations(unittest.TestCase):
         self.assertFalse(image.has_alpha())
         self.assertTrue(image.has_animation())
 
-    @unittest.expectedFailure # Pillow doesn't support animation
+    @unittest.expectedFailure  # Pillow doesn't support animation
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             image = PillowImage.open(GIFImageFile(f))
@@ -154,11 +154,15 @@ class TestPillowImageOrientation(unittest.TestCase):
         with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
 
+        image = image.auto_orient()
+
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_2(self):
         with open('tests/images/orientation/landscape_2.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
@@ -166,11 +170,15 @@ class TestPillowImageOrientation(unittest.TestCase):
         with open('tests/images/orientation/landscape_3.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
 
+        image = image.auto_orient()
+
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_4(self):
         with open('tests/images/orientation/landscape_4.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
@@ -178,11 +186,15 @@ class TestPillowImageOrientation(unittest.TestCase):
         with open('tests/images/orientation/landscape_5.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
 
+        image = image.auto_orient()
+
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_6(self):
         with open('tests/images/orientation/landscape_6.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
@@ -190,10 +202,14 @@ class TestPillowImageOrientation(unittest.TestCase):
         with open('tests/images/orientation/landscape_7.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
 
+        image = image.auto_orient()
+
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_8(self):
         with open('tests/images/orientation/landscape_8.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
