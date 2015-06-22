@@ -1,7 +1,11 @@
 import imghdr
 
 from .registry import registry
-from .states import ImageState
+from .states import ImageState, INITIAL_STATE_CLASSES
+
+
+class UnrecognisedFileError(IOError):
+    pass
 
 
 class Image(object):
@@ -39,10 +43,21 @@ class Image(object):
 
     @classmethod
     def open(cls, f):
+        # Detect image format
         image_format = imghdr.what(f)
-        initial_state_class = registry.get_initial_state_class(image_format)
-        initial_state = initial_state_class(f)
-        return cls(initial_state)
+
+        # Find initial state
+        initial_state_class = INITIAL_STATE_CLASSES.get(image_format)
+
+        # Give error if initial state not found
+        if not initial_state_class:
+            if image_format:
+                raise UnrecognisedFileError("Cannot load %s files" % image_format)
+            else:
+                raise UnrecognisedFileError("Unknown file format")
+
+        # Instantiate initial state
+        return cls(initial_state_class(f))
 
     def save(self, image_format, output):
         # Get operation name

@@ -164,31 +164,6 @@ class TestRegisterStateClass(RegistryTestCase):
         self.assertEqual(NewTestState.converter, self.registry._registered_converters[NewTestState, self.TestState])
 
 
-class TestRegisterImageFormat(RegistryTestCase):
-    def test_register_image_format(self):
-        self.registry.register_image_format('jpeg', self.TestState)
-
-        self.assertIn('jpeg', self.registry._registered_image_formats)
-        self.assertEqual(self.TestState, self.registry._registered_image_formats['jpeg'])
-
-    @unittest.expectedFailure
-    def test_register_image_format_against_unregistered_state(self):
-        self.registry.register_image_format('jpeg', self.UnregisteredTestState)
-
-        self.assertNotIn('jpeg', self.registry._registered_image_formats)
-
-
-class TestGetInitialStateClass(RegistryTestCase):
-    def test_get_initial_state_class(self):
-        self.registry._registered_image_formats['jpeg'] = self.TestState
-
-        self.assertEqual(self.TestState, self.registry.get_initial_state_class('jpeg'))
-
-    def test_get_initial_state_class_noexistent_format(self):
-        with self.assertRaises(LookupError):
-            self.registry.get_initial_state_class('jpeg')
-
-
 class TestGetOperation(RegistryTestCase):
     def test_get_operation(self):
         def test_operation(state):

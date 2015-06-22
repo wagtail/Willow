@@ -80,3 +80,11 @@ class PNGImageFileState(ImageFileState):
 
 class GIFImageFileState(ImageFileState):
     pass
+
+
+INITIAL_STATE_CLASSES = {
+    # A mapping of image formats to their initial state
+    'jpeg': JPEGImageFileState,
+    'png': PNGImageFileState,
+    'gif': GIFImageFileState,
+}

@@ -6,7 +6,6 @@ class WillowRegistry(object):
         self._registered_state_classes = set()
         self._registered_operations = defaultdict(dict)
         self._registered_converters = dict()
-        self._registered_image_formats = {}
 
     def register_operation(self, state_class, operation_name, func):
         self._registered_operations[state_class][operation_name] = func
@@ -32,14 +31,10 @@ class WillowRegistry(object):
             elif hasattr(val, '_willow_converter_from'):
                 self.register_converter(val._willow_converter_from, state_class, val)
 
-    def register_image_format(self, image_format, initial_state):
-        self._registered_image_formats[image_format] = initial_state
-
     def register_plugin(self, plugin):
         state_classes = getattr(plugin, 'willow_state_classes', [])
         operations = getattr(plugin, 'willow_operations', [])
         converters = getattr(plugin, 'willow_converters', [])
-        image_formats = getattr(plugin, 'willow_image_formats', [])
 
         for state_class in state_classes:
             self.register_state_class(state_class)
@@ -49,12 +44,6 @@ class WillowRegistry(object):
 
         for converter in converters:
             self.register_converter(converter[0], converter[1], converter[2])
-
-        for image_format in image_formats:
-            self.register_image_format(image_format[0], image_format[1])
-
-    def get_initial_state_class(self, image_format):
-        return self._registered_image_formats[image_format]
 
     def get_operation(self, state_class, operation_name):
         return self._registered_operations[state_class][operation_name]
