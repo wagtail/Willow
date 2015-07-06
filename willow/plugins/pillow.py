@@ -75,7 +75,7 @@ class PillowImageState(ImageState):
     @classmethod
     @ImageState.converter_from(JPEGImageFileState)
     @ImageState.converter_from(PNGImageFileState)
-    @ImageState.converter_from(GIFImageFileState)
+    @ImageState.converter_from(GIFImageFileState, cost=200)
     def open(cls, state):
         state.f.seek(0)
         image = _PIL_Image().open(state.f)

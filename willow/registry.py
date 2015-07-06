@@ -6,12 +6,16 @@ class WillowRegistry(object):
         self._registered_state_classes = set()
         self._registered_operations = defaultdict(dict)
         self._registered_converters = dict()
+        self._registered_converter_costs = dict()
 
     def register_operation(self, state_class, operation_name, func):
         self._registered_operations[state_class][operation_name] = func
 
-    def register_converter(self, from_state_class, to_state_class, func):
+    def register_converter(self, from_state_class, to_state_class, func, cost=None):
         self._registered_converters[from_state_class, to_state_class] = func
+
+        if cost is not None:
+            self._registered_converter_costs[from_state_class, to_state_class] = cost
 
     def register_state_class(self, state_class):
         self._registered_state_classes.add(state_class)
@@ -22,10 +26,10 @@ class WillowRegistry(object):
             if hasattr(val, '_willow_operation'):
                 self.register_operation(state_class, val.__name__, val)
             elif hasattr(val, '_willow_converter_to'):
-                self.register_converter(state_class, val._willow_converter_to, val)
+                self.register_converter(state_class, val._willow_converter_to[0], val, cost=val._willow_converter_to[1])
             elif hasattr(val, '_willow_converter_from'):
-                for converter_from in val._willow_converter_from:
-                    self.register_converter(converter_from, state_class, val)
+                for converter_from, cost in val._willow_converter_from:
+                    self.register_converter(converter_from, state_class, val, cost=cost)
 
     def register_plugin(self, plugin):
         state_classes = getattr(plugin, 'willow_state_classes', [])
@@ -53,6 +57,9 @@ class WillowRegistry(object):
 
     def get_converter(self, from_state_class, to_state_class):
         return self._registered_converters[from_state_class, to_state_class]
+
+    def get_converter_cost(self, from_state_class, to_state_class):
+        return self._registered_converter_costs.get((from_state_class, to_state_class), 100)
 
     def get_state_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
         state_classes = self._registered_state_classes

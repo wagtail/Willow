@@ -9,23 +9,25 @@ class ImageState(object):
         return func
 
     @staticmethod
-    def converter_to(state_class):
+    def converter_to(state_class, cost=None):
         def wrapper(func):
-            func._willow_converter_to = state_class
+            func._willow_converter_to = (state_class, cost)
             return func
 
         return wrapper
 
     @staticmethod
-    def converter_from(state_class):
+    def converter_from(state_class, cost=None):
         def wrapper(func):
             if not hasattr(func, '_willow_converter_from'):
                 func._willow_converter_from = []
 
             if isinstance(state_class, list):
-                func._willow_converter_from.extend(state_class)
+                func._willow_converter_from.extend([
+                    (sc, cost) for sc in state_class]
+                )
             else:
-                func._willow_converter_from.append(state_class)
+                func._willow_converter_from.append((state_class, cost))
 
             return func
 
