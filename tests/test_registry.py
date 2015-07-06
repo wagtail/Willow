@@ -53,20 +53,6 @@ class TestRegisterConverter(RegistryTestCase):
 
         self.assertEqual(test_converter, self.registry._registered_converters[self.TestState, self.AnotherTestState])
 
-    def test_register_converter_for_multiple_states(self):
-        class YetAnotherTestState(ImageState):
-            pass
-
-        self.registry._registered_state_classes.add(YetAnotherTestState)
-
-        def test_converter(state):
-            pass
-
-        self.registry.register_converter([self.TestState, YetAnotherTestState], self.AnotherTestState, test_converter)
-
-        self.assertEqual(test_converter, self.registry._registered_converters[self.TestState, self.AnotherTestState])
-        self.assertEqual(test_converter, self.registry._registered_converters[YetAnotherTestState, self.AnotherTestState])
-
     @unittest.expectedFailure
     def test_register_converter_from_unregistered_state(self):
         def test_converter(state):

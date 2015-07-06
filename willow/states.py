@@ -21,7 +21,12 @@ class ImageState(object):
         def wrapper(func):
             if not hasattr(func, '_willow_converter_from'):
                 func._willow_converter_from = []
-            func._willow_converter_from.append(state_class)
+
+            if isinstance(state_class, list):
+                func._willow_converter_from.extend(state_class)
+            else:
+                func._willow_converter_from.append(state_class)
+
             return func
 
         return wrapper

@@ -11,11 +11,6 @@ class WillowRegistry(object):
         self._registered_operations[state_class][operation_name] = func
 
     def register_converter(self, from_state_class, to_state_class, func):
-        if isinstance(from_state_class, list):
-            for state_class in from_state_class:
-                self.register_converter(state_class, to_state_class, func)
-            return
-
         self._registered_converters[from_state_class, to_state_class] = func
 
     def register_state_class(self, state_class):
@@ -29,7 +24,8 @@ class WillowRegistry(object):
             elif hasattr(val, '_willow_converter_to'):
                 self.register_converter(state_class, val._willow_converter_to, val)
             elif hasattr(val, '_willow_converter_from'):
-                self.register_converter(val._willow_converter_from, state_class, val)
+                for converter_from in val._willow_converter_from:
+                    self.register_converter(converter_from, state_class, val)
 
     def register_plugin(self, plugin):
         state_classes = getattr(plugin, 'willow_state_classes', [])
