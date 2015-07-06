@@ -58,44 +58,59 @@ class WillowRegistry(object):
     def get_converter(self, from_state_class, to_state_class):
         return self._registered_converters[from_state_class, to_state_class]
 
-    def find_operation(self, operation_name, with_converter_from=None):
+    def get_state_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
         state_classes = self._registered_state_classes
 
-        state_classes = filter(lambda state: state in self._registered_operations and operation_name in self._registered_operations[state], state_classes)
+        if with_operation:
+            state_classes = filter(lambda state: state in self._registered_operations and operation_name in self._registered_operations[state], state_classes)
 
         if with_converter_from is not None:
             state_classes = filter(lambda state: (with_converter_from, state) in self._registered_converters, state_classes)
 
+        if with_converter_to is not None:
+            state_classes = filter(lambda state: (state, with_converter_to) in self._registered_converters, state_classes)
+
         # Raise error if no state classes available
         if not state_classes:
-            raise LookupError("Could not find state that has the operation '{0}".format(operation_name))
+            raise LookupError("Could not find state class with the '{0}' operation".format(operation_name))
 
-        # Check each state class
-        state_class_check_errors = {}
-        available_state_classes = set()
+        # Check each state class and remove unavailable ones
+        if available:
+            state_class_check_errors = {}
+            available_state_classes = set()
 
-        for state_class in state_classes:
-            try:
-                state_class.check()
-            except Exception as e:
-                state_class_check_errors[state_class] = e
-            else:
-                available_state_classes.add(state_class)
+            for state_class in state_classes:
+                try:
+                    state_class.check()
+                except Exception as e:
+                    state_class_check_errors[state_class] = e
+                else:
+                    available_state_classes.add(state_class)
 
-        # Raise error if all state classes failed the check
-        if not available_state_classes:
-            raise LookupError('\n'.join([
-                "The operation '{0}' is available in the following states but they all raised errors:".format(operation_name)
-            ] + [
-                "{state_class_name}: {error_message}".format(
-                    state_class_name=state_class.__name__,
-                    error_message=str(error)
-                )
-                for state_class, error in state_class_check_errors.items()
-            ]))
+            # Raise error if all state classes failed the check
+            if not available_state_classes:
+                raise LookupError('\n'.join([
+                    "The operation '{0}' is available in the following states but they all raised errors:".format(operation_name)
+                ] + [
+                    "{state_class_name}: {error_message}".format(
+                        state_class_name=state_class.__name__,
+                        error_message=str(error)
+                    )
+                    for state_class, error in state_class_check_errors.items()
+                ]))
+
+            state_classes = list(available_state_classes)
+
+        return state_classes
+
+    def find_operation(self, operation_name, with_converter_from=None):
+        state_classes = self.get_state_classes(
+            with_operation=operation_name,
+            with_converter_from=with_converter_from,
+            available=True)
 
         # Choose a state class
-        state_class = list(available_state_classes)[0]
+        state_class = list(state_classes)[0]
 
         return self.get_operation(state_class, operation_name), state_class
 
