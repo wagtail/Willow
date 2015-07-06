@@ -103,7 +103,7 @@ class WillowRegistry(object):
 
         return state_classes
 
-    def find_operation(self, operation_name, with_converter_from=None):
+    def route_to_operation(self, operation_name, with_converter_from=None):
         state_classes = self.get_state_classes(
             with_operation=operation_name,
             with_converter_from=with_converter_from,
