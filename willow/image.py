@@ -13,17 +13,17 @@ class Image(object):
         self.state = initial_state
 
     def __getattr__(self, attr):
-        new_state_class = None
+        # Raise error if attr is not an operation
+        if not registry.operation_exists(attr):
+            raise AttributeError("%r object has no attribute %r" % (
+                self.__class__.__name__, attr
+            ))
 
         try:
             operation = registry.get_operation(type(self.state), attr)
+            new_state_class = None
         except LookupError:
-            try:
-                operation, new_state_class = registry.find_operation(attr, with_converter_from=type(self.state))
-            except LookupError:
-                raise AttributeError("%r object has no attribute %r" % (
-                    self.__class__.__name__, attr
-                ))
+            operation, new_state_class = registry.find_operation(attr, with_converter_from=type(self.state))
 
         def wrapper(*args, **kwargs):
             if new_state_class:

@@ -48,6 +48,13 @@ class WillowRegistry(object):
     def get_operation(self, state_class, operation_name):
         return self._registered_operations[state_class][operation_name]
 
+    def operation_exists(self, operation_name):
+        for state_class_operations in self._registered_operations.values():
+            if operation_name in state_class_operations:
+                return True
+
+        return False
+
     def get_converter(self, from_state_class, to_state_class):
         return self._registered_converters[from_state_class, to_state_class]
 
