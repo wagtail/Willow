@@ -348,6 +348,21 @@ class TestOpen(ImageTestCase):
         self.assertIsInstance(Image.open('tests/images/transparent.png').backend, self.FakeBackend)
         self.assertIsInstance(Image.open('tests/images/flower.jpg').backend, self.AnotherFakeBackend)
 
+    def test_image_detect_stream(self):
+        Image.loaders = {
+            'png': [
+                (0, self.FakeBackend),
+            ],
+            'jpeg': [
+                (100, self.AnotherFakeBackend),
+            ],
+        }
+
+        with open('tests/images/transparent.png', 'rb') as f:
+            self.assertIsInstance(Image.open(f).backend, self.FakeBackend)
+        with open('tests/images/flower.jpg', 'rb') as f:
+            self.assertIsInstance(Image.open(f).backend, self.AnotherFakeBackend)
+
 
 class TestLoaderDefaultConfiguration(ImageTestCase):
     pass

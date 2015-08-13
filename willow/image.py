@@ -55,6 +55,9 @@ class Image(object):
         image_format = imghdr.what(f)
 
         if image_format is None:
+            # The irst image_format method assumes a string with path to a
+            # file. It would also be reasonable to recieve an io stream, so
+            # we can try getting the image format of that as well.
             f.seek(0)
             image_format = imghdr.what(f,h=f.read(f.size))
 
