@@ -54,6 +54,10 @@ class Image(object):
     def open(cls, f, initial_backend=None):
         image_format = imghdr.what(f)
 
+        if image_format is None:
+            f.seek(0)
+            image_format = imghdr.what(f,h=f.read(f.size))
+
         if not initial_backend:
             # Work out best initial backend based on file format
             initial_backend = cls.find_loader(image_format)
