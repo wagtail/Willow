@@ -50,7 +50,7 @@ def get_size(backend):
 
 @PillowBackend.register_operation('resize')
 def resize(backend, size):
-    if backend.image.mode in ['1', 'P']:
+    if backend.image.mode in ['1']:
         backend.image = backend.image.convert('RGB')
 
     backend.image = backend.image.resize(
