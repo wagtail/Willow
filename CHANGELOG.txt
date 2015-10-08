@@ -2,12 +2,10 @@
 ~~~~~~~~~~~~~~~~~~~~
 
 
-
 0.2.1 (27/05/2015)
 ~~~~~~~~~~~~~~~~~~
 
 - JPEGs are now detected from first two bytes of their file. Allowing non JFIF/EXIF JPEG images to be loaded
-
 
 0.2 (01/04/2015)
 ~~~~~~~~~~~~~~~~
