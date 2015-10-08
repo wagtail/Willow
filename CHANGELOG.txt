@@ -1,0 +1,29 @@
+0.3 (IN DEVELOPMENT)
+~~~~~~~~~~~~~~~~~~~~
+
+
+
+0.2.1 (27/05/2015)
+~~~~~~~~~~~~~~~~~~
+
+- JPEGs are now detected from first two bytes of their file. Allowing non JFIF/EXIF JPEG images to be loaded
+
+
+0.2 (01/04/2015)
+~~~~~~~~~~~~~~~~
+
+- Added loader for BMP files
+- Added has_alpha and has_animation operations
+- Added get_pillow_image and get_wand_image operations
+- Added save_as_{jpeg,png,gif} operations
+- Crop and resize now all arguments in a tuple (Similar to Pillow)
+- Dropped Python 2.6 and 3.2 support
+- Formats now detected using images header instead of extension
+- Now possible to specify alternative cascade file for face detection
+- Fix: Images now saved in the same format they were loaded
+- Fix: 1 and P formatted images now converted to RGB when saving to JPEG
+
+0.1 (22/02/2015)
+~~~~~~~~~~~~~~~~
+
+Initial release
