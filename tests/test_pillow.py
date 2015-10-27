@@ -44,6 +44,17 @@ class TestPillowOperations(unittest.TestCase):
 
         self.assertEqual(imghdr.what(output), 'gif')
 
+    def test_save_as_gif_converts_back_to_supported_mode(self):
+        output = io.BytesIO()
+
+        with open('tests/images/transparent.gif', 'rb') as f:
+            backend = pillow_backend.PillowBackend.from_file(f)
+            backend.image = backend.image.convert('RGB')
+        pillow_backend.save_as_gif(backend, output)
+
+        image = backend.get_pillow_image().open(output)
+        self.assertEqual(image.mode, 'P')
+
     def test_has_alpha(self):
         has_alpha = pillow_backend.has_alpha(self.backend)
         self.assertTrue(has_alpha)

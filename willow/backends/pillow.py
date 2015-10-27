@@ -81,6 +81,9 @@ def save_as_png(backend, f):
 
 @PillowBackend.register_operation('save_as_gif')
 def save_as_gif(backend, f):
+    if backend.image.mode not in ['L', 'P']:
+        backend.image = backend.image.convert('P', palette=backend.get_pillow_image().ADAPTIVE)
+
     if 'transparency' in backend.image.info:
         backend.image.save(f, 'GIF', transparency=backend.image.info['transparency'])
     else:
