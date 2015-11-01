@@ -63,3 +63,22 @@ Like above, the image file will be loaded with either Pillow or Wand.
 
 As neither Pillow nor Wand support detecting faces, Willow would automatically convert the image to OpenCV and use that to perform the detection.
 
+Available operations
+--------------------
+
+=================================== ==================== ==================== ====================
+Operation                           Pillow               Wand                 OpenCV
+=================================== ==================== ==================== ====================
+``get_size()``                      ✓                    ✓
+``resize(size)``                    ✓                    ✓
+``crop(rect)``                      ✓                    ✓
+``save_as_jpeg(file, quality)``     ✓                    ✓
+``save_as_png(file)``               ✓                    ✓
+``save_as_gif(file)``               ✓                    ✓
+``has_alpha()``                     ✓                    ✓
+``has_animation()``                                      ✓
+``get_pillow_image()``              ✓
+``get_wand_image()``                                     ✓
+``detect_features()``                                                         ✓
+``detect_faces(cascade_filename)``                                            ✓
+=================================== ==================== ==================== ====================
