@@ -81,6 +81,9 @@ def save_as_png(backend, f):
 
 @PillowBackend.register_operation('save_as_gif')
 def save_as_gif(backend, f):
+    # All gif files use either the L or P mode but we sometimes convert them
+    # to RGB/RGBA to improve the quality of resizing. We must make sure that
+    # they are converted back before saving.
     if backend.image.mode not in ['L', 'P']:
         backend.image = backend.image.convert('P', palette=backend.get_pillow_image().ADAPTIVE)
 
