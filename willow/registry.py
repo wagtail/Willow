@@ -111,6 +111,38 @@ class WillowRegistry(object):
 
         return state_classes
 
+    def find_all_paths(self, start, end, path=[], seen_states=set()):
+        """
+        Returns all paths between two states
+
+        Each path is a list of tuples representing the  to take in order to
+        convert to the new state. The tuples contain two items, The converter
+        function to call and the state class that step converts to.
+
+        The order of the paths returned is undefined.
+        """
+        # Implementation based on https://www.python.org/doc/essays/graphs/
+        if start == end:
+            return [path]
+
+        if start in seen_states:
+            return []
+
+        if not start in self._registered_state_classes:
+            return []
+
+        paths = []
+        for converter, next_state in self.get_converters_from(start):
+            if next_state not in path:
+                newpaths = self.find_all_paths(
+                    next_state, end,
+                    path + [(converter, next_state)],
+                    seen_states.union({start}))
+
+                paths.extend(newpaths)
+
+        return paths
+
     def route_to_operation(self, from_state, operation_name):
         state_classes = self.get_state_classes(
             with_converter_from=from_state,

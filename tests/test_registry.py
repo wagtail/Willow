@@ -195,5 +195,78 @@ class TestGetConvertersFrom(RegistryTestCase):
         self.assertNotIn((test_converter_3, self.AnotherTestState), result)
 
 
+class TestFindAllPaths(RegistryTestCase):
+    def setUp(self):
+        super(TestFindAllPaths, self).setUp()
+
+        self.StateA = type('StateA', (ImageState, ), {})
+        self.StateB = type('StateB', (ImageState, ), {})
+        self.StateC = type('StateC', (ImageState, ), {})
+        self.StateD = type('StateD', (ImageState, ), {})
+        self.StateE = type('StateE', (ImageState, ), {})
+
+        # In real life, these would be functions. But as we're not calling them
+        # we'll just use strings instead as it's easier to see what's going on.
+        self.conv_a_to_b = 'a_to_b'
+        self.conv_b_to_a = 'b_to_a'
+        self.conv_a_to_c = 'a_to_c'
+        self.conv_c_to_a = 'c_to_a'
+        self.conv_b_to_d = 'b_to_d'
+        self.conv_d_to_b = 'd_to_b'
+        self.conv_c_to_d = 'c_to_d'
+        self.conv_d_to_c = 'd_to_c'
+        self.conv_d_to_e = 'd_to_e'
+        self.conv_e_to_d = 'e_to_d'
+
+        self.registry._registered_state_classes = {
+            self.StateA, self.StateB, self.StateC, self.StateD, self.StateE}
+        self.registry._registered_converters = {
+            (self.StateA, self.StateB): self.conv_a_to_b,
+            (self.StateB, self.StateA): self.conv_b_to_a,
+            (self.StateA, self.StateC): self.conv_a_to_c,
+            (self.StateC, self.StateA): self.conv_c_to_a,
+            (self.StateB, self.StateD): self.conv_b_to_d,
+            (self.StateD, self.StateB): self.conv_d_to_b,
+            (self.StateC, self.StateD): self.conv_c_to_d,
+            (self.StateD, self.StateC): self.conv_d_to_c,
+            (self.StateD, self.StateE): self.conv_d_to_e,
+            (self.StateE, self.StateD): self.conv_e_to_d,
+        }
+
+    def test_find_all_paths_a_to_e(self):
+        result = self.registry.find_all_paths(self.StateA, self.StateE)
+
+        self.assertEqual(len(result), 2)
+
+        self.assertIn([
+            (self.conv_a_to_b, self.StateB),
+            (self.conv_b_to_d, self.StateD),
+            (self.conv_d_to_e, self.StateE),
+        ], result)
+
+        self.assertIn([
+            (self.conv_a_to_c, self.StateC),
+            (self.conv_c_to_d, self.StateD),
+            (self.conv_d_to_e, self.StateE),
+        ], result)
+
+    def test_find_all_paths_e_to_b(self):
+        result = self.registry.find_all_paths(self.StateE, self.StateB)
+
+        self.assertEqual(len(result), 2)
+
+        self.assertIn([
+            (self.conv_e_to_d, self.StateD),
+            (self.conv_d_to_b, self.StateB),
+        ], result)
+
+        self.assertIn([
+            (self.conv_e_to_d, self.StateD),
+            (self.conv_d_to_c, self.StateC),
+            (self.conv_c_to_a, self.StateA),
+            (self.conv_a_to_b, self.StateB),
+        ], result)
+
+
 class TestFindOperation(RegistryTestCase):
      pass # TODO
