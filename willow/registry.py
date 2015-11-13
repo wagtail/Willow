@@ -61,6 +61,11 @@ class WillowRegistry(object):
     def get_converter_cost(self, from_state_class, to_state_class):
         return self._registered_converter_costs.get((from_state_class, to_state_class), 100)
 
+    def get_converters_from(self, from_state_class):
+        for (c_from, c_to), converter in self._registered_converters.items():
+            if c_from is from_state_class:
+                yield converter, c_to
+
     def get_state_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
         state_classes = self._registered_state_classes
 

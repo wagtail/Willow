@@ -178,5 +178,22 @@ class TestGetConverter(RegistryTestCase):
             self.registry.get_converter(self.TestState, self.AnotherTestState)
 
 
+class TestGetConvertersFrom(RegistryTestCase):
+    def test_get_converters_from(self):
+        test_converter = lambda state: state
+        test_converter_2 = lambda state: state
+        test_converter_3 = lambda state: state
+
+        self.registry._registered_converters[self.TestState, self.AnotherTestState] = test_converter
+        self.registry._registered_converters[self.TestState, self.UnregisteredTestState] = test_converter_2
+        self.registry._registered_converters[self.AnotherTestState, self.TestState] = test_converter_3
+
+        result = list(self.registry.get_converters_from(self.TestState))
+        self.assertIn((test_converter, self.AnotherTestState), result)
+        self.assertIn((test_converter_2, self.UnregisteredTestState), result)
+        self.assertNotIn((test_converter_3, self.TestState), result)
+        self.assertNotIn((test_converter_3, self.AnotherTestState), result)
+
+
 class TestFindOperation(RegistryTestCase):
      pass # TODO
