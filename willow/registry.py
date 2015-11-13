@@ -61,11 +61,6 @@ class WillowRegistry(object):
     def get_converter_cost(self, from_state_class, to_state_class):
         return self._registered_converter_costs.get((from_state_class, to_state_class), 100)
 
-    def get_converters_from(self, from_state_class):
-        for (c_from, c_to), converter in self._registered_converters.items():
-            if c_from is from_state_class:
-                yield converter, c_to
-
     def get_state_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
         state_classes = self._registered_state_classes
 
@@ -111,15 +106,59 @@ class WillowRegistry(object):
 
         return state_classes
 
+    # Routing
+
+    # In some cases, it may not be possible to convert directly between two
+    # states, so we need to use one or more intermediate states in order to
+    # get to where we want to be.
+
+    # For example, the OpenCV plugin doesn't load JPEG images, so the image
+    # needs to be loaded into either Pillow or Wand first and converted to
+    # OpenCV.
+
+    # Using a routing algorithm, we're able to work out the best path to take.
+
+    def get_converters_from(self, from_state_class):
+        """
+        Yields a tuple for each state class a state can be directly converted
+        to. The tuple contains the converter function and the state class.
+
+        For example:
+
+        >>> list(registry.get_converters_from(Pillow))
+        [
+            (convert_pillow_to_wand(), Wand),
+            (save_as_jpeg(), JpegFile)
+            ...
+        ]
+        """
+        for (c_from, c_to), converter in self._registered_converters.items():
+            if c_from is from_state_class:
+                yield converter, c_to
+
     def find_all_paths(self, start, end, path=[], seen_states=set()):
         """
-        Returns all paths between two states
+        Returns all paths between two states.
 
-        Each path is a list of tuples representing the  to take in order to
+        Each path is a list of tuples representing the step to take in order to
         convert to the new state. The tuples contain two items, The converter
         function to call and the state class that step converts to.
 
         The order of the paths returned is undefined.
+
+        For example:
+
+        >>> registry.find_all_paths(JpegFile, OpenCV)
+        [
+            [
+                (load_jpeg_into_pillow, Pillow),
+                (convert_pillow_to_opencv, OpenCV)
+            ],
+            [
+                (load_jpeg_into_wand, Wand),
+                (convert_wand_to_opencv, OpenCV)
+            ]
+        ]
         """
         # Implementation based on https://www.python.org/doc/essays/graphs/
         if start == end:
@@ -144,6 +183,17 @@ class WillowRegistry(object):
         return paths
 
     def route_to_operation(self, from_state, operation_name):
+        """
+        When an operation is not available in the current state. This method
+        can be used to find the nearest state that has the opreation.
+
+        The distance is based on the sum of all the conversions that are
+        required to get to the new state.
+
+        This function returns a single converter function and the end state
+        class. When this converter function is called, it would perform all the
+        steps to convert the image into the final state class.
+        """
         state_classes = self.get_state_classes(
             with_converter_from=from_state,
             with_operation=operation_name,
