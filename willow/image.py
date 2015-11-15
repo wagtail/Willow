@@ -23,12 +23,12 @@ class Image(object):
             operation = registry.get_operation(type(self.state), attr)
             new_state_class = None
         except LookupError:
-            operation, new_state_class = registry.route_to_operation(type(self.state), attr)
+            operation, new_state_class, conversion_path, conversion_cost = registry.route_to_operation(type(self.state), attr)
 
         def wrapper(*args, **kwargs):
             if new_state_class:
-                converter = registry.get_converter(type(self.state), new_state_class)
-                self.state = converter(self.state)
+                for converter, new_state in conversion_path:
+                    self.state = converter(self.state)
 
             return_value = operation(self.state, *args, **kwargs)
 

@@ -182,6 +182,58 @@ class WillowRegistry(object):
 
         return paths
 
+    def get_path_cost(self, start_state, path):
+        """
+        Costs up a path and returns it as an integer.
+        """
+        last_state = start_state
+        total_cost = 0
+
+        for converter, next_state in path:
+            total_cost += self.get_converter_cost(last_state, next_state)
+            last_state = next_state
+
+        return total_cost
+
+    def find_shortest_path(self, start, end):
+        """
+        Finds the shortest path between two states.
+
+        This is similar to the find_all_paths function, except it costs up each
+        path and only returns the one with the lowest cost.
+        """
+        current_path = None
+        current_cost = None
+
+        for path in self.find_all_paths(start, end):
+            cost = self.get_path_cost(start, path)
+
+            if current_cost is None or cost < current_cost:
+                current_cost = cost
+                current_path = path
+
+        return current_path, current_cost
+
+    def find_closest_state_class(self, start, state_classes):
+        """
+        Finds which of the specified states is the closest, based on the sum of
+        the costs of the converters needed to convert the image into the final
+        state.
+        """
+        current_state = None
+        current_path = None
+        current_cost = None
+
+        for state in state_classes:
+            path, cost = self.find_shortest_path(start, state)
+
+            if current_cost is None or cost < current_cost:
+                current_state = state
+                current_cost = cost
+                current_path = path
+
+        return current_state, current_path, current_cost
+
     def route_to_operation(self, from_state, operation_name):
         """
         When an operation is not available in the current state. This method
@@ -200,9 +252,11 @@ class WillowRegistry(object):
             available=True)
 
         # Choose a state class
-        state_class = list(state_classes)[0]
+        # state_classes will always have a value here as get_state_classes raises
+        # LookupError if there are no state classes available.
+        state_class, path, cost = self.find_closest_state_class(from_state, state_classes)
 
-        return self.get_operation(state_class, operation_name), state_class
+        return self.get_operation(state_class, operation_name), state_class, path, cost
 
 
 registry = WillowRegistry()
