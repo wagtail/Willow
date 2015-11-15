@@ -67,10 +67,14 @@ class PillowImage(Image):
 
     @Image.operation
     def save_as_gif(self, f):
-        if 'transparency' in self.image.info:
-            self.image.save(f, 'GIF', transparency=self.image.info['transparency'])
+        image = self.image
+        if image.mode not in ['L', 'P']:
+            image = image.convert('P', palette=_PIL_Image().ADAPTIVE)
+
+        if 'transparency' in image.info:
+            image.save(f, 'GIF', transparency=image.info['transparency'])
         else:
-            self.image.save(f, 'GIF')
+            image.save(f, 'GIF')
 
     @classmethod
     @Image.converter_from(JPEGImageFile)

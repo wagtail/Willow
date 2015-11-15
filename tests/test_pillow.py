@@ -3,7 +3,7 @@ import io
 import imghdr
 
 from willow.image import PNGImageFile, GIFImageFile
-from willow.plugins.pillow import PillowImage
+from willow.plugins.pillow import _PIL_Image, PillowImage
 
 
 class TestPillowOperations(unittest.TestCase):
@@ -44,6 +44,19 @@ class TestPillowOperations(unittest.TestCase):
         output.seek(0)
 
         self.assertEqual(imghdr.what(output), 'gif')
+
+    def test_save_as_gif_converts_back_to_supported_mode(self):
+        output = io.BytesIO()
+
+        with open('tests/images/transparent.gif', 'rb') as f:
+            image = PillowImage.open(GIFImageFile(f))
+            image.image = image.image.convert('RGB')
+
+        image.save_as_gif(output)
+        output.seek(0)
+
+        image = _PIL_Image().open(output)
+        self.assertEqual(image.mode, 'P')
 
     def test_has_alpha(self):
         has_alpha = self.image.has_alpha()
