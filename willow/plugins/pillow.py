@@ -68,6 +68,10 @@ class PillowImage(Image):
     @Image.operation
     def save_as_gif(self, f):
         image = self.image
+
+        # All gif files use either the L or P mode but we sometimes convert them
+        # to RGB/RGBA to improve the quality of resizing. We must make sure that
+        # they are converted back before saving.
         if image.mode not in ['L', 'P']:
             image = image.convert('P', palette=_PIL_Image().ADAPTIVE)
 
