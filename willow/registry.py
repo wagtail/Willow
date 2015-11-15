@@ -65,7 +65,7 @@ class WillowRegistry(object):
         state_classes = self._registered_state_classes
 
         if with_operation:
-            state_classes = filter(lambda state: state in self._registered_operations and operation_name in self._registered_operations[state], state_classes)
+            state_classes = filter(lambda state: state in self._registered_operations and with_operation in self._registered_operations[state], state_classes)
 
         if with_converter_from is not None:
             state_classes = filter(lambda state: (with_converter_from, state) in self._registered_converters, state_classes)
@@ -75,7 +75,7 @@ class WillowRegistry(object):
 
         # Raise error if no state classes available
         if not state_classes:
-            raise LookupError("Could not find state class with the '{0}' operation".format(operation_name))
+            raise LookupError("Could not find state class with the '{0}' operation".format(with_operation))
 
         # Check each state class and remove unavailable ones
         if available:
@@ -93,7 +93,7 @@ class WillowRegistry(object):
             # Raise error if all state classes failed the check
             if not available_state_classes:
                 raise LookupError('\n'.join([
-                    "The operation '{0}' is available in the following states but they all raised errors:".format(operation_name)
+                    "The operation '{0}' is available in the following states but they all raised errors:".format(with_operation)
                 ] + [
                     "{state_class_name}: {error_message}".format(
                         state_class_name=state_class.__name__,
