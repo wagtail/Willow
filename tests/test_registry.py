@@ -1,6 +1,6 @@
 import unittest
 
-from willow.states import ImageState
+from willow.image import Image
 from willow.registry import WillowRegistry
 
 
@@ -8,202 +8,202 @@ class RegistryTestCase(unittest.TestCase):
     def setUp(self):
         self.registry = WillowRegistry()
 
-        class TestState(ImageState):
+        class TestImage(Image):
             pass
 
-        class AnotherTestState(ImageState):
+        class AnotherTestImage(Image):
             pass
 
-        class UnregisteredTestState(ImageState):
+        class UnregisteredTestImage(Image):
             pass
 
-        self.TestState = TestState
-        self.AnotherTestState = AnotherTestState
-        self.UnregisteredTestState = UnregisteredTestState
+        self.TestImage = TestImage
+        self.AnotherTestImage = AnotherTestImage
+        self.UnregisteredTestImage = UnregisteredTestImage
 
-        self.registry._registered_state_classes = {TestState, AnotherTestState}
+        self.registry._registered_image_classes = {TestImage, AnotherTestImage}
 
 
 class TestRegisterOperation(RegistryTestCase):
     def test_register_operation(self):
-        def test_operation(state):
+        def test_operation(image):
             pass
 
-        self.registry.register_operation(self.TestState, 'test', test_operation)
+        self.registry.register_operation(self.TestImage, 'test', test_operation)
 
-        self.assertEqual(test_operation, self.registry._registered_operations[self.TestState]['test'])
+        self.assertEqual(test_operation, self.registry._registered_operations[self.TestImage]['test'])
 
     @unittest.expectedFailure
-    def test_register_operation_against_unregistered_state_class(self):
-        def test_operation(state):
+    def test_register_operation_against_unregistered_image_class(self):
+        def test_operation(image):
             pass
 
-        self.registry.register_operation(self.UnregisteredTestState, 'test', test_operation)
+        self.registry.register_operation(self.UnregisteredTestImage, 'test', test_operation)
 
         # Shouldn't register anything
-        self.assertNotIn(self.UnregisteredTestState, self.registry._registered_operations)
+        self.assertNotIn(self.UnregisteredTestImage, self.registry._registered_operations)
 
 
 class TestRegisterConverter(RegistryTestCase):
     def test_register_converter(self):
-        def test_converter(state):
+        def test_converter(image):
             pass
 
-        self.registry.register_converter(self.TestState, self.AnotherTestState, test_converter)
+        self.registry.register_converter(self.TestImage, self.AnotherTestImage, test_converter)
 
-        self.assertEqual(test_converter, self.registry._registered_converters[self.TestState, self.AnotherTestState])
+        self.assertEqual(test_converter, self.registry._registered_converters[self.TestImage, self.AnotherTestImage])
 
     @unittest.expectedFailure
-    def test_register_converter_from_unregistered_state(self):
-        def test_converter(state):
+    def test_register_converter_from_unregistered_image_class(self):
+        def test_converter(image):
             pass
 
-        self.registry.register_converter(self.TestState, self.UnregisteredTestState, test_converter)
+        self.registry.register_converter(self.TestImage, self.UnregisteredTestImage, test_converter)
 
-        self.assertNotIn((self.TestState, self.UnregisteredTestState), self.registry._registered_converters)
+        self.assertNotIn((self.TestImage, self.UnregisteredTestImage), self.registry._registered_converters)
 
     @unittest.expectedFailure
-    def test_register_converter_to_unregistered_state(self):
-        def test_converter(state):
+    def test_register_converter_to_unregistered_image_class(self):
+        def test_converter(image):
             pass
 
-        self.registry.register_converter(self.UnregisteredTestState, self.AnotherTestState, test_converter)
+        self.registry.register_converter(self.UnregisteredTestImage, self.AnotherTestImage, test_converter)
 
-        self.assertNotIn((self.UnregisteredTestState, self.AnotherTestState), self.registry._registered_converters)
+        self.assertNotIn((self.UnregisteredTestImage, self.AnotherTestImage), self.registry._registered_converters)
 
 
-class TestRegisterStateClass(RegistryTestCase):
-    def test_register_state_class(self):
-        class NewTestState(ImageState):
+class TestRegisterImageClass(RegistryTestCase):
+    def test_register_image_class(self):
+        class NewTestImage(Image):
             pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertIn(NewTestState, self.registry._registered_state_classes)
+        self.assertIn(NewTestImage, self.registry._registered_image_classes)
 
-    def test_register_state_class_with_operation(self):
-        class NewTestState(ImageState):
-            @ImageState.operation
+    def test_register_image_class_with_operation(self):
+        class NewTestImage(Image):
+            @Image.operation
             def operation(self):
                 pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertEqual(NewTestState.operation, self.registry._registered_operations[NewTestState]['operation'])
+        self.assertEqual(NewTestImage.operation, self.registry._registered_operations[NewTestImage]['operation'])
 
-    def test_register_state_class_with_multiple_operations(self):
-        class NewTestState(ImageState):
-            @ImageState.operation
+    def test_register_image_class_with_multiple_operations(self):
+        class NewTestImage(Image):
+            @Image.operation
             def operation(self):
                 pass
 
-            @ImageState.operation
+            @Image.operation
             def another_operation(self):
                 pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertEqual(NewTestState.operation, self.registry._registered_operations[NewTestState]['operation'])
-        self.assertEqual(NewTestState.another_operation, self.registry._registered_operations[NewTestState]['another_operation'])
+        self.assertEqual(NewTestImage.operation, self.registry._registered_operations[NewTestImage]['operation'])
+        self.assertEqual(NewTestImage.another_operation, self.registry._registered_operations[NewTestImage]['another_operation'])
 
-    def test_register_state_class_with_converter_from(self):
-        class NewTestState(ImageState):
-            @ImageState.converter_from(self.TestState)
+    def test_register_image_class_with_converter_from(self):
+        class NewTestImage(Image):
+            @Image.converter_from(self.TestImage)
             def converter(self):
                 pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertEqual(NewTestState.converter, self.registry._registered_converters[self.TestState, NewTestState])
+        self.assertEqual(NewTestImage.converter, self.registry._registered_converters[self.TestImage, NewTestImage])
 
-    def test_register_state_class_with_converter_from_multiple(self):
-        class NewTestState(ImageState):
-            @ImageState.converter_from([self.TestState, self.AnotherTestState])
+    def test_register_image_class_with_converter_from_multiple(self):
+        class NewTestImage(Image):
+            @Image.converter_from([self.TestImage, self.AnotherTestImage])
             def converter(self):
                 pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertEqual(NewTestState.converter, self.registry._registered_converters[self.TestState, NewTestState])
-        self.assertEqual(NewTestState.converter, self.registry._registered_converters[self.AnotherTestState, NewTestState])
+        self.assertEqual(NewTestImage.converter, self.registry._registered_converters[self.TestImage, NewTestImage])
+        self.assertEqual(NewTestImage.converter, self.registry._registered_converters[self.AnotherTestImage, NewTestImage])
 
-    def test_register_state_class_with_converter_from_multiple_lines(self):
-        class NewTestState(ImageState):
-            @ImageState.converter_from(self.TestState)
-            @ImageState.converter_from(self.AnotherTestState)
+    def test_register_image_class_with_converter_from_multiple_lines(self):
+        class NewTestImage(Image):
+            @Image.converter_from(self.TestImage)
+            @Image.converter_from(self.AnotherTestImage)
             def converter(self):
                 pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertEqual(NewTestState.converter, self.registry._registered_converters[self.TestState, NewTestState])
-        self.assertEqual(NewTestState.converter, self.registry._registered_converters[self.AnotherTestState, NewTestState])
+        self.assertEqual(NewTestImage.converter, self.registry._registered_converters[self.TestImage, NewTestImage])
+        self.assertEqual(NewTestImage.converter, self.registry._registered_converters[self.AnotherTestImage, NewTestImage])
 
-    def test_register_state_class_with_converter_to(self):
-        class NewTestState(ImageState):
-            @ImageState.converter_to(self.TestState)
+    def test_register_image_class_with_converter_to(self):
+        class NewTestImage(Image):
+            @Image.converter_to(self.TestImage)
             def converter(self):
                 pass
 
-        self.registry.register_state_class(NewTestState)
+        self.registry.register_image_class(NewTestImage)
 
-        self.assertEqual(NewTestState.converter, self.registry._registered_converters[NewTestState, self.TestState])
+        self.assertEqual(NewTestImage.converter, self.registry._registered_converters[NewTestImage, self.TestImage])
 
 
 class TestGetOperation(RegistryTestCase):
     def test_get_operation(self):
-        def test_operation(state):
+        def test_operation(image):
             pass
 
-        self.registry._registered_operations[self.TestState]['test'] = test_operation
+        self.registry._registered_operations[self.TestImage]['test'] = test_operation
 
-        self.assertEqual(test_operation, self.registry.get_operation(self.TestState, 'test'))
+        self.assertEqual(test_operation, self.registry.get_operation(self.TestImage, 'test'))
 
     def test_get_operation_nonexistant(self):
         with self.assertRaises(LookupError):
-            self.registry.get_operation(self.TestState, 'test')
+            self.registry.get_operation(self.TestImage, 'test')
 
 
 class TestGetConverter(RegistryTestCase):
     def test_get_converter(self):
-        def test_converter(state):
+        def test_converter(image):
             pass
 
-        self.registry._registered_converters[self.TestState, self.AnotherTestState] = test_converter
+        self.registry._registered_converters[self.TestImage, self.AnotherTestImage] = test_converter
 
-        self.assertEqual(test_converter, self.registry.get_converter(self.TestState, self.AnotherTestState))
+        self.assertEqual(test_converter, self.registry.get_converter(self.TestImage, self.AnotherTestImage))
 
     def test_get_converter_nonexistant(self):
         with self.assertRaises(LookupError):
-            self.registry.get_converter(self.TestState, self.AnotherTestState)
+            self.registry.get_converter(self.TestImage, self.AnotherTestImage)
 
 
 class TestGetConvertersFrom(RegistryTestCase):
     def test_get_converters_from(self):
-        test_converter = lambda state: state
-        test_converter_2 = lambda state: state
-        test_converter_3 = lambda state: state
+        test_converter = lambda image: image
+        test_converter_2 = lambda image: image
+        test_converter_3 = lambda image: image
 
-        self.registry._registered_converters[self.TestState, self.AnotherTestState] = test_converter
-        self.registry._registered_converters[self.TestState, self.UnregisteredTestState] = test_converter_2
-        self.registry._registered_converters[self.AnotherTestState, self.TestState] = test_converter_3
+        self.registry._registered_converters[self.TestImage, self.AnotherTestImage] = test_converter
+        self.registry._registered_converters[self.TestImage, self.UnregisteredTestImage] = test_converter_2
+        self.registry._registered_converters[self.AnotherTestImage, self.TestImage] = test_converter_3
 
-        result = list(self.registry.get_converters_from(self.TestState))
-        self.assertIn((test_converter, self.AnotherTestState), result)
-        self.assertIn((test_converter_2, self.UnregisteredTestState), result)
-        self.assertNotIn((test_converter_3, self.TestState), result)
-        self.assertNotIn((test_converter_3, self.AnotherTestState), result)
+        result = list(self.registry.get_converters_from(self.TestImage))
+        self.assertIn((test_converter, self.AnotherTestImage), result)
+        self.assertIn((test_converter_2, self.UnregisteredTestImage), result)
+        self.assertNotIn((test_converter_3, self.TestImage), result)
+        self.assertNotIn((test_converter_3, self.AnotherTestImage), result)
 
 
 class PathfindingTestCase(RegistryTestCase):
     def setUp(self):
         super(PathfindingTestCase, self).setUp()
 
-        self.StateA = type('StateA', (ImageState, ), {})
-        self.StateB = type('StateB', (ImageState, ), {})
-        self.StateC = type('StateC', (ImageState, ), {})
-        self.StateD = type('StateD', (ImageState, ), {})
-        self.StateE = type('StateE', (ImageState, ), {})
+        self.ImageA = type('ImageA', (Image, ), {})
+        self.ImageB = type('ImageB', (Image, ), {})
+        self.ImageC = type('ImageC', (Image, ), {})
+        self.ImageD = type('ImageD', (Image, ), {})
+        self.ImageE = type('ImageE', (Image, ), {})
 
         # In real life, these would be functions. But as we're not calling them
         # we'll just use strings instead as it's easier to see what's going on.
@@ -218,65 +218,65 @@ class PathfindingTestCase(RegistryTestCase):
         self.conv_d_to_e = 'd_to_e'
         self.conv_e_to_d = 'e_to_d'
 
-        self.registry._registered_state_classes = {
-            self.StateA, self.StateB, self.StateC, self.StateD, self.StateE}
+        self.registry._registered_image_classes = {
+            self.ImageA, self.ImageB, self.ImageC, self.ImageD, self.ImageE}
         self.registry._registered_converters = {
-            (self.StateA, self.StateB): self.conv_a_to_b,
-            (self.StateB, self.StateA): self.conv_b_to_a,
-            (self.StateA, self.StateC): self.conv_a_to_c,
-            (self.StateC, self.StateA): self.conv_c_to_a,
-            (self.StateB, self.StateD): self.conv_b_to_d,
-            (self.StateD, self.StateB): self.conv_d_to_b,
-            (self.StateC, self.StateD): self.conv_c_to_d,
-            (self.StateD, self.StateC): self.conv_d_to_c,
-            (self.StateD, self.StateE): self.conv_d_to_e,
-            (self.StateE, self.StateD): self.conv_e_to_d,
+            (self.ImageA, self.ImageB): self.conv_a_to_b,
+            (self.ImageB, self.ImageA): self.conv_b_to_a,
+            (self.ImageA, self.ImageC): self.conv_a_to_c,
+            (self.ImageC, self.ImageA): self.conv_c_to_a,
+            (self.ImageB, self.ImageD): self.conv_b_to_d,
+            (self.ImageD, self.ImageB): self.conv_d_to_b,
+            (self.ImageC, self.ImageD): self.conv_c_to_d,
+            (self.ImageD, self.ImageC): self.conv_d_to_c,
+            (self.ImageD, self.ImageE): self.conv_d_to_e,
+            (self.ImageE, self.ImageD): self.conv_e_to_d,
         }
 
 
 class TestFindAllPaths(PathfindingTestCase):
     def test_find_all_paths_a_to_e(self):
-        result = self.registry.find_all_paths(self.StateA, self.StateE)
+        result = self.registry.find_all_paths(self.ImageA, self.ImageE)
 
         self.assertEqual(len(result), 2)
 
         self.assertIn([
-            (self.conv_a_to_b, self.StateB),
-            (self.conv_b_to_d, self.StateD),
-            (self.conv_d_to_e, self.StateE),
+            (self.conv_a_to_b, self.ImageB),
+            (self.conv_b_to_d, self.ImageD),
+            (self.conv_d_to_e, self.ImageE),
         ], result)
 
         self.assertIn([
-            (self.conv_a_to_c, self.StateC),
-            (self.conv_c_to_d, self.StateD),
-            (self.conv_d_to_e, self.StateE),
+            (self.conv_a_to_c, self.ImageC),
+            (self.conv_c_to_d, self.ImageD),
+            (self.conv_d_to_e, self.ImageE),
         ], result)
 
     def test_find_all_paths_e_to_b(self):
-        result = self.registry.find_all_paths(self.StateE, self.StateB)
+        result = self.registry.find_all_paths(self.ImageE, self.ImageB)
 
         self.assertEqual(len(result), 2)
 
         self.assertIn([
-            (self.conv_e_to_d, self.StateD),
-            (self.conv_d_to_b, self.StateB),
+            (self.conv_e_to_d, self.ImageD),
+            (self.conv_d_to_b, self.ImageB),
         ], result)
 
         self.assertIn([
-            (self.conv_e_to_d, self.StateD),
-            (self.conv_d_to_c, self.StateC),
-            (self.conv_c_to_a, self.StateA),
-            (self.conv_a_to_b, self.StateB),
+            (self.conv_e_to_d, self.ImageD),
+            (self.conv_d_to_c, self.ImageC),
+            (self.conv_c_to_a, self.ImageA),
+            (self.conv_a_to_b, self.ImageB),
         ], result)
 
 
 class TestFindShortestPath(PathfindingTestCase):
     def test_find_shortest_path(self):
-        path, cost = self.registry.find_shortest_path(self.StateE, self.StateB)
+        path, cost = self.registry.find_shortest_path(self.ImageE, self.ImageB)
 
         self.assertEqual(path, [
-            (self.conv_e_to_d, self.StateD),
-            (self.conv_d_to_b, self.StateB),
+            (self.conv_e_to_d, self.ImageD),
+            (self.conv_d_to_b, self.ImageB),
         ])
 
         self.assertEqual(cost, 200)
@@ -284,16 +284,16 @@ class TestFindShortestPath(PathfindingTestCase):
     def test_find_shortest_path_with_cost(self):
         # Make conversion between d -> b very expensive so it takes the long way around
         self.registry._registered_converter_costs = {
-            (self.StateD, self.StateB): 1000,
+            (self.ImageD, self.ImageB): 1000,
         }
 
-        path, cost = self.registry.find_shortest_path(self.StateE, self.StateB)
+        path, cost = self.registry.find_shortest_path(self.ImageE, self.ImageB)
 
         self.assertEqual(path, [
-            (self.conv_e_to_d, self.StateD),
-            (self.conv_d_to_c, self.StateC),
-            (self.conv_c_to_a, self.StateA),
-            (self.conv_a_to_b, self.StateB),
+            (self.conv_e_to_d, self.ImageD),
+            (self.conv_d_to_c, self.ImageC),
+            (self.conv_c_to_a, self.ImageA),
+            (self.conv_a_to_b, self.ImageB),
         ])
 
         self.assertEqual(cost, 400)
@@ -308,18 +308,18 @@ class TestFindOperation(PathfindingTestCase):
         self.e_foo = 'e_foo'
 
         self.registry._registered_operations = {
-            self.StateB: {
+            self.ImageB: {
                 'foo': self.b_foo,
             },
-            self.StateE: {
+            self.ImageE: {
                 'foo': self.e_foo,
             }
         }
 
     def test_route_to_operation_foo_from_a(self):
-        func, state_class, path, cost = self.registry.route_to_operation(self.StateA, 'foo')
+        func, image_class, path, cost = self.registry.route_to_operation(self.ImageA, 'foo')
 
         self.assertEqual(func, self.b_foo)
-        self.assertEqual(state_class, self.StateB)
-        self.assertEqual(path, [(self.conv_a_to_b, self.StateB)])
+        self.assertEqual(image_class, self.ImageB)
+        self.assertEqual(path, [(self.conv_a_to_b, self.ImageB)])
         self.assertEqual(cost, 100)

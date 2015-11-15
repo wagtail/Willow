@@ -2,14 +2,14 @@ import unittest
 import io
 import imghdr
 
-from willow.states import PNGImageFileState, GIFImageFileState
-from willow.plugins.pillow import PillowImageState
+from willow.image import PNGImageFile, GIFImageFile
+from willow.plugins.pillow import PillowImage
 
 
 class TestPillowOperations(unittest.TestCase):
     def setUp(self):
         with open('tests/images/transparent.png', 'rb') as f:
-            self.image = PillowImageState.open(PNGImageFileState(f))
+            self.image = PillowImage.open(PNGImageFile(f))
 
     def test_get_size(self):
         width, height = self.image.get_size()
@@ -55,7 +55,7 @@ class TestPillowOperations(unittest.TestCase):
 
     def test_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
-            image = PillowImageState.open(GIFImageFileState(f))
+            image = PillowImage.open(GIFImageFile(f))
 
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
@@ -66,7 +66,7 @@ class TestPillowOperations(unittest.TestCase):
     @unittest.expectedFailure
     def test_resize_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
-            image = PillowImageState.open(GIFImageFileState(f))
+            image = PillowImage.open(GIFImageFile(f))
 
         resized_image = image.resize((100, 75))
 
@@ -78,7 +78,7 @@ class TestPillowOperations(unittest.TestCase):
 
     def test_save_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
-            image = PillowImageState.open(GIFImageFileState(f))
+            image = PillowImage.open(GIFImageFile(f))
 
         # Save it into memory
         f = io.BytesIO()
@@ -86,7 +86,7 @@ class TestPillowOperations(unittest.TestCase):
 
         # Reload it
         f.seek(0)
-        image = PillowImageState.open(GIFImageFileState(f))
+        image = PillowImage.open(GIFImageFile(f))
 
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
@@ -97,7 +97,7 @@ class TestPillowOperations(unittest.TestCase):
     @unittest.expectedFailure # Pillow doesn't support animation
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
-            image = PillowImageState.open(GIFImageFileState(f))
+            image = PillowImage.open(GIFImageFile(f))
 
         self.assertFalse(image.has_alpha())
         self.assertTrue(image.has_animation())
@@ -105,7 +105,7 @@ class TestPillowOperations(unittest.TestCase):
     @unittest.expectedFailure # Pillow doesn't support animation
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
-            image = PillowImageState.open(GIFImageFileState(f))
+            image = PillowImage.open(GIFImageFile(f))
 
         resized_image = image.resize((100, 75))
 

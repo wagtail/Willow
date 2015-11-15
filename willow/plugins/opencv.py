@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import io
 import os
 
-from willow.states import ImageState, RGBImageBufferState
+from willow.image import Image, RGBImageBuffer
 
 
 def _cv():
@@ -11,7 +11,7 @@ def _cv():
     return cv
 
 
-class BaseOpenCVImageState(ImageState):
+class BaseOpenCVImage(Image):
     def __init__(self, image, size):
         self.image = image
         self.size = size
@@ -20,36 +20,36 @@ class BaseOpenCVImageState(ImageState):
     def check(cls):
         _cv()
 
-    @ImageState.operation
+    @Image.operation
     def get_size(self):
         return self.size
 
-    @ImageState.operation
+    @Image.operation
     def has_alpha(self):
         # Alpha is not supported by OpenCV
         return False
 
-    @ImageState.operation
+    @Image.operation
     def has_animation(self):
         # Animation is not supported by OpenCV
         return False
 
 
-class OpenCVColorImageState(BaseOpenCVImageState):
+class OpenCVColorImage(BaseOpenCVImage):
     @classmethod
-    @ImageState.converter_from(RGBImageBufferState)
-    def from_buffer_rgb(cls, state):
+    @Image.converter_from(RGBImageBuffer)
+    def from_buffer_rgb(cls, image_buffer):
         cv = _cv()
 
-        image = cv.CreateImageHeader(state.size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image, state.data)
-        return cls(image, state.size)
+        image = cv.CreateImageHeader(image_buffer.size, cv.IPL_DEPTH_8U, 3)
+        cv.SetData(image, image_buffer.data)
+        return cls(image, image_buffer.size)
 
-    # TODO: Converter back to RGBImageBufferState
+    # TODO: Converter back to RGBImageBuffer
 
 
-class OpenCVGrayscaleImageState(BaseOpenCVImageState):
-    @ImageState.operation
+class OpenCVGrayscaleImage(BaseOpenCVImage):
+    @Image.operation
     def detect_features(self):
         cv = _cv()
         rows, cols = self.size
@@ -60,7 +60,7 @@ class OpenCVGrayscaleImageState(BaseOpenCVImageState):
 
         return points
 
-    @ImageState.operation
+    @Image.operation
     def detect_faces(self, cascade_filename='haarcascade_frontalface_alt2.xml'):
         cv = _cv()
 
@@ -100,13 +100,13 @@ class OpenCVGrayscaleImageState(BaseOpenCVImageState):
         ]
 
     @classmethod
-    @ImageState.converter_from(OpenCVColorImageState)
-    def from_color(cls, state):
+    @Image.converter_from(OpenCVColorImage)
+    def from_color(cls, colour_image):
         cv = _cv()
 
-        image = cv.CreateImage(state.size, 8, 1)
-        cv.CvtColor(state.image, image, cv.CV_RGB2GRAY)
-        return cls(image, state.size)
+        image = cv.CreateImage(colour_image.size, 8, 1)
+        cv.CvtColor(colour_image.image, image, cv.CV_RGB2GRAY)
+        return cls(image, colour_image.size)
 
 
-willow_state_classes = [OpenCVColorImageState, OpenCVGrayscaleImageState]
+willow_image_classes = [OpenCVColorImage, OpenCVGrayscaleImage]

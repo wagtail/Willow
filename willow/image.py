@@ -2,7 +2,6 @@ import imghdr
 import warnings
 
 from .registry import registry
-from .states import ImageState, INITIAL_STATE_CLASSES
 from .utils.deprecation import RemovedInWillow05Warning
 
 
@@ -11,8 +10,39 @@ class UnrecognisedFileError(IOError):
 
 
 class Image(object):
-    def __init__(self, initial_state):
-        self.state = initial_state
+    @classmethod
+    def check(cls):
+        pass
+
+    @staticmethod
+    def operation(func):
+        func._willow_operation = True
+        return func
+
+    @staticmethod
+    def converter_to(to_class, cost=None):
+        def wrapper(func):
+            func._willow_converter_to = (to_class, cost)
+            return func
+
+        return wrapper
+
+    @staticmethod
+    def converter_from(from_class, cost=None):
+        def wrapper(func):
+            if not hasattr(func, '_willow_converter_from'):
+                func._willow_converter_from = []
+
+            if isinstance(from_class, list):
+                func._willow_converter_from.extend([
+                    (sc, cost) for sc in from_class]
+                )
+            else:
+                func._willow_converter_from.append((from_class, cost))
+
+            return func
+
+        return wrapper
 
     def __getattr__(self, attr):
         # Raise error if attr is not an operation
@@ -22,22 +52,24 @@ class Image(object):
             ))
 
         try:
-            operation = registry.get_operation(type(self.state), attr)
-            new_state_class = None
+            operation = registry.get_operation(type(self), attr)
+            new_class = None
         except LookupError:
-            operation, new_state_class, conversion_path, conversion_cost = registry.route_to_operation(type(self.state), attr)
+            operation, new_class, conversion_path, conversion_cost = registry.route_to_operation(type(self), attr)
 
         def wrapper(*args, **kwargs):
-            if new_state_class:
-                for converter, new_state in conversion_path:
-                    self.state = converter(self.state)
+            image = self
 
-            return_value = operation(self.state, *args, **kwargs)
+            if new_class:
+                for converter, _ in conversion_path:
+                    image = converter(image)
 
-            if isinstance(return_value, ImageState):
-                self.state = return_value
+            return_value = operation(image, *args, **kwargs)
 
-            return return_value
+            if isinstance(return_value, Image):
+                image = return_value
+
+            return image
 
         return wrapper
 
@@ -48,18 +80,18 @@ class Image(object):
         # Detect image format
         image_format = imghdr.what(f)
 
-        # Find initial state
-        initial_state_class = INITIAL_STATE_CLASSES.get(image_format)
+        # Find initial class
+        initial_class = INITIAL_IMAGE_CLASSES.get(image_format)
 
-        # Give error if initial state not found
-        if not initial_state_class:
+        # Give error if initial class not found
+        if not initial_class:
             if image_format:
                 raise UnrecognisedFileError("Cannot load %s files" % image_format)
             else:
                 raise UnrecognisedFileError("Unknown file format")
 
-        # Instantiate initial state
-        image = cls(initial_state_class(f))
+        # Instantiate initial class
+        image = initial_class(f)
         image._original_format = image_format
         return image
 
@@ -74,3 +106,62 @@ class Image(object):
         # Get operation name
         operation_name = 'save_as_' + image_format
         return getattr(self, operation_name)(output)
+
+
+class ImageBuffer(Image):
+    def __init__(self, size, data):
+        self.size = size
+        self.data = data
+
+    @Image.operation
+    def get_size(self):
+        return self.size
+
+
+class RGBImageBuffer(ImageBuffer):
+    mode = 'RGB'
+
+    @Image.operation
+    def has_alpha(self):
+        return False
+
+    @Image.operation
+    def has_animation(self):
+        return False
+
+
+class RGBAImageBuffer(ImageBuffer):
+    mode = 'RGBA'
+
+    @Image.operation
+    def has_alpha(self):
+        return True
+
+    @Image.operation
+    def has_animation(self):
+        return False
+
+
+class ImageFile(Image):
+    def __init__(self, f):
+        self.f = f
+
+
+class JPEGImageFile(ImageFile):
+    pass
+
+
+class PNGImageFile(ImageFile):
+    pass
+
+
+class GIFImageFile(ImageFile):
+    pass
+
+
+INITIAL_IMAGE_CLASSES = {
+    # A mapping of image formats to their initial class
+    'jpeg': JPEGImageFile,
+    'png': PNGImageFile,
+    'gif': GIFImageFile,
+}

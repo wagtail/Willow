@@ -2,14 +2,14 @@ import unittest
 import io
 import imghdr
 
-from willow.states import PNGImageFileState, GIFImageFileState
-from willow.plugins.wand import WandImageState
+from willow.image import PNGImageFile, GIFImageFile
+from willow.plugins.wand import WandImage
 
 
 class TestWandOperations(unittest.TestCase):
     def setUp(self):
         with open('tests/images/transparent.png', 'rb') as f:
-            self.image = WandImageState.open(PNGImageFileState(f))
+            self.image = WandImage.open(PNGImageFile(f))
 
     def test_get_size(self):
         width, height = self.image.get_size()
@@ -55,7 +55,7 @@ class TestWandOperations(unittest.TestCase):
 
     def test_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
-            image = WandImageState.open(GIFImageFileState(f))
+            image = WandImage.open(GIFImageFile(f))
 
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
@@ -65,7 +65,7 @@ class TestWandOperations(unittest.TestCase):
 
     def test_resize_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
-            image = WandImageState.open(GIFImageFileState(f))
+            image = WandImage.open(GIFImageFile(f))
 
         resized_image = image.resize((100, 75))
 
@@ -77,13 +77,13 @@ class TestWandOperations(unittest.TestCase):
 
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
-            image = WandImageState.open(GIFImageFileState(f))
+            image = WandImage.open(GIFImageFile(f))
 
         self.assertTrue(image.has_animation())
 
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
-            image = WandImageState.open(GIFImageFileState(f))
+            image = WandImage.open(GIFImageFile(f))
 
         resized_image = image.resize((100, 75))
 

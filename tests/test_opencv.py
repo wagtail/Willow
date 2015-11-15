@@ -2,19 +2,19 @@ import unittest
 import io
 import imghdr
 
-from willow.states import JPEGImageFileState
-from willow.plugins.pillow import PillowImageState
-from willow.plugins.opencv import OpenCVColorImageState, OpenCVGrayscaleImageState
+from willow.image import JPEGImageFile
+from willow.plugins.pillow import PillowImage
+from willow.plugins.opencv import OpenCVColorImage, OpenCVGrayscaleImage
 
 
 class TestOpenCVOperations(unittest.TestCase):
     def setUp(self):
         with open('tests/images/people.jpg', 'rb') as f:
             # Open the image via Pillow
-            pillow_image = PillowImageState.open(JPEGImageFileState(f))
+            pillow_image = PillowImage.open(JPEGImageFile(f))
             buffer_rgb = pillow_image.to_buffer_rgb()
-            colour_image = OpenCVColorImageState.from_buffer_rgb(buffer_rgb)
-            self.image = OpenCVGrayscaleImageState.from_color(colour_image)
+            colour_image = OpenCVColorImage.from_buffer_rgb(buffer_rgb)
+            self.image = OpenCVGrayscaleImage.from_color(colour_image)
 
     def test_get_size(self):
         width, height = self.image.get_size()

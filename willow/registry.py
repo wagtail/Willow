@@ -3,41 +3,41 @@ from collections import defaultdict
 
 class WillowRegistry(object):
     def __init__(self):
-        self._registered_state_classes = set()
+        self._registered_image_classes = set()
         self._registered_operations = defaultdict(dict)
         self._registered_converters = dict()
         self._registered_converter_costs = dict()
 
-    def register_operation(self, state_class, operation_name, func):
-        self._registered_operations[state_class][operation_name] = func
+    def register_operation(self, image_class, operation_name, func):
+        self._registered_operations[image_class][operation_name] = func
 
-    def register_converter(self, from_state_class, to_state_class, func, cost=None):
-        self._registered_converters[from_state_class, to_state_class] = func
+    def register_converter(self, from_image_class, to_image_class, func, cost=None):
+        self._registered_converters[from_image_class, to_image_class] = func
 
         if cost is not None:
-            self._registered_converter_costs[from_state_class, to_state_class] = cost
+            self._registered_converter_costs[from_image_class, to_image_class] = cost
 
-    def register_state_class(self, state_class):
-        self._registered_state_classes.add(state_class)
+    def register_image_class(self, image_class):
+        self._registered_image_classes.add(image_class)
 
         # Find and register operations/converters
-        for attr in dir(state_class):
-            val = getattr(state_class, attr)
+        for attr in dir(image_class):
+            val = getattr(image_class, attr)
             if hasattr(val, '_willow_operation'):
-                self.register_operation(state_class, val.__name__, val)
+                self.register_operation(image_class, val.__name__, val)
             elif hasattr(val, '_willow_converter_to'):
-                self.register_converter(state_class, val._willow_converter_to[0], val, cost=val._willow_converter_to[1])
+                self.register_converter(image_class, val._willow_converter_to[0], val, cost=val._willow_converter_to[1])
             elif hasattr(val, '_willow_converter_from'):
                 for converter_from, cost in val._willow_converter_from:
-                    self.register_converter(converter_from, state_class, val, cost=cost)
+                    self.register_converter(converter_from, image_class, val, cost=cost)
 
     def register_plugin(self, plugin):
-        state_classes = getattr(plugin, 'willow_state_classes', [])
+        image_classes = getattr(plugin, 'willow_image_classes', [])
         operations = getattr(plugin, 'willow_operations', [])
         converters = getattr(plugin, 'willow_converters', [])
 
-        for state_class in state_classes:
-            self.register_state_class(state_class)
+        for image_class in image_classes:
+            self.register_image_class(image_class)
 
         for operation in operations:
             self.register_operation(operatin[0], operation[1], operation[2])
@@ -45,72 +45,72 @@ class WillowRegistry(object):
         for converter in converters:
             self.register_converter(converter[0], converter[1], converter[2])
 
-    def get_operation(self, state_class, operation_name):
-        return self._registered_operations[state_class][operation_name]
+    def get_operation(self, image_class, operation_name):
+        return self._registered_operations[image_class][operation_name]
 
     def operation_exists(self, operation_name):
-        for state_class_operations in self._registered_operations.values():
-            if operation_name in state_class_operations:
+        for image_class_operations in self._registered_operations.values():
+            if operation_name in image_class_operations:
                 return True
 
         return False
 
-    def get_converter(self, from_state_class, to_state_class):
-        return self._registered_converters[from_state_class, to_state_class]
+    def get_converter(self, from_image_class, to_image_class):
+        return self._registered_converters[from_image_class, to_image_class]
 
-    def get_converter_cost(self, from_state_class, to_state_class):
-        return self._registered_converter_costs.get((from_state_class, to_state_class), 100)
+    def get_converter_cost(self, from_image_class, to_image_class):
+        return self._registered_converter_costs.get((from_image_class, to_image_class), 100)
 
-    def get_state_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
-        state_classes = self._registered_state_classes
+    def get_image_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
+        image_classes = self._registered_image_classes
 
         if with_operation:
-            state_classes = filter(lambda state: state in self._registered_operations and with_operation in self._registered_operations[state], state_classes)
+            image_classes = filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes)
 
         if with_converter_from is not None:
-            state_classes = filter(lambda state: (with_converter_from, state) in self._registered_converters, state_classes)
+            image_classes = filter(lambda image_class: (with_converter_from, image_class) in self._registered_converters, image_classes)
 
         if with_converter_to is not None:
-            state_classes = filter(lambda state: (state, with_converter_to) in self._registered_converters, state_classes)
+            image_classes = filter(lambda image_class: (image_class, with_converter_to) in self._registered_converters, image_classes)
 
-        # Raise error if no state classes available
-        if not state_classes:
-            raise LookupError("Could not find state class with the '{0}' operation".format(with_operation))
+        # Raise error if no image classes available
+        if not image_classes:
+            raise LookupError("Could not find image class with the '{0}' operation".format(with_operation))
 
-        # Check each state class and remove unavailable ones
+        # Check each image class and remove unavailable ones
         if available:
-            state_class_check_errors = {}
-            available_state_classes = set()
+            image_class_check_errors = {}
+            available_image_classes = set()
 
-            for state_class in state_classes:
+            for image_class in image_classes:
                 try:
-                    state_class.check()
+                    image_class.check()
                 except Exception as e:
-                    state_class_check_errors[state_class] = e
+                    image_class_check_errors[image_class] = e
                 else:
-                    available_state_classes.add(state_class)
+                    available_image_classes.add(image_class)
 
-            # Raise error if all state classes failed the check
-            if not available_state_classes:
+            # Raise error if all image classes failed the check
+            if not available_image_classes:
                 raise LookupError('\n'.join([
-                    "The operation '{0}' is available in the following states but they all raised errors:".format(with_operation)
+                    "The operation '{0}' is available in the following image classes but they all raised errors:".format(with_operation)
                 ] + [
-                    "{state_class_name}: {error_message}".format(
-                        state_class_name=state_class.__name__,
+                    "{image_class_name}: {error_message}".format(
+                        image_class_name=image_class.__name__,
                         error_message=str(error)
                     )
-                    for state_class, error in state_class_check_errors.items()
+                    for image_class, error in image_class_check_errors.items()
                 ]))
 
-            state_classes = list(available_state_classes)
+            image_classes = list(available_image_classes)
 
-        return state_classes
+        return image_classes
 
     # Routing
 
     # In some cases, it may not be possible to convert directly between two
-    # states, so we need to use one or more intermediate states in order to
-    # get to where we want to be.
+    # image classes, so we need to use one or more intermediate classes in order
+    # to get to where we want to be.
 
     # For example, the OpenCV plugin doesn't load JPEG images, so the image
     # needs to be loaded into either Pillow or Wand first and converted to
@@ -118,10 +118,11 @@ class WillowRegistry(object):
 
     # Using a routing algorithm, we're able to work out the best path to take.
 
-    def get_converters_from(self, from_state_class):
+    def get_converters_from(self, from_image_class):
         """
-        Yields a tuple for each state class a state can be directly converted
-        to. The tuple contains the converter function and the state class.
+        Yields a tuple for each image class that can be directly converted
+        to from the specified image classes. The tuple contains the converter
+        function and the image class.
 
         For example:
 
@@ -133,16 +134,16 @@ class WillowRegistry(object):
         ]
         """
         for (c_from, c_to), converter in self._registered_converters.items():
-            if c_from is from_state_class:
+            if c_from is from_image_class:
                 yield converter, c_to
 
-    def find_all_paths(self, start, end, path=[], seen_states=set()):
+    def find_all_paths(self, start, end, path=[], seen_classes=set()):
         """
-        Returns all paths between two states.
+        Returns all paths between two image classes.
 
         Each path is a list of tuples representing the step to take in order to
-        convert to the new state. The tuples contain two items, The converter
-        function to call and the state class that step converts to.
+        convert to the new class. The tuples contain two items, The converter
+        function to call and the class that step converts to.
 
         The order of the paths returned is undefined.
 
@@ -164,40 +165,40 @@ class WillowRegistry(object):
         if start == end:
             return [path]
 
-        if start in seen_states:
+        if start in seen_classes:
             return []
 
-        if not start in self._registered_state_classes:
+        if not start in self._registered_image_classes:
             return []
 
         paths = []
-        for converter, next_state in self.get_converters_from(start):
-            if next_state not in path:
+        for converter, next_class in self.get_converters_from(start):
+            if next_class not in path:
                 newpaths = self.find_all_paths(
-                    next_state, end,
-                    path + [(converter, next_state)],
-                    seen_states.union({start}))
+                    next_class, end,
+                    path + [(converter, next_class)],
+                    seen_classes.union({start}))
 
                 paths.extend(newpaths)
 
         return paths
 
-    def get_path_cost(self, start_state, path):
+    def get_path_cost(self, start, path):
         """
         Costs up a path and returns it as an integer.
         """
-        last_state = start_state
+        last_class = start
         total_cost = 0
 
-        for converter, next_state in path:
-            total_cost += self.get_converter_cost(last_state, next_state)
-            last_state = next_state
+        for converter, next_class in path:
+            total_cost += self.get_converter_cost(last_class, next_class)
+            last_class = next_class
 
         return total_cost
 
     def find_shortest_path(self, start, end):
         """
-        Finds the shortest path between two states.
+        Finds the shortest path between two image classes.
 
         This is similar to the find_all_paths function, except it costs up each
         path and only returns the one with the lowest cost.
@@ -214,49 +215,49 @@ class WillowRegistry(object):
 
         return current_path, current_cost
 
-    def find_closest_state_class(self, start, state_classes):
+    def find_closest_image_class(self, start, image_classes):
         """
-        Finds which of the specified states is the closest, based on the sum of
-        the costs of the converters needed to convert the image into the final
-        state.
+        Finds which of the specified image classes is the closest, based on the
+        sum of the costs of the converters needed to convert the image into the
+        final class.
         """
-        current_state = None
+        current_class = None
         current_path = None
         current_cost = None
 
-        for state in state_classes:
-            path, cost = self.find_shortest_path(start, state)
+        for image_class in image_classes:
+            path, cost = self.find_shortest_path(start, image_class)
 
             if current_cost is None or cost < current_cost:
-                current_state = state
+                current_class = image_class
                 current_cost = cost
                 current_path = path
 
-        return current_state, current_path, current_cost
+        return current_class, current_path, current_cost
 
-    def route_to_operation(self, from_state, operation_name):
+    def route_to_operation(self, from_class, operation_name):
         """
-        When an operation is not available in the current state. This method
-        can be used to find the nearest state that has the opreation.
+        When an operation is not available in the current image class, this
+        method can be used to find the nearest class that has the opreation.
 
         The distance is based on the sum of all the conversions that are
-        required to get to the new state.
+        required to get to the new class.
 
-        This function returns a single converter function and the end state
+        This function returns a single converter function and the end image
         class. When this converter function is called, it would perform all the
-        steps to convert the image into the final state class.
+        steps to convert the image into the final image class.
         """
-        state_classes = self.get_state_classes(
-            with_converter_from=from_state,
+        image_classes = self.get_image_classes(
+            with_converter_from=from_class,
             with_operation=operation_name,
             available=True)
 
-        # Choose a state class
-        # state_classes will always have a value here as get_state_classes raises
-        # LookupError if there are no state classes available.
-        state_class, path, cost = self.find_closest_state_class(from_state, state_classes)
+        # Choose an image class
+        # image_classes will always have a value here as get_image_classes raises
+        # LookupError if there are no image classes available.
+        image_class, path, cost = self.find_closest_image_class(from_class, image_classes)
 
-        return self.get_operation(state_class, operation_name), state_class, path, cost
+        return self.get_operation(image_class, operation_name), image_class, path, cost
 
 
 registry = WillowRegistry()

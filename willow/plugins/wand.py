@@ -1,12 +1,12 @@
 from __future__ import absolute_import
 
-from willow.states import (
-    ImageState,
-    JPEGImageFileState,
-    PNGImageFileState,
-    GIFImageFileState,
-    RGBImageBufferState,
-    RGBAImageBufferState,
+from willow.image import (
+    Image,
+    JPEGImageFile,
+    PNGImageFile,
+    GIFImageFile,
+    RGBImageBuffer,
+    RGBAImageBuffer,
 )
 
 
@@ -20,7 +20,7 @@ def _wand_api():
     return wand.api
 
 
-class WandImageState(ImageState):
+class WandImage(Image):
     def __init__(self, image):
         self.image = image
 
@@ -29,60 +29,60 @@ class WandImageState(ImageState):
         _wand_image()
         _wand_api()
 
-    @ImageState.operation
+    @Image.operation
     def get_size(self):
         return self.image.size
 
-    @ImageState.operation
+    @Image.operation
     def has_alpha(self):
         return self.image.alpha_channel
 
-    @ImageState.operation
+    @Image.operation
     def has_animation(self):
         return self.image.animation
 
-    @ImageState.operation
+    @Image.operation
     def resize(self, size):
         self.image.resize(size[0], size[1])
         return self
 
-    @ImageState.operation
+    @Image.operation
     def crop(self, rect):
         self.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
         return self
 
-    @ImageState.operation
+    @Image.operation
     def save_as_jpeg(self, f, quality=85):
         with self.image.convert('jpeg') as converted:
             converted.compression_quality = quality
             converted.save(file=f)
 
-    @ImageState.operation
+    @Image.operation
     def save_as_png(self, f):
         with self.image.convert('png') as converted:
             converted.save(file=f)
 
-    @ImageState.operation
+    @Image.operation
     def save_as_gif(self, f):
         with self.image.convert('gif') as converted:
             converted.save(file=f)
 
     @classmethod
-    @ImageState.converter_from(JPEGImageFileState, cost=150)
-    @ImageState.converter_from(PNGImageFileState, cost=150)
-    @ImageState.converter_from(GIFImageFileState, cost=150)
-    def open(cls, state):
-        image = _wand_image().Image(file=state.f)
+    @Image.converter_from(JPEGImageFile, cost=150)
+    @Image.converter_from(PNGImageFile, cost=150)
+    @Image.converter_from(GIFImageFile, cost=150)
+    def open(cls, image_file):
+        image = _wand_image().Image(file=image_file.f)
         image.wand = _wand_api().library.MagickCoalesceImages(image.wand)
         return cls(image)
 
-    @ImageState.converter_to(RGBImageBufferState)
+    @Image.converter_to(RGBImageBuffer)
     def to_buffer_rgb(self):
-        return RGBImageBufferState(self.image.size, self.image.make_blob('RGB'))
+        return RGBImageBuffer(self.image.size, self.image.make_blob('RGB'))
 
-    @ImageState.converter_to(RGBAImageBufferState)
+    @Image.converter_to(RGBAImageBuffer)
     def to_buffer_rgba(self):
-        return RGBImageBufferState(self.image.size, self.image.make_blob('RGBA'))
+        return RGBImageBuffer(self.image.size, self.image.make_blob('RGBA'))
 
 
-willow_state_classes = [WandImageState]
+willow_image_classes = [WandImage]

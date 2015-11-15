@@ -3,20 +3,20 @@ from willow.image import Image
 def setup():
     from willow.registry import registry
 
-    from willow.states import (
-        JPEGImageFileState,
-        PNGImageFileState,
-        GIFImageFileState,
-        RGBImageBufferState,
-        RGBAImageBufferState,
+    from willow.image import (
+        JPEGImageFile,
+        PNGImageFile,
+        GIFImageFile,
+        RGBImageBuffer,
+        RGBAImageBuffer,
     )
     from willow.plugins import pillow, wand, opencv
 
-    registry.register_state_class(JPEGImageFileState)
-    registry.register_state_class(PNGImageFileState)
-    registry.register_state_class(GIFImageFileState)
-    registry.register_state_class(RGBImageBufferState)
-    registry.register_state_class(RGBAImageBufferState)
+    registry.register_image_class(JPEGImageFile)
+    registry.register_image_class(PNGImageFile)
+    registry.register_image_class(GIFImageFile)
+    registry.register_image_class(RGBImageBuffer)
+    registry.register_image_class(RGBAImageBuffer)
 
     registry.register_plugin(pillow)
     registry.register_plugin(wand)
