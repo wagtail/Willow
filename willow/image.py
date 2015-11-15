@@ -1,7 +1,9 @@
 import imghdr
+import warnings
 
 from .registry import registry
 from .states import ImageState, INITIAL_STATE_CLASSES
+from .utils.deprecation import RemovedInWillow05Warning
 
 
 class UnrecognisedFileError(IOError):
@@ -57,7 +59,16 @@ class Image(object):
                 raise UnrecognisedFileError("Unknown file format")
 
         # Instantiate initial state
-        return cls(initial_state_class(f))
+        image = cls(initial_state_class(f))
+        image._original_format = image_format
+        return image
+
+    @property
+    def original_format(self):
+        warnings.warn(
+            "Image.original_format has been deprecated and will be removed in a future release.",
+            RemovedInWillow05Warning)
+        return getattr(self, '_original_format', None)
 
     def save(self, image_format, output):
         # Get operation name
