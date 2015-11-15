@@ -299,5 +299,27 @@ class TestFindShortestPath(PathfindingTestCase):
         self.assertEqual(cost, 400)
 
 
-class TestFindOperation(RegistryTestCase):
-     pass # TODO
+class TestFindOperation(PathfindingTestCase):
+    def setUp(self):
+        super(TestFindOperation, self).setUp()
+
+        # Add some operations
+        self.b_foo = 'b_foo'
+        self.e_foo = 'e_foo'
+
+        self.registry._registered_operations = {
+            self.StateB: {
+                'foo': self.b_foo,
+            },
+            self.StateE: {
+                'foo': self.e_foo,
+            }
+        }
+
+    def test_route_to_operation_foo_from_a(self):
+        func, state_class, path, cost = self.registry.route_to_operation(self.StateA, 'foo')
+
+        self.assertEqual(func, self.b_foo)
+        self.assertEqual(state_class, self.StateB)
+        self.assertEqual(path, [(self.conv_a_to_b, self.StateB)])
+        self.assertEqual(cost, 100)
