@@ -195,9 +195,9 @@ class TestGetConvertersFrom(RegistryTestCase):
         self.assertNotIn((test_converter_3, self.AnotherTestState), result)
 
 
-class TestFindAllPaths(RegistryTestCase):
+class PathfindingTestCase(RegistryTestCase):
     def setUp(self):
-        super(TestFindAllPaths, self).setUp()
+        super(PathfindingTestCase, self).setUp()
 
         self.StateA = type('StateA', (ImageState, ), {})
         self.StateB = type('StateB', (ImageState, ), {})
@@ -233,6 +233,8 @@ class TestFindAllPaths(RegistryTestCase):
             (self.StateE, self.StateD): self.conv_e_to_d,
         }
 
+
+class TestFindAllPaths(PathfindingTestCase):
     def test_find_all_paths_a_to_e(self):
         result = self.registry.find_all_paths(self.StateA, self.StateE)
 
@@ -266,6 +268,35 @@ class TestFindAllPaths(RegistryTestCase):
             (self.conv_c_to_a, self.StateA),
             (self.conv_a_to_b, self.StateB),
         ], result)
+
+
+class TestFindShortestPath(PathfindingTestCase):
+    def test_find_shortest_path(self):
+        path, cost = self.registry.find_shortest_path(self.StateE, self.StateB)
+
+        self.assertEqual(path, [
+            (self.conv_e_to_d, self.StateD),
+            (self.conv_d_to_b, self.StateB),
+        ])
+
+        self.assertEqual(cost, 200)
+
+    def test_find_shortest_path_with_cost(self):
+        # Make conversion between d -> b very expensive so it takes the long way around
+        self.registry._registered_converter_costs = {
+            (self.StateD, self.StateB): 1000,
+        }
+
+        path, cost = self.registry.find_shortest_path(self.StateE, self.StateB)
+
+        self.assertEqual(path, [
+            (self.conv_e_to_d, self.StateD),
+            (self.conv_d_to_c, self.StateC),
+            (self.conv_c_to_a, self.StateA),
+            (self.conv_a_to_b, self.StateB),
+        ])
+
+        self.assertEqual(cost, 400)
 
 
 class TestFindOperation(RegistryTestCase):
