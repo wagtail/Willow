@@ -29,6 +29,9 @@ class WandImage(Image):
         _wand_image()
         _wand_api()
 
+    def _clone(self):
+        return WandImage(self.image.clone())
+
     @Image.operation
     def get_size(self):
         return self.image.size
@@ -43,13 +46,15 @@ class WandImage(Image):
 
     @Image.operation
     def resize(self, size):
-        self.image.resize(size[0], size[1])
-        return self
+        clone = self._clone()
+        clone.image.resize(size[0], size[1])
+        return clone
 
     @Image.operation
     def crop(self, rect):
-        self.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
-        return self
+        clone = self._clone()
+        clone.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
+        return clone
 
     @Image.operation
     def save_as_jpeg(self, f, quality=85):
