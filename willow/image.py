@@ -64,12 +64,7 @@ class Image(object):
                 for converter, _ in conversion_path:
                     image = converter(image)
 
-            return_value = operation(image, *args, **kwargs)
-
-            if isinstance(return_value, Image):
-                image = return_value
-
-            return image
+            return operation(image, *args, **kwargs)
 
         return wrapper
 
