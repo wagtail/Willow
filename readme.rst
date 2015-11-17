@@ -30,14 +30,15 @@ Resizing a PNG file
 
    from willow.image import Image
 
-   f = open("test.png")
+   f = open('test.png', 'rb')
    img = Image.open(f)
 
    # Resize the image to 100x100 pixels
-   img.resize(100, 100)
+   img = img.resize(100, 100)
 
    # Save it
-   img.save_as_png("test_thumbnail.png")
+   with open('test_thumbnail.png', 'wb') as out:
+       img.save_as_png(out)
 
 
 This will open the image file with Pillow or Wand (if Pillow is unavailable).
@@ -52,7 +53,7 @@ Detecting faces
 
    from willow.image import Image
 
-   f = open("photo.png")
+   f = open('photo.png', 'rb')
    img = Image.open(f)
 
    # Find faces
