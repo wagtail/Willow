@@ -68,7 +68,7 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         if not os.path.isabs(cascade_filename):
             cascade_filename = os.path.join(
                 os.path.dirname(os.path.dirname(__file__)),
-                'face_detection',
+                'data/cascades',
                 cascade_filename,
             )
 
