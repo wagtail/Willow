@@ -5,7 +5,7 @@ from .registry import registry
 from .utils.deprecation import RemovedInWillow05Warning
 
 
-class UnrecognisedFileError(IOError):
+class UnrecognisedImageFormatError(IOError):
     pass
 
 
@@ -81,9 +81,9 @@ class Image(object):
         # Give error if initial class not found
         if not initial_class:
             if image_format:
-                raise UnrecognisedFileError("Cannot load %s files" % image_format)
+                raise UnrecognisedImageFormatError("Cannot load %s images" % image_format)
             else:
-                raise UnrecognisedFileError("Unknown file format")
+                raise UnrecognisedImageFormatError("Unknown image format")
 
         # Instantiate initial class
         image = initial_class(f)
