@@ -34,7 +34,7 @@ Resizing a PNG file
    img = Image.open(f)
 
    # Resize the image to 100x100 pixels
-   img = img.resize(100, 100)
+   img = img.resize((100, 100))
 
    # Save it
    with open('test_thumbnail.png', 'wb') as out:
