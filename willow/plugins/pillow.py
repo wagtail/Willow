@@ -39,6 +39,8 @@ class PillowImage(Image):
 
     @Image.operation
     def resize(self, size):
+        # Convert 1 and P images to RGB to improve resize quality
+        # (palleted images don't get antialiased or filtered when minified)
         if self.image.mode in ['1', 'P']:
             image = self.image.convert('RGB')
         else:
