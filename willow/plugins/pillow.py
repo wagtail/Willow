@@ -46,9 +46,7 @@ class PillowImage(Image):
         else:
             image = self.image
 
-        image = image.resize(size, _PIL_Image().ANTIALIAS)
-
-        return PillowImage(image)
+        return PillowImage(image.resize(size, _PIL_Image().ANTIALIAS))
 
     @Image.operation
     def crop(self, rect):
