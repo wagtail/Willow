@@ -138,20 +138,22 @@ class RGBAImageBuffer(ImageBuffer):
 
 
 class ImageFile(Image):
+    format_name = None
+
     def __init__(self, f):
         self.f = f
 
 
 class JPEGImageFile(ImageFile):
-    pass
+    format_name = 'jpeg'
 
 
 class PNGImageFile(ImageFile):
-    pass
+    format_name = 'png'
 
 
 class GIFImageFile(ImageFile):
-    pass
+    format_name = 'gif'
 
 
 INITIAL_IMAGE_CLASSES = {
