@@ -62,15 +62,21 @@ class WandImage(Image):
             converted.compression_quality = quality
             converted.save(file=f)
 
+        return JPEGImageFile(f)
+
     @Image.operation
     def save_as_png(self, f):
         with self.image.convert('png') as converted:
             converted.save(file=f)
 
+        return PNGImageFile(f)
+
     @Image.operation
     def save_as_gif(self, f):
         with self.image.convert('gif') as converted:
             converted.save(file=f)
+
+        return GIFImageFile(f)
 
     @classmethod
     @Image.converter_from(JPEGImageFile, cost=150)

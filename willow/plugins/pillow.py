@@ -60,10 +60,12 @@ class PillowImage(Image):
             image = self.image
 
         image.save(f, 'JPEG', quality=quality)
+        return JPEGImageFile(f)
 
     @Image.operation
     def save_as_png(self, f):
         self.image.save(f, 'PNG')
+        return PNGImageFile(f)
 
     @Image.operation
     def save_as_gif(self, f):
@@ -79,6 +81,8 @@ class PillowImage(Image):
             image.save(f, 'GIF', transparency=image.info['transparency'])
         else:
             image.save(f, 'GIF')
+
+        return GIFImageFile(f)
 
     @classmethod
     @Image.converter_from(JPEGImageFile)

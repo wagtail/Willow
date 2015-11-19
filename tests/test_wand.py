@@ -2,7 +2,7 @@ import unittest
 import io
 import imghdr
 
-from willow.image import PNGImageFile, GIFImageFile
+from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
 from willow.plugins.wand import WandImage
 
 
@@ -26,24 +26,30 @@ class TestWandOperations(unittest.TestCase):
 
     def test_save_as_jpeg(self):
         output = io.BytesIO()
-        self.image.save_as_jpeg(output)
+        return_value = self.image.save_as_jpeg(output)
         output.seek(0)
 
         self.assertEqual(imghdr.what(output), 'jpeg')
+        self.assertIsInstance(return_value, JPEGImageFile)
+        self.assertEqual(return_value.f, output)
 
     def test_save_as_png(self):
         output = io.BytesIO()
-        self.image.save_as_png(output)
+        return_value = self.image.save_as_png(output)
         output.seek(0)
 
         self.assertEqual(imghdr.what(output), 'png')
+        self.assertIsInstance(return_value, PNGImageFile)
+        self.assertEqual(return_value.f, output)
 
     def test_save_as_gif(self):
         output = io.BytesIO()
-        self.image.save_as_gif(output)
+        return_value = self.image.save_as_gif(output)
         output.seek(0)
 
         self.assertEqual(imghdr.what(output), 'gif')
+        self.assertIsInstance(return_value, GIFImageFile)
+        self.assertEqual(return_value.f, output)
 
     def test_has_alpha(self):
         has_alpha = self.image.has_alpha()
