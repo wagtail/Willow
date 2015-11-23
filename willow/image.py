@@ -10,6 +10,9 @@ class UnrecognisedImageFormatError(IOError):
 
 
 class Image(object):
+    # See comment in ImageFile class for description of this attribute
+    allow_automatic_conversion = True
+
     @classmethod
     def check(cls):
         pass
@@ -139,6 +142,13 @@ class RGBAImageBuffer(ImageBuffer):
 
 class ImageFile(Image):
     format_name = None
+
+    # It never makes sense to automatically convert to a file class
+    # This prevents Willow from converting images to files when a file-specific
+    # operation (eg, optimise) is mistakenly performed on the image.
+    # In this case, a user must explicitly convert to a file class first by
+    # using a save_as_* operation first. Eg: "i.save_as_png().optimise()"
+    allow_automatic_conversion = False
 
     def __init__(self, f):
         self.f = f
