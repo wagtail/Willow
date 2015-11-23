@@ -153,6 +153,11 @@ class ImageFile(Image):
     def __init__(self, f):
         self.f = f
 
+    @Image.operation
+    def optimise(self):
+        # By default, do nothing
+        return self
+
 
 class JPEGImageFile(ImageFile):
     format_name = 'jpeg'
