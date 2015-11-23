@@ -156,11 +156,16 @@ class GIFImageFile(ImageFile):
     format_name = 'gif'
 
 
+class BMPImageFile(ImageFile):
+    format_name = 'bmp'
+
+
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     'jpeg': JPEGImageFile,
     'png': PNGImageFile,
     'gif': GIFImageFile,
+    'bmp': BMPImageFile,
 }
 
 
