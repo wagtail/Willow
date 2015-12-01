@@ -141,8 +141,8 @@ class WillowRegistry(object):
         """
         Returns all paths between two image classes.
 
-        Each path is a list of tuples representing the step to take in order to
-        convert to the new class. The tuples contain two items, The converter
+        Each path is a list of tuples representing the steps to take in order to
+        convert to the new class. Each tuple contains two items: The converter
         function to call and the class that step converts to.
 
         The order of the paths returned is undefined.
@@ -185,7 +185,7 @@ class WillowRegistry(object):
 
     def get_path_cost(self, start, path):
         """
-        Costs up a path and returns it as an integer.
+        Costs up a path and returns the cost as an integer.
         """
         last_class = start
         total_cost = 0
@@ -200,8 +200,8 @@ class WillowRegistry(object):
         """
         Finds the shortest path between two image classes.
 
-        This is similar to the find_all_paths function, except it costs up each
-        path and only returns the one with the lowest cost.
+        This is similar to the find_all_paths function, except it only returns
+        the path with the lowest cost.
         """
         current_path = None
         current_cost = None
@@ -218,8 +218,7 @@ class WillowRegistry(object):
     def find_closest_image_class(self, start, image_classes):
         """
         Finds which of the specified image classes is the closest, based on the
-        sum of the costs of the converters needed to convert the image into the
-        final class.
+        sum of the costs for the conversions needed to convert the image into it.
         """
         current_class = None
         current_path = None
@@ -240,12 +239,14 @@ class WillowRegistry(object):
         When an operation is not available in the current image class, this
         method can be used to find the nearest class that has the opreation.
 
-        The distance is based on the sum of all the conversions that are
-        required to get to the new class.
+        The distance is based on the sum of all the costs for the conversions
+        that are required to get to the new class.
 
-        This function returns a single converter function and the end image
-        class. When this converter function is called, it would perform all the
-        steps to convert the image into the final image class.
+        This function returns a tuple of four values:
+         - The operation function
+         - The image class needed to run the operation
+         - The path to take to the new image class from the current one
+         - The total cost of converting to the new image class
         """
         image_classes = self.get_image_classes(
             with_converter_from=from_class,
