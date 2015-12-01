@@ -121,7 +121,7 @@ class WillowRegistry(object):
     def get_converters_from(self, from_image_class):
         """
         Yields a tuple for each image class that can be directly converted
-        to from the specified image classes. The tuple contains the converter
+        from the specified image classes. The tuple contains the converter
         function and the image class.
 
         For example:
