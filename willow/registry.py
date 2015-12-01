@@ -128,8 +128,8 @@ class WillowRegistry(object):
 
         >>> list(registry.get_converters_from(Pillow))
         [
-            (convert_pillow_to_wand(), Wand),
-            (save_as_jpeg(), JpegFile)
+            (convert_pillow_to_wand, Wand),
+            (save_as_jpeg, JpegFile)
             ...
         ]
         """
