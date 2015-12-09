@@ -81,17 +81,13 @@ class WandImage(Image):
 
         return GIFImageFile(f)
 
-    @classmethod
-    @Image.converter_from(JPEGImageFile, cost=150)
-    @Image.converter_from(PNGImageFile, cost=150)
-    @Image.converter_from(GIFImageFile, cost=150)
-    @Image.converter_from(BMPImageFile, cost=150)
-    def open(cls, image_file):
-        image_file.f.seek(0)
-        image = _wand_image().Image(file=image_file.f)
-        image.wand = _wand_api().library.MagickCoalesceImages(image.wand)
+    @Image.operation
+    def auto_orient(self):
+
+        image = self.image
 
         if image.orientation not in ['top_left', 'undefined']:
+            image = image.clone()
             if hasattr(image, 'auto_orient'):
                 # Wand 0.4.1 +
                 image.auto_orient()
@@ -111,6 +107,18 @@ class WandImage(Image):
                     for fn in fns:
                         fn()
                     image.orientation = 'top_left'
+
+        return WandImage(image)
+
+    @classmethod
+    @Image.converter_from(JPEGImageFile, cost=150)
+    @Image.converter_from(PNGImageFile, cost=150)
+    @Image.converter_from(GIFImageFile, cost=150)
+    @Image.converter_from(BMPImageFile, cost=150)
+    def open(cls, image_file):
+        image_file.f.seek(0)
+        image = _wand_image().Image(file=image_file.f)
+        image.wand = _wand_api().library.MagickCoalesceImages(image.wand)
 
         return cls(image)
 

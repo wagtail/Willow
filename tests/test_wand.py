@@ -4,16 +4,8 @@ import imghdr
 
 from wand.color import Color
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
 from willow.plugins.wand import WandImage
-=======
-=======
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-from willow.states import PNGImageFileState, GIFImageFileState, JPEGImageFileState
-from willow.plugins.wand import WandImageState
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
 
 
 class TestWandOperations(unittest.TestCase):
@@ -126,112 +118,64 @@ class TestWandImageOrientation(unittest.TestCase):
 
     def test_jpeg_with_orientation_1(self):
         with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_2(self):
         with open('tests/images/orientation/landscape_2.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_3(self):
         with open('tests/images/orientation/landscape_3.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_4(self):
         with open('tests/images/orientation/landscape_4.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_5(self):
         with open('tests/images/orientation/landscape_5.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_6(self):
         with open('tests/images/orientation/landscape_6.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_7(self):
         with open('tests/images/orientation/landscape_7.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
 
     def test_jpeg_with_orientation_8(self):
         with open('tests/images/orientation/landscape_8.jpg', 'rb') as f:
-<<<<<<< HEAD
-<<<<<<< HEAD
             image = WandImage.open(JPEGImageFile(f))
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
-=======
-            image = WandImageState.open(JPEGImageFileState(f))
->>>>>>> 342f6c5... Implemented image orientation in Wand plugin
+
+        image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
