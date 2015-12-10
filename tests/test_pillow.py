@@ -113,7 +113,7 @@ class TestPillowOperations(unittest.TestCase):
         # Check that the alpha of pixel 1,1 is 0
         self.assertEqual(image.image.convert('RGBA').getpixel((1, 1))[3], 0)
 
-    @unittest.expectedFailure # Pillow doesn't support animation
+    @unittest.expectedFailure  # Pillow doesn't support animation
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             image = PillowImage.open(GIFImageFile(f))
@@ -121,7 +121,7 @@ class TestPillowOperations(unittest.TestCase):
         self.assertFalse(image.has_alpha())
         self.assertTrue(image.has_animation())
 
-    @unittest.expectedFailure # Pillow doesn't support animation
+    @unittest.expectedFailure  # Pillow doesn't support animation
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             image = PillowImage.open(GIFImageFile(f))
@@ -130,3 +130,86 @@ class TestPillowOperations(unittest.TestCase):
 
         self.assertFalse(resized_image.has_alpha())
         self.assertTrue(resized_image.has_animation())
+
+
+class TestPillowImageOrientation(unittest.TestCase):
+    def assert_orientation_landscape_image_is_correct(self, image):
+        # Check that the image is the correct size (and not rotated)
+        self.assertEqual(image.get_size(), (600, 450))
+
+        # Check that the red flower is in the bottom left
+        # The JPEGs have compressed slightly differently so the colours won't be spot on
+        colour = image.image.convert('RGB').getpixel((155, 282))
+        self.assertAlmostEqual(colour[0], 217, delta=10)
+        self.assertAlmostEqual(colour[1], 38, delta=11)
+        self.assertAlmostEqual(colour[2], 46, delta=13)
+
+        # Check that the water is at the bottom
+        colour = image.image.convert('RGB').getpixel((377, 434))
+        self.assertAlmostEqual(colour[0], 85, delta=11)
+        self.assertAlmostEqual(colour[1], 93, delta=12)
+        self.assertAlmostEqual(colour[2], 65, delta=11)
+
+    def test_jpeg_with_orientation_1(self):
+        with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_2(self):
+        with open('tests/images/orientation/landscape_2.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_3(self):
+        with open('tests/images/orientation/landscape_3.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_4(self):
+        with open('tests/images/orientation/landscape_4.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_5(self):
+        with open('tests/images/orientation/landscape_5.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_6(self):
+        with open('tests/images/orientation/landscape_6.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_7(self):
+        with open('tests/images/orientation/landscape_7.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_8(self):
+        with open('tests/images/orientation/landscape_8.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)

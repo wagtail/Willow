@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import functools
+
 from willow.image import (
     Image,
     JPEGImageFile,
@@ -79,6 +81,35 @@ class WandImage(Image):
 
         return GIFImageFile(f)
 
+    @Image.operation
+    def auto_orient(self):
+
+        image = self.image
+
+        if image.orientation not in ['top_left', 'undefined']:
+            image = image.clone()
+            if hasattr(image, 'auto_orient'):
+                # Wand 0.4.1 +
+                image.auto_orient()
+            else:
+                orientation_ops = {
+                    'top_right': [image.flop],
+                    'bottom_right': [functools.partial(image.rotate, degree=180.0)],
+                    'bottom_left': [image.flip],
+                    'left_top': [image.flip, functools.partial(image.rotate, degree=90.0)],
+                    'right_top': [functools.partial(image.rotate, degree=90.0)],
+                    'right_bottom': [image.flop, functools.partial(image.rotate, degree=90.0)],
+                    'left_bottom': [functools.partial(image.rotate, degree=270.0)]
+                }
+                fns = orientation_ops.get(image.orientation)
+
+                if fns:
+                    for fn in fns:
+                        fn()
+                    image.orientation = 'top_left'
+
+        return WandImage(image)
+
     @classmethod
     @Image.converter_from(JPEGImageFile, cost=150)
     @Image.converter_from(PNGImageFile, cost=150)
@@ -88,6 +119,7 @@ class WandImage(Image):
         image_file.f.seek(0)
         image = _wand_image().Image(file=image_file.f)
         image.wand = _wand_api().library.MagickCoalesceImages(image.wand)
+
         return cls(image)
 
     @Image.converter_to(RGBImageBuffer)

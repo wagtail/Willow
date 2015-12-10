@@ -2,6 +2,8 @@ import unittest
 import io
 import imghdr
 
+from wand.color import Color
+
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
 from willow.plugins.wand import WandImage
 
@@ -94,3 +96,86 @@ class TestWandOperations(unittest.TestCase):
         resized_image = image.resize((100, 75))
 
         self.assertTrue(resized_image.has_animation())
+
+
+class TestWandImageOrientation(unittest.TestCase):
+    def assert_orientation_landscape_image_is_correct(self, image):
+        # Check that the image is the correct size (and not rotated)
+        self.assertEqual(image.get_size(), (600, 450))
+
+        # Check that the red flower is in the bottom left
+        # The JPEGs have compressed slightly differently so the colours won't be spot on
+        colour = image.image[282][155]
+        self.assertAlmostEqual(colour.red * 255, 217, delta=10)
+        self.assertAlmostEqual(colour.green * 255, 38, delta=11)
+        self.assertAlmostEqual(colour.blue * 255, 46, delta=13)
+
+        # Check that the water is at the bottom
+        colour = image.image[434][377]
+        self.assertAlmostEqual(colour.red * 255, 85, delta=11)
+        self.assertAlmostEqual(colour.green * 255, 93, delta=12)
+        self.assertAlmostEqual(colour.blue * 255, 65, delta=11)
+
+    def test_jpeg_with_orientation_1(self):
+        with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_2(self):
+        with open('tests/images/orientation/landscape_2.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_3(self):
+        with open('tests/images/orientation/landscape_3.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_4(self):
+        with open('tests/images/orientation/landscape_4.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_5(self):
+        with open('tests/images/orientation/landscape_5.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_6(self):
+        with open('tests/images/orientation/landscape_6.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_7(self):
+        with open('tests/images/orientation/landscape_7.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
+
+    def test_jpeg_with_orientation_8(self):
+        with open('tests/images/orientation/landscape_8.jpg', 'rb') as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        image = image.auto_orient()
+
+        self.assert_orientation_landscape_image_is_correct(image)
