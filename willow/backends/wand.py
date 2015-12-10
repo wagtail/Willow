@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 from willow.utils import deprecation
 
+import functools
+
 from .base import ImageBackend
 
 
@@ -35,7 +37,7 @@ class WandBackend(ImageBackend):
         return wand.image
 
     @classmethod
-    def get_wand_api(cls):    
+    def get_wand_api(cls):
         import wand.api
         return wand.api
 
@@ -94,3 +96,28 @@ def has_animation(backend):
 @WandBackend.register_operation('get_wand_image')
 def get_wand_image(backend):
     return backend.image.clone()
+
+
+@WandBackend.register_operation('auto_orient')
+def auto_orient(backend):
+        if backend.image.orientation not in ['top_left', 'undefined']:
+            if hasattr(backend.image, 'auto_orient'):
+                # Wand 0.4.1 +
+                backend.image.auto_orient()
+            else:
+                orientation_ops = {
+                    'top_right': [backend.image.flop],
+                    'bottom_right': [functools.partial(backend.image.rotate, degree=180.0)],
+                    'bottom_left': [backend.image.flip],
+                    'left_top': [backend.image.flip, functools.partial(backend.image.rotate, degree=90.0)],
+                    'right_top': [functools.partial(backend.image.rotate, degree=90.0)],
+                    'right_bottom': [backend.image.flop, functools.partial(backend.image.rotate, degree=90.0)],
+                    'left_bottom': [functools.partial(backend.image.rotate, degree=270.0)]
+                }
+                fns = orientation_ops.get(backend.image.orientation)
+
+                if fns:
+                    for fn in fns:
+                        fn()
+                    backend.image.orientation = 'top_left'
+
