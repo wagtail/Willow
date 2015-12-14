@@ -73,6 +73,7 @@ Operation                           Pillow               Wand                 Op
 ``get_size()``                      ✓                    ✓
 ``resize(size)``                    ✓                    ✓
 ``crop(rect)``                      ✓                    ✓
+``auto_orient()``                   ✓                    ✓
 ``save_as_jpeg(file, quality)``     ✓                    ✓
 ``save_as_png(file)``               ✓                    ✓
 ``save_as_gif(file)``               ✓                    ✓

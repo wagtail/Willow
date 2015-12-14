@@ -1,6 +1,8 @@
 0.3 (IN DEVELOPMENT)
 ~~~~~~~~~~~~~~~~~~~~
 
+- Added auto_orient operation
+
 
 0.2.1 (27/05/2015)
 ~~~~~~~~~~~~~~~~~~
