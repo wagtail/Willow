@@ -15,3 +15,4 @@ Index
 
    installation
    concepts
+   guide
