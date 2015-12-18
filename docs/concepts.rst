@@ -4,7 +4,7 @@ Concepts
 Image classes
 -------------
 
-An image can either be a file, an image loaded into an underlying library or a simple buffer of pixels. Each of these states has it's own Python class (subclass of :class:`willow.image.Image`).
+An image can either be a file, an image loaded into an underlying library or a simple buffer of pixels. Each of these states has its own Python class (subclass of :class:`willow.image.Image`).
 
 For example ``JPEGImageFile``, ``PillowImage`` and ``RGBAImageBuffer`` are three of the image classes in Willow.
 
