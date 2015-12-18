@@ -16,3 +16,4 @@ Index
    installation
    concepts
    guide
+   reference
