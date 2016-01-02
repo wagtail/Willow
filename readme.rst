@@ -1,6 +1,8 @@
 .. image:: https://travis-ci.org/torchbox/Willow.svg?branch=master
     :target: https://travis-ci.org/torchbox/Willow
 
+.. image:: http://drone4.kaed.uk/api/badges/torchbox/Willow/status.svg
+    :target: http://drone4.kaed.uk/torchbox/Willow
 
 Willow image library
 ====================
