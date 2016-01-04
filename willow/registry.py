@@ -61,7 +61,7 @@ class WillowRegistry(object):
     def get_converter_cost(self, from_image_class, to_image_class):
         return self._registered_converter_costs.get((from_image_class, to_image_class), 100)
 
-    def get_image_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
+    def get_image_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, for_automatic_convert=False, available=None):
         image_classes = self._registered_image_classes
 
         if with_operation:
@@ -72,6 +72,11 @@ class WillowRegistry(object):
 
         if with_converter_to is not None:
             image_classes = filter(lambda image_class: (image_class, with_converter_to) in self._registered_converters, image_classes)
+
+        if for_automatic_convert:
+            # The image class is required for automatic conversion, filter out
+            # any classes that do not allow this
+            image_classes = filter(lambda image_class: image_class.allow_automatic_conversion, image_classes)
 
         # Raise error if no image classes available
         if not image_classes:
@@ -251,6 +256,7 @@ class WillowRegistry(object):
         image_classes = self.get_image_classes(
             with_converter_from=from_class,
             with_operation=operation_name,
+            for_automatic_convert=True,
             available=True)
 
         # Choose an image class
