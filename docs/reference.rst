@@ -5,7 +5,7 @@ Reference
 The ``Image`` class
 -------------------
 
-.. class Image
+.. class:: Image
 
 .. classmethod:: open(file)
 
@@ -82,8 +82,6 @@ Builtin operations
 ------------------
 
 Here's a full list of operations provided by Willow out of the box:
-
-.. class:: Image
 
 .. method:: get_size()
 
