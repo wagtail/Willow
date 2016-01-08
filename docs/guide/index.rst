@@ -18,7 +18,6 @@ Index
    :titlesonly:
 
    open
-   resize
+   operations
    save
    extend
-   feature_detection

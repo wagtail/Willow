@@ -58,3 +58,9 @@ It returns a new :class:`~Image` object leaving the source image untouched.
 
     isinstance(i, Image)
     i.get_size() == (200, 200)
+
+Detecting features
+------------------
+
+Detecting faces
+---------------
