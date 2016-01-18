@@ -87,6 +87,9 @@ class Image(object):
 
     def save(self, image_format, output):
         # Get operation name
+        if image_format not in ['jpeg', 'png', 'gif']:
+            raise ValueError("Unknown image format: %s" % image_format)
+
         operation_name = 'save_as_' + image_format
         return getattr(self, operation_name)(output)
 
