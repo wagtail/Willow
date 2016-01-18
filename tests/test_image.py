@@ -1,5 +1,6 @@
 import io
 import unittest
+import mock
 
 from willow.image import Image, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError
 
@@ -56,6 +57,29 @@ class TestOpenImage(unittest.TestCase):
 
         with self.assertRaises(UnrecognisedImageFormatError) as e:
             Image.open(f)
+
+
+class TestSaveImage(unittest.TestCase):
+    """
+    Image.save must work out the name of the underlying operation based on the
+    format name and call it. It must not however, allow an invalid image format
+    name to be passed.
+    """
+    def test_save_as_jpeg(self):
+        image = Image()
+        image.save_as_jpeg = mock.MagicMock()
+
+        image.save("jpeg", "outfile")
+        image.save_as_jpeg.assert_called_with("outfile")
+
+    def test_save_as_foo(self):
+        image = Image()
+        image.save_as_jpeg = mock.MagicMock()
+
+        with self.assertRaises(ValueError):
+            image.save("foo", "outfile")
+
+        self.assertFalse(image.save_as_jpeg.mock_calls)
 
 
 class TestImghdrJPEGPatch(unittest.TestCase):
