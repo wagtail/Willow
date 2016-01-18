@@ -77,25 +77,13 @@ class Image(object):
 
         # Find initial class
         initial_class = INITIAL_IMAGE_CLASSES.get(image_format)
-
-        # Give error if initial class not found
         if not initial_class:
             if image_format:
                 raise UnrecognisedImageFormatError("Cannot load %s images" % image_format)
             else:
                 raise UnrecognisedImageFormatError("Unknown image format")
 
-        # Instantiate initial class
-        image = initial_class(f)
-        image._original_format = image_format
-        return image
-
-    @property
-    def original_format(self):
-        warnings.warn(
-            "Image.original_format has been deprecated and will be removed in a future release.",
-            RemovedInWillow05Warning)
-        return getattr(self, '_original_format', None)
+        return initial_class(f)
 
     def save(self, image_format, output):
         # Get operation name
@@ -139,6 +127,14 @@ class RGBAImageBuffer(ImageBuffer):
 
 class ImageFile(Image):
     format_name = None
+
+    @property
+    def original_format(self):
+        warnings.warn(
+            "Image.original_format has been renamed to Image.format_name.",
+            RemovedInWillow05Warning)
+
+        return self.format_name
 
     def __init__(self, f):
         self.f = f
