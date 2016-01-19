@@ -303,9 +303,14 @@ class TestFindOperation(PathfindingTestCase):
     def setUp(self):
         super(TestFindOperation, self).setUp()
 
+        # Unreachable image class
+        self.ImageF = type('ImageF', (Image, ), {})
+        self.registry._registered_image_classes.add(self.ImageF)
+
         # Add some operations
         self.b_foo = 'b_foo'
         self.e_foo = 'e_foo'
+        self.f_unreachable = 'f_unreachable'
 
         self.registry._registered_operations = {
             self.ImageB: {
@@ -313,6 +318,9 @@ class TestFindOperation(PathfindingTestCase):
             },
             self.ImageE: {
                 'foo': self.e_foo,
+            },
+            self.ImageF: {
+                'unreachable': self.f_unreachable,
             }
         }
 
@@ -323,3 +331,19 @@ class TestFindOperation(PathfindingTestCase):
         self.assertEqual(image_class, self.ImageB)
         self.assertEqual(path, [(self.conv_a_to_b, self.ImageB)])
         self.assertEqual(cost, 100)
+
+    def test_find_operation_foo_from_b(self):
+        func, image_class, path, cost = self.registry.find_operation(self.ImageB, 'foo')
+
+        self.assertEqual(func, self.b_foo)
+        self.assertEqual(image_class, self.ImageB)
+        self.assertEqual(path, [])
+        self.assertEqual(cost, 0)
+
+    def test_find_operation_unknown_from_a(self):
+        with self.assertRaises(LookupError):
+            func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unknown')
+
+    def test_find_operation_unreachable_from_a(self):
+        with self.assertRaises(LookupError):
+            func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unreachable')
