@@ -316,8 +316,8 @@ class TestFindOperation(PathfindingTestCase):
             }
         }
 
-    def test_route_to_operation_foo_from_a(self):
-        func, image_class, path, cost = self.registry.route_to_operation(self.ImageA, 'foo')
+    def test_find_operation_foo_from_a(self):
+        func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'foo')
 
         self.assertEqual(func, self.b_foo)
         self.assertEqual(image_class, self.ImageB)

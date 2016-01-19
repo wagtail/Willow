@@ -234,31 +234,82 @@ class WillowRegistry(object):
 
         return current_class, current_path, current_cost
 
-    def route_to_operation(self, from_class, operation_name):
+    def find_operation(self, from_class, operation_name):
         """
-        When an operation is not available in the current image class, this
-        method can be used to find the nearest class that has the opreation.
+        Finds an operation that can be used by an image in the specified from_class.
 
-        The distance is based on the sum of all the costs for the conversions
-        that are required to get to the new class.
-
-        This function returns a tuple of four values:
+        This function returns four values:
          - The operation function
-         - The image class needed to run the operation
-         - The path to take to the new image class from the current one
-         - The total cost of converting to the new image class
+         - The class which the operation is implemented on
+         - A path to convert the image into the correct class for the operation
+         - The total cost of all the conversions
+
+        The path (third value) is a list of two-element tuple. Each tuple contains
+        a function to call and a reference to the class that step converts to. See
+        below for an example.
+
+        How it works:
+
+        If the specified operation_name is implemented for from_class, that is returned
+        with an empty conversion path.
+
+        If the specified operation_name is implemented on another class (but not from_class)
+        that operation is returned with the conversion path to that new class.
+
+        If it's implemented on multiple image classes, the closest one is chosen (based
+        on the sum of the costs of each conversion step).
+
+        If the operation_name is not implemented anywhere, there is no route to
+        any image class that implements it or all the image classes that implement
+        it are unavailable, a LookupError will be raised.
+
+        Basic example:
+
+            >>> func, cls, path, cost = registry.find_operation(JPEGImageFile, 'resize')
+            >>> func
+            PillowImage.resize
+            >>> cls
+            PillowImage
+            >>> path
+            [
+                (PillowImage.open, PillowImage)
+            ]
+            >>> cost
+            100
+
+        To run the found operation on an image,  run each conversion function on that
+        image then run the operation function:
+
+            >>> image = Image.open(...)
+            >>> func, cls, path, cost = registry.find_operation(type(image), operation_name)
+            >>> for converter, new_class in path:
+            ...    image = converter(image)
+            ...
+            >>> func(image, *args, **kwargs)
         """
-        image_classes = self.get_image_classes(
-            with_converter_from=from_class,
-            with_operation=operation_name,
-            available=True)
+        try:
+            # Firstly, we check if the operation is implemented on from_class
+            func = self.get_operation(from_class, operation_name)
+            cls = from_class
+            path = []
+            cost = 0
+        except LookupError:
+            # Not implemented on the current class. Find the closest, available,
+            # routable class that has it instead
+            image_classes = self.get_image_classes(
+                with_converter_from=from_class,
+                with_operation=operation_name,
+                available=True)
 
-        # Choose an image class
-        # image_classes will always have a value here as get_image_classes raises
-        # LookupError if there are no image classes available.
-        image_class, path, cost = self.find_closest_image_class(from_class, image_classes)
+            # Choose an image class
+            # image_classes will always have a value here as get_image_classes raises
+            # LookupError if there are no image classes available.
+            cls, path, cost = self.find_closest_image_class(from_class, image_classes)
 
-        return self.get_operation(image_class, operation_name), image_class, path, cost
+            # Get the operation function
+            func = self.get_operation(cls, operation_name)
+
+        return func, cls, path, cost
 
 
 registry = WillowRegistry()

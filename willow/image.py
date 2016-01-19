@@ -45,24 +45,19 @@ class Image(object):
         return wrapper
 
     def __getattr__(self, attr):
-        # Raise error if attr is not an operation
-        if not registry.operation_exists(attr):
+        try:
+            operation, _, conversion_path, _ = registry.find_operation(type(self), attr)
+        except LookupError:
+            # Operation doesn't exist
             raise AttributeError("%r object has no attribute %r" % (
                 self.__class__.__name__, attr
             ))
 
-        try:
-            operation = registry.get_operation(type(self), attr)
-            new_class = None
-        except LookupError:
-            operation, new_class, conversion_path, conversion_cost = registry.route_to_operation(type(self), attr)
-
         def wrapper(*args, **kwargs):
             image = self
 
-            if new_class:
-                for converter, _ in conversion_path:
-                    image = converter(image)
+            for converter, _ in conversion_path:
+                image = converter(image)
 
             return operation(image, *args, **kwargs)
 
