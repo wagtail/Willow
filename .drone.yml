@@ -1,5 +1,4 @@
 build:
   image: willow-ci
   commands:
-    - pip install requirements-dev.txt
     - python runtests.py --opencv
