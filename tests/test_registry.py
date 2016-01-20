@@ -1,7 +1,7 @@
 import unittest
 
 from willow.image import Image
-from willow.registry import WillowRegistry
+from willow.registry import WillowRegistry, UnrecognisedOperationError
 
 
 class RegistryTestCase(unittest.TestCase):
@@ -341,8 +341,10 @@ class TestFindOperation(PathfindingTestCase):
         self.assertEqual(cost, 0)
 
     def test_find_operation_unknown_from_a(self):
-        with self.assertRaises(LookupError):
+        with self.assertRaises(UnrecognisedOperationError) as e:
             func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unknown')
+
+        self.assertEqual(e.exception.args, ("Could not find image class with the 'unknown' operation", ))
 
     @unittest.expectedFailure
     def test_find_operation_unreachable_from_a(self):

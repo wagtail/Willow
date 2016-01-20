@@ -1,6 +1,13 @@
 from collections import defaultdict
 
 
+class UnrecognisedOperationError(LookupError):
+    """
+    Raised when the operation isn't in any of the known image classes.
+    """
+    pass
+
+
 class WillowRegistry(object):
     def __init__(self):
         self._registered_image_classes = set()
@@ -65,11 +72,10 @@ class WillowRegistry(object):
         image_classes = self._registered_image_classes
 
         if with_operation:
-            image_classes = filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes)
+            image_classes = list(filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes))
 
-        # Raise error if no image classes available
-        if not image_classes:
-            raise LookupError("Could not find image class with the '{0}' operation".format(with_operation))
+            if not image_classes:
+                raise UnrecognisedOperationError("Could not find image class with the '{0}' operation".format(with_operation))
 
         # Check each image class and remove unavailable ones
         if available:
