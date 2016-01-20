@@ -61,17 +61,11 @@ class WillowRegistry(object):
     def get_converter_cost(self, from_image_class, to_image_class):
         return self._registered_converter_costs.get((from_image_class, to_image_class), 100)
 
-    def get_image_classes(self, with_operation=None, with_converter_from=None, with_converter_to=None, available=None):
+    def get_image_classes(self, with_operation=None, available=None):
         image_classes = self._registered_image_classes
 
         if with_operation:
             image_classes = filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes)
-
-        if with_converter_from is not None:
-            image_classes = filter(lambda image_class: (with_converter_from, image_class) in self._registered_converters, image_classes)
-
-        if with_converter_to is not None:
-            image_classes = filter(lambda image_class: (image_class, with_converter_to) in self._registered_converters, image_classes)
 
         # Raise error if no image classes available
         if not image_classes:
@@ -297,7 +291,6 @@ class WillowRegistry(object):
             # Not implemented on the current class. Find the closest, available,
             # routable class that has it instead
             image_classes = self.get_image_classes(
-                with_converter_from=from_class,
                 with_operation=operation_name,
                 available=True)
 

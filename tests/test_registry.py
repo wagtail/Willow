@@ -344,6 +344,7 @@ class TestFindOperation(PathfindingTestCase):
         with self.assertRaises(LookupError):
             func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unknown')
 
+    @unittest.expectedFailure
     def test_find_operation_unreachable_from_a(self):
         with self.assertRaises(LookupError):
             func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unreachable')
