@@ -92,17 +92,17 @@ class WillowRegistry(object):
         return self._registered_converter_costs.get((from_image_class, to_image_class), 100)
 
     def get_image_classes(self, with_operation=None, available=None):
-        image_classes = self._registered_image_classes
+        image_classes = self._registered_image_classes.copy()
 
         if with_operation:
-            image_classes = list(filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes))
+            image_classes = set(filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes))
 
             if not image_classes:
                 raise UnrecognisedOperationError("Could not find image class with the '{0}' operation".format(with_operation))
 
         if available:
             # Remove unavailable image classes
-            available_image_classes = set(image_classes) - self._unavailable_image_classes.keys()
+            available_image_classes = image_classes - self._unavailable_image_classes.keys()
 
             # Raise error if all image classes failed the check
             if not available_image_classes:
@@ -116,9 +116,9 @@ class WillowRegistry(object):
                     for image_class in image_classes
                 ]))
 
-            image_classes = list(available_image_classes)
-
-        return image_classes
+            return available_image_classes
+        else:
+            return image_classes
 
     # Routing
 
