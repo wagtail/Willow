@@ -16,6 +16,14 @@ class UnavailableOperationError(LookupError):
     pass
 
 
+class UnroutableOperationError(LookupError):
+    """
+    Raised when there is no way to convert the image into an image class that
+    supports the operation.
+    """
+    pass
+
+
 class WillowRegistry(object):
     def __init__(self):
         self._registered_image_classes = set()
@@ -312,6 +320,15 @@ class WillowRegistry(object):
             # image_classes will always have a value here as get_image_classes raises
             # LookupError if there are no image classes available.
             cls, path, cost = self.find_closest_image_class(from_class, image_classes)
+
+            if path is None:
+                raise UnroutableOperationError(
+                    "The operation '{0}' is available in the image class '{1}'"
+                    " but it can't be converted to from '{2}'".format(
+                        operation_name,
+                        ', '.join(image_class.__name__ for image_class in image_classes),
+                        from_class.__name__
+                    ))
 
             # Get the operation function
             func = self.get_operation(cls, operation_name)

@@ -2,7 +2,7 @@ import unittest
 import mock
 
 from willow.image import Image
-from willow.registry import WillowRegistry, UnrecognisedOperationError, UnavailableOperationError
+from willow.registry import WillowRegistry, UnrecognisedOperationError, UnavailableOperationError, UnroutableOperationError
 
 
 class RegistryTestCase(unittest.TestCase):
@@ -379,7 +379,8 @@ class TestFindOperation(PathfindingTestCase):
         self.assertIn("ImageB: missing image library", str(e.exception))
         self.assertIn("ImageE: another missing image library", str(e.exception))
 
-    @unittest.expectedFailure
     def test_find_operation_unreachable_from_a(self):
-        with self.assertRaises(LookupError):
+        with self.assertRaises(UnroutableOperationError) as e:
             func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unreachable')
+
+        self.assertEqual(e.exception.args, ("The operation 'unreachable' is available in the image class 'ImageF' but it can't be converted to from 'ImageA'", ))
