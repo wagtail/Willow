@@ -333,11 +333,9 @@ class TestFindOperation(PathfindingTestCase):
         self.assertEqual(path, [(self.conv_a_to_b, self.ImageB)])
         self.assertEqual(cost, 100)
 
-    @unittest.expectedFailure
     def test_find_operation_foo_from_a_avoids_unavailable(self):
         # Make ImageB unavailable so it uses ImageE instead
-        self.ImageB.check = mock.MagicMock()
-        self.ImageB.check.side_effect = ImportError("missing image library")
+        self.registry._unavailable_image_classes[self.ImageB] = ImportError("missing image library")
 
         func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'foo')
 
@@ -348,7 +346,7 @@ class TestFindOperation(PathfindingTestCase):
             (self.conv_c_to_d, self.ImageD),
             (self.conv_d_to_e, self.ImageE),
         ])
-        self.assertEqual(cost, 100)
+        self.assertEqual(cost, 300)
 
     def test_find_operation_foo_from_b(self):
         func, image_class, path, cost = self.registry.find_operation(self.ImageB, 'foo')
@@ -366,11 +364,8 @@ class TestFindOperation(PathfindingTestCase):
 
     def test_find_operation_foo_from_a_all_unavailable(self):
         # Make ImageB and ImageE unavailable so an error is raised
-        self.ImageB.check = mock.MagicMock()
-        self.ImageB.check.side_effect = ImportError("missing image library")
-
-        self.ImageE.check = mock.MagicMock()
-        self.ImageE.check.side_effect = ImportError("another missing image library")
+        self.registry._unavailable_image_classes[self.ImageB] = ImportError("missing image library")
+        self.registry._unavailable_image_classes[self.ImageE] = ImportError("another missing image library")
 
         with self.assertRaises(UnavailableOperationError) as e:
             func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'foo')

@@ -27,6 +27,7 @@ class UnroutableOperationError(LookupError):
 class WillowRegistry(object):
     def __init__(self):
         self._registered_image_classes = set()
+        self._unavailable_image_classes = dict()
         self._registered_operations = defaultdict(dict)
         self._registered_converters = dict()
         self._registered_converter_costs = dict()
@@ -42,6 +43,12 @@ class WillowRegistry(object):
 
     def register_image_class(self, image_class):
         self._registered_image_classes.add(image_class)
+
+        # Check the image class
+        try:
+            image_class.check()
+        except Exception as e:
+            self._unavailable_image_classes[image_class] = e
 
         # Find and register operations/converters
         for attr in dir(image_class):
@@ -93,18 +100,9 @@ class WillowRegistry(object):
             if not image_classes:
                 raise UnrecognisedOperationError("Could not find image class with the '{0}' operation".format(with_operation))
 
-        # Check each image class and remove unavailable ones
         if available:
-            image_class_check_errors = {}
-            available_image_classes = set()
-
-            for image_class in image_classes:
-                try:
-                    image_class.check()
-                except Exception as e:
-                    image_class_check_errors[image_class] = e
-                else:
-                    available_image_classes.add(image_class)
+            # Remove unavailable image classes
+            available_image_classes = set(image_classes) - self._unavailable_image_classes.keys()
 
             # Raise error if all image classes failed the check
             if not available_image_classes:
@@ -113,9 +111,9 @@ class WillowRegistry(object):
                 ] + [
                     "{image_class_name}: {error_message}".format(
                         image_class_name=image_class.__name__,
-                        error_message=str(error)
+                        error_message=str(self._unavailable_image_classes.get(image_class, "Unknown error"))
                     )
-                    for image_class, error in image_class_check_errors.items()
+                    for image_class in image_classes
                 ]))
 
             image_classes = list(available_image_classes)
@@ -184,7 +182,7 @@ class WillowRegistry(object):
         if start in seen_classes:
             return []
 
-        if not start in self._registered_image_classes:
+        if not start in self._registered_image_classes or start in self._unavailable_image_classes:
             return []
 
         paths = []
