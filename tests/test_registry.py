@@ -1,7 +1,8 @@
 import unittest
+import mock
 
 from willow.image import Image
-from willow.registry import WillowRegistry, UnrecognisedOperationError
+from willow.registry import WillowRegistry, UnrecognisedOperationError, UnavailableOperationError
 
 
 class RegistryTestCase(unittest.TestCase):
@@ -332,6 +333,23 @@ class TestFindOperation(PathfindingTestCase):
         self.assertEqual(path, [(self.conv_a_to_b, self.ImageB)])
         self.assertEqual(cost, 100)
 
+    @unittest.expectedFailure
+    def test_find_operation_foo_from_a_avoids_unavailable(self):
+        # Make ImageB unavailable so it uses ImageE instead
+        self.ImageB.check = mock.MagicMock()
+        self.ImageB.check.side_effect = ImportError("missing image library")
+
+        func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'foo')
+
+        self.assertEqual(func, self.e_foo)
+        self.assertEqual(image_class, self.ImageE)
+        self.assertEqual(path, [
+            (self.conv_a_to_c, self.ImageC),
+            (self.conv_c_to_d, self.ImageD),
+            (self.conv_d_to_e, self.ImageE),
+        ])
+        self.assertEqual(cost, 100)
+
     def test_find_operation_foo_from_b(self):
         func, image_class, path, cost = self.registry.find_operation(self.ImageB, 'foo')
 
@@ -345,6 +363,21 @@ class TestFindOperation(PathfindingTestCase):
             func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unknown')
 
         self.assertEqual(e.exception.args, ("Could not find image class with the 'unknown' operation", ))
+
+    def test_find_operation_foo_from_a_all_unavailable(self):
+        # Make ImageB and ImageE unavailable so an error is raised
+        self.ImageB.check = mock.MagicMock()
+        self.ImageB.check.side_effect = ImportError("missing image library")
+
+        self.ImageE.check = mock.MagicMock()
+        self.ImageE.check.side_effect = ImportError("another missing image library")
+
+        with self.assertRaises(UnavailableOperationError) as e:
+            func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'foo')
+
+        self.assertIn("The operation 'foo' is available in the following image classes but they all raised errors:", str(e.exception))
+        self.assertIn("ImageB: missing image library", str(e.exception))
+        self.assertIn("ImageE: another missing image library", str(e.exception))
 
     @unittest.expectedFailure
     def test_find_operation_unreachable_from_a(self):

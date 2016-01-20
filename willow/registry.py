@@ -8,6 +8,14 @@ class UnrecognisedOperationError(LookupError):
     pass
 
 
+class UnavailableOperationError(LookupError):
+    """
+    Raised when all the image classes the operation exists in are not available.
+    (most likely due to a missing image library.)
+    """
+    pass
+
+
 class WillowRegistry(object):
     def __init__(self):
         self._registered_image_classes = set()
@@ -92,7 +100,7 @@ class WillowRegistry(object):
 
             # Raise error if all image classes failed the check
             if not available_image_classes:
-                raise LookupError('\n'.join([
+                raise UnavailableOperationError('\n'.join([
                     "The operation '{0}' is available in the following image classes but they all raised errors:".format(with_operation)
                 ] + [
                     "{image_class_name}: {error_message}".format(
