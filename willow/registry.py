@@ -102,7 +102,7 @@ class WillowRegistry(object):
 
         if available:
             # Remove unavailable image classes
-            available_image_classes = image_classes - self._unavailable_image_classes.keys()
+            available_image_classes = image_classes - set(self._unavailable_image_classes.keys())
 
             # Raise error if all image classes failed the check
             if not available_image_classes:
