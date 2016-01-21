@@ -72,19 +72,19 @@ Available operations
 =================================== ==================== ==================== ====================
 Operation                           Pillow               Wand                 OpenCV
 =================================== ==================== ==================== ====================
-``get_size()``                      ✓                    ✓
+``get_size()``                      ✓                    ✓                    ✓
 ``resize(size)``                    ✓                    ✓
 ``crop(rect)``                      ✓                    ✓
 ``auto_orient()``                   ✓                    ✓
 ``save_as_jpeg(file, quality)``     ✓                    ✓
 ``save_as_png(file)``               ✓                    ✓
 ``save_as_gif(file)``               ✓                    ✓
-``has_alpha()``                     ✓                    ✓
-``has_animation()``                 ✓*                   ✓
+``has_alpha()``                     ✓                    ✓                    ✓*
+``has_animation()``                 ✓*                   ✓                    ✓*
 ``get_pillow_image()``              ✓
 ``get_wand_image()``                                     ✓
 ``detect_features()``                                                         ✓
 ``detect_faces(cascade_filename)``                                            ✓
 =================================== ==================== ==================== ====================
 
-\* Always returns ``False`` as Pillow doesn't support animation
+\* Always returns ``False``
