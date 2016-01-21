@@ -11,8 +11,7 @@ from willow.plugins.opencv.base import BaseOpenCVGrayscaleImage
 class OpenCVColorImage(BaseOpenCVColorImage):
     @classmethod
     def check(cls):
-        cv2
-        numpy
+        pass
 
     @classmethod
     @Image.converter_from(RGBImageBuffer)
@@ -26,8 +25,7 @@ class OpenCVColorImage(BaseOpenCVColorImage):
 class OpenCVGrayscaleImage(BaseOpenCVGrayscaleImage):
     @classmethod
     def check(cls):
-        cv2
-        numpy
+        pass
 
     @Image.operation
     def detect_features(self):
