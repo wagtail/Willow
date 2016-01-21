@@ -43,7 +43,7 @@ class BaseOpenCVImage(Image):
 class BaseOpenCVColorImage(BaseOpenCVImage):
     @classmethod
     def from_buffer_rgb(cls, image_buffer):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     # TODO: Converter back to RGBImageBuffer
 
@@ -55,11 +55,11 @@ class BaseOpenCVGrayscaleImage(BaseOpenCVImage):
     haar_flags = 0
 
     def detect_features(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def detect_faces(self, cascade_filename='haarcascade_frontalface_alt2.xml'):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @classmethod
     def from_color(cls, colour_image):
-        raise NotImplemented()
+        raise NotImplementedError()
