@@ -70,7 +70,7 @@ class WillowRegistry(object):
             self.register_image_class(image_class)
 
         for operation in operations:
-            self.register_operation(operatin[0], operation[1], operation[2])
+            self.register_operation(operation[0], operation[1], operation[2])
 
         for converter in converters:
             self.register_converter(converter[0], converter[1], converter[2])
