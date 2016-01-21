@@ -1,14 +1,21 @@
 from __future__ import absolute_import
 
-import io
 import os
 
 from willow.image import Image, RGBImageBuffer
 
 
-def _cv():
-    import cv
-    return cv
+def _cv2():
+    try:
+        import cv2
+    except ImportError:
+        from cv import cv2
+    return cv2
+
+
+def _numpy():
+    import numpy
+    return numpy
 
 
 class BaseOpenCVImage(Image):
@@ -18,7 +25,7 @@ class BaseOpenCVImage(Image):
 
     @classmethod
     def check(cls):
-        _cv()
+        _cv2()
 
     @Image.operation
     def get_size(self):
@@ -37,75 +44,80 @@ class BaseOpenCVImage(Image):
 
 class OpenCVColorImage(BaseOpenCVImage):
     @classmethod
+    def check(cls):
+        super(OpenCVColorImage, cls).check()
+        _numpy()
+
+    @classmethod
     @Image.converter_from(RGBImageBuffer)
     def from_buffer_rgb(cls, image_buffer):
-        cv = _cv()
+        """
+        Converts a Color Image buffer into a numpy array suitable for use with OpenCV
+        """
+        numpy = _numpy()
+        cv2 = _cv2()
 
-        image = cv.CreateImageHeader(image_buffer.size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(image, image_buffer.data)
+        image = numpy.frombuffer(image_buffer.data, dtype=numpy.uint8)
+        image = image.reshape(image_buffer.size[1], image_buffer.size[0], 3)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         return cls(image, image_buffer.size)
-
-    # TODO: Converter back to RGBImageBuffer
 
 
 class OpenCVGrayscaleImage(BaseOpenCVImage):
+    face_haar_flags = 0
+    face_min_neighbors = 3
+    face_haar_scale = 1.1
+    face_min_size = (40, 40)
+
     @Image.operation
     def detect_features(self):
-        cv = _cv()
-        rows, cols = self.size
-
-        eig_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
-        temp_image = cv.CreateMat(rows, cols, cv.CV_32FC1)
-        points = cv.GoodFeaturesToTrack(self.image, eig_image, temp_image, 20, 0.04, 1.0, useHarris=False)
-
+        """
+        Find interesting features of an image suitable for cropping to.
+        """
+        cv2 = _cv2()
+        points = cv2.goodFeaturesToTrack(self.image, 20, 0.04, 1.0)
         return points
 
     @Image.operation
     def detect_faces(self, cascade_filename='haarcascade_frontalface_alt2.xml'):
-        cv = _cv()
+        """
+        Run OpenCV face detection on the image. Returns a list of coordinates representing a box around each face.
+        """
+        cv2 = _cv2()
+        cascade_filename = self._find_cascade(cascade_filename)
+        cascade = cv2.CascadeClassifier(cascade_filename)
+        equalised_image = cv2.equalizeHist(self.image)
+        faces = cascade.detectMultiScale(equalised_image,
+                                         self.face_haar_scale,
+                                         self.face_min_neighbors,
+                                         self.face_haar_flags,
+                                         self.face_min_size)
+        return [(face[0],
+                 face[1],
+                 face[0] + face[2],
+                 face[1] + face[3],
+                 ) for face in faces]
 
-        # If a relative path was provided, check local cascades directory
+    def _find_cascade(self, cascade_filename):
+        """
+        Find the requested OpenCV cascade file.  If a relative path was provided, check local cascades directory.
+        """
         if not os.path.isabs(cascade_filename):
             cascade_filename = os.path.join(
                 os.path.dirname(os.path.dirname(__file__)),
                 'data/cascades',
                 cascade_filename,
             )
-
-        # Load cascade file
-        cascade = cv.Load(cascade_filename)
-
-        # Equalise the images histogram
-        equalised_image = cv.CloneImage(self.image)
-        cv.EqualizeHist(self.image, equalised_image)
-
-        # Detect faces
-        min_size = (40, 40)
-        haar_scale = 1.1
-        min_neighbors = 3
-        haar_flags = 0
-
-        faces = cv.HaarDetectObjects(
-            equalised_image, cascade, cv.CreateMemStorage(0),
-            haar_scale, min_neighbors, haar_flags, min_size
-        )
-
-        return [
-            (
-                face[0][0],
-                face[0][1],
-                face[0][0] + face[0][2],
-                face[0][1] + face[0][3],
-            ) for face in faces
-        ]
+        return cascade_filename
 
     @classmethod
     @Image.converter_from(OpenCVColorImage)
     def from_color(cls, colour_image):
-        cv = _cv()
-
-        image = cv.CreateImage(colour_image.size, 8, 1)
-        cv.CvtColor(colour_image.image, image, cv.CV_RGB2GRAY)
+        """
+        Convert OpenCVColorImage to an OpenCVGrayscaleImage.
+        """
+        cv2 = _cv2()
+        image = cv2.cvtColor(colour_image.image, cv2.COLOR_BGR2GRAY)
         return cls(image, colour_image.size)
 
 
