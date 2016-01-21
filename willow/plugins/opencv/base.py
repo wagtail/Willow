@@ -49,10 +49,10 @@ class BaseOpenCVColorImage(BaseOpenCVImage):
 
 
 class BaseOpenCVGrayscaleImage(BaseOpenCVImage):
-    min_size = (40, 40)
-    haar_scale = 1.1
-    min_neighbors = 3
-    haar_flags = 0
+    face_min_size = (40, 40)
+    face_haar_scale = 1.1
+    face_min_neighbors = 3
+    face_haar_flags = 0
 
     def detect_features(self):
         raise NotImplementedError()

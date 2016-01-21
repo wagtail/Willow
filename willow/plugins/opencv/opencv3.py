@@ -45,10 +45,10 @@ class OpenCVGrayscaleImage(BaseOpenCVGrayscaleImage):
 
         # Detect faces
         faces = cascade.detectMultiScale(equalised_image,
-                                         self.haar_scale,
-                                         self.min_neighbors,
-                                         self.haar_flags,
-                                         self.min_size)
+                                         self.face_haar_scale,
+                                         self.face_min_neighbors,
+                                         self.face_haar_flags,
+                                         self.face_min_size)
         return [
             (
                 face[0],
