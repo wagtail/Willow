@@ -2,14 +2,20 @@ from __future__ import absolute_import
 
 import os
 
-try:
-    import cv2
-except ImportError:
-    from cv import cv2
-
-import numpy
-
 from willow.image import Image, RGBImageBuffer
+
+
+def _cv2():
+    try:
+        import cv2
+    except ImportError:
+        from cv import cv2
+    return cv2
+
+
+def _numpy():
+    import numpy
+    return numpy
 
 
 class BaseOpenCVImage(Image):
@@ -37,18 +43,22 @@ class BaseOpenCVImage(Image):
     def from_color(cls, colour_image):
         raise NotImplementedError()
 
-    @classmethod
-    def check(cls):
-        pass
-
 
 class OpenCVColorImage(BaseOpenCVImage):
+    @classmethod
+    def check(cls):
+        _cv2()
+        _numpy()
+
     @classmethod
     @Image.converter_from(RGBImageBuffer)
     def from_buffer_rgb(cls, image_buffer):
         """
         Converts a Color Image buffer into a numpy array suitable for use with OpenCV
         """
+        numpy = _numpy()
+        cv2 = _cv2()
+
         image = numpy.frombuffer(image_buffer.data, dtype=numpy.uint8)
         image = image.reshape(image_buffer.size[1], image_buffer.size[0], 3)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -61,11 +71,16 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
     face_haar_scale = 1.1
     face_min_size = (40, 40)
 
+    @classmethod
+    def check(cls):
+        _cv2()
+
     @Image.operation
     def detect_features(self):
         """
         Find interesting features of an image suitable for cropping to.
         """
+        cv2 = _cv2()
         points = cv2.goodFeaturesToTrack(self.image, 20, 0.04, 1.0)
         return points
 
@@ -74,6 +89,7 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         """
         Run OpenCV face detection on the image. Returns a list of coordinates representing a box around each face.
         """
+        cv2 = _cv2()
         cascade_filename = self._find_cascade(cascade_filename)
         cascade = cv2.CascadeClassifier(cascade_filename)
         equalised_image = cv2.equalizeHist(self.image)
@@ -106,6 +122,7 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         """
          Convert coluour_image from an OpenCVColorImage to an OpenCVGrayscaleImage.
         """
+        cv2 = _cv2()
         image = cv2.cvtColor(colour_image.image, cv2.COLOR_BGR2GRAY)
         return cls(image, colour_image.size)
 
