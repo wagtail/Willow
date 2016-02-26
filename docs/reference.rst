@@ -9,11 +9,13 @@ The ``Image`` class
 
 .. classmethod:: open(file)
 
-    Opens the provided image file detects the format from the image header using Python's :mod:`imghdr` module.
+    Opens the provided image file detects the format from the image header using
+    Python's :mod:`imghdr` module.
 
     Returns a subclass of :class:`ImageFile`
 
-    If the image format is unrecognised, this throws a :class:`willow.image.UnrecognisedImageFormatError` (a subclass of :class:`IOError`)
+    If the image format is unrecognised, this throws a :class:`willow.image.UnrecognisedImageFormatError`
+    (a subclass of :class:`IOError`)
 
 .. classmethod:: operation
 
@@ -33,11 +35,13 @@ The ``Image`` class
 
 .. classmethod:: converter_from(other_classes, cost=100)
 
-    A decorator for registering a "from" converter, which is a classmethod that converts an instance of another image class into an instance of this one.
+    A decorator for registering a "from" converter, which is a classmethod that
+    converts an instance of another image class into an instance of this one.
 
-    The ``other_classes`` parameter specifies which classes this converter can convert from. It can be a single class or a list.
+    The ``other_classes`` parameter specifies which classes this converter can
+    convert from. It can be a single class or a list.
 
-    .. code-block:: python 
+    .. code-block:: python
 
         from willow.image import Image
 
@@ -50,7 +54,8 @@ The ``Image`` class
                 return cls(image=open_jpeg(image_file.f))
 
 
-    It can also be applied multiple times to the same function allowing different costs to be specified for different classes:
+    It can also be applied multiple times to the same function allowing different
+    costs to be specified for different classes:
 
     .. code-block:: python
 
@@ -62,11 +67,13 @@ The ``Image`` class
 
 .. classmethod:: converter_to(other_class, cost=100)
 
-    A decorator for registering a "to" converter, which is a method that converts this image into an instance of another class.
+    A decorator for registering a "to" converter, which is a method that converts
+    this image into an instance of another class.
 
-    The ``other_class`` parameter specifies which class this function converts to. An individual "to" converter can only convert to a single class.
+    The ``other_class`` parameter specifies which class this function converts to.
+    An individual "to" converter can only convert to a single class.
 
-    .. code-block:: python 
+    .. code-block:: python
 
         from willow.image import Image
 
@@ -124,7 +131,8 @@ Here's a full list of operations provided by Willow out of the box:
 
     (Pillow/Wand only)
 
-    Cuts out the specified region of the image. The region must be a sequence of four integers (top, left, right, bottom):
+    Cuts out the specified region of the image. The region must be a sequence of
+    four integers (top, left, right, bottom):
 
     .. code-block:: python
 
@@ -135,7 +143,9 @@ Here's a full list of operations provided by Willow out of the box:
 
     (Pillow/Wand only)
 
-    Some JPEG files have orientation data in an EXIF tag that needs to be applied to the image. This method applies this orientation to the image (it is a no-op for other image formats).
+    Some JPEG files have orientation data in an EXIF tag that needs to be applied
+    to the image. This method applies this orientation to the image (it is a no-op
+    for other image formats).
 
     This should be run before performing any other image operations.
 
@@ -147,9 +157,11 @@ Here's a full list of operations provided by Willow out of the box:
 
     (OpenCV only)
 
-    Uses OpenCV to find the most prominent corners in the image. Useful for detecting interesting features for cropping against.
+    Uses OpenCV to find the most prominent corners in the image.
+    Useful for detecting interesting features for cropping against.
 
-    Returns a list of two integer tuples containing the coordinates of each point on the image
+    Returns a list of two integer tuples containing the coordinates of each
+    point on the image
 
     .. code-block:: python
 
@@ -159,11 +171,16 @@ Here's a full list of operations provided by Willow out of the box:
 
     (OpenCV only)
 
-    Uses OpenCV's `cascade classification <http://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html>`_ to detect faces in the image.
+    Uses OpenCV's `cascade classification
+    <http://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html>`_
+    to detect faces in the image.
 
-    By default the ``haarcascade_frontalface_alt2.xml`` (provided by OpenCV) cascade file is used. You can specifiy the filename to a different cascade file in the first parameter.
+    By default the ``haarcascade_frontalface_alt2.xml`` (provided by OpenCV)
+    cascade file is used. You can specifiy the filename to a different cascade
+    file in the first parameter.
 
-    Returns a list of four integer tuples containing the left, top, right, bottom locations of each face detected in the image.
+    Returns a list of four integer tuples containing the left, top, right, bottom
+    locations of each face detected in the image.
 
     .. code-block:: python
 
@@ -212,13 +229,15 @@ Here's a full list of operations provided by Willow out of the box:
 
     (Pillow only)
 
-    Returns a ``PIL.Image`` object for the specified image. This may be useful for reusing existing code that requires a Pillow image.
+    Returns a ``PIL.Image`` object for the specified image. This may be useful
+    for reusing existing code that requires a Pillow image.
 
     .. code-block:: python
 
         do_thing(image.get_pillow_image())
 
-    You can convert a ``PIL.Image`` object back into a Willow :class:`Image` using the ``PillowImage`` class:
+    You can convert a ``PIL.Image`` object back into a Willow :class:`Image`
+    using the ``PillowImage`` class:
 
     .. code-block:: python
 
@@ -235,13 +254,15 @@ Here's a full list of operations provided by Willow out of the box:
 
     (Pillow only)
 
-    Returns a ``Wand.Image`` object for the specified image. This may be useful for reusing existing code that requires a Wand image.
+    Returns a ``Wand.Image`` object for the specified image. This may be useful
+    for reusing existing code that requires a Wand image.
 
     .. code-block:: python
 
         do_thing(image.get_wand_image())
 
-    You can convert a ``Wand.Image` object back into a Willow :class:`Image` using the ``WandImage`` class:
+    You can convert a ``Wand.Image` object back into a Willow :class:`Image`
+    using the ``WandImage`` class:
 
     .. code-block:: python
 

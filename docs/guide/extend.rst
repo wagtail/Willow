@@ -1,7 +1,7 @@
 Extending Willow
 ================
 
-Imolementing new operations
+Implementing new operations
 ---------------------------
 
 Implementing new plugins
