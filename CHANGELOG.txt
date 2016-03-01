@@ -1,6 +1,16 @@
 0.3 (IN DEVELOPMENT)
 ~~~~~~~~~~~~~~~~~~~~
 
+A major internals refactor has taken place in this release, there are a number of breaking changes:
+
+ - The Image class is now immutable. Previously, "resize" and "crop" operations altered the image in-place but now they now always return a new image leaving the original untouched.
+ - There are now multiple Image classes. Each one represents possible state the image can be in (eg, in a file, loaded in Pillow, etc). Operations can return an image in a different class to what the operation was performed on.
+ - The "backends" have been renamed to "plugins".
+ - A new registry module has been added which can be used for registering new plugins and operations.
+ - The "original_format" attribute has been deprecated.
+
+Other changes in this release:
+
 - Added auto_orient operation
 
 
