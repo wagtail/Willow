@@ -110,6 +110,10 @@ class WandImage(Image):
 
         return WandImage(image)
 
+    @Image.operation
+    def get_wand_image(self):
+        return self.image
+
     @classmethod
     @Image.converter_from(JPEGImageFile, cost=150)
     @Image.converter_from(PNGImageFile, cost=150)

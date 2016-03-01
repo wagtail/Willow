@@ -114,6 +114,10 @@ class PillowImage(Image):
 
         return PillowImage(image)
 
+    @Image.operation
+    def get_pillow_image(self):
+        return self.image
+
     @classmethod
     @Image.converter_from(JPEGImageFile)
     @Image.converter_from(PNGImageFile)
