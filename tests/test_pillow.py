@@ -131,6 +131,11 @@ class TestPillowOperations(unittest.TestCase):
         self.assertFalse(resized_image.has_alpha())
         self.assertTrue(resized_image.has_animation())
 
+    def test_get_pillow_image(self):
+        pillow_image = self.image.get_pillow_image()
+
+        self.assertIsInstance(pillow_image, _PIL_Image().Image)
+
 
 class TestPillowImageOrientation(unittest.TestCase):
     def assert_orientation_landscape_image_is_correct(self, image):

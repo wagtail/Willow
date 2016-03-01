@@ -81,6 +81,8 @@ Operation                           Pillow               Wand                 Op
 ``save_as_gif(file)``               ✓                    ✓
 ``has_alpha()``                     ✓                    ✓                    ✓*
 ``has_animation()``                 ✓*                   ✓                    ✓*
+``get_pillow_image()``              ✓
+``get_wand_image()``                                     ✓
 ``detect_features()``                                                         ✓
 ``detect_faces(cascade_filename)``                                            ✓
 =================================== ==================== ==================== ====================
