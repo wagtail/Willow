@@ -5,7 +5,7 @@ import imghdr
 from wand.color import Color
 
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
-from willow.plugins.wand import WandImage
+from willow.plugins.wand import _wand_image, WandImage
 
 
 class TestWandOperations(unittest.TestCase):
@@ -96,6 +96,11 @@ class TestWandOperations(unittest.TestCase):
         resized_image = image.resize((100, 75))
 
         self.assertTrue(resized_image.has_animation())
+
+    def test_get_wand_image(self):
+        wand_image = self.image.get_wand_image()
+
+        self.assertIsInstance(wand_image, _wand_image().Image)
 
 
 class TestWandImageOrientation(unittest.TestCase):
