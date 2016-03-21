@@ -99,6 +99,7 @@ class PillowImage(Image):
 
                 Image = _PIL_Image()
                 ORIENTATION_TO_TRANSPOSE = {
+                    0: (),
                     1: (),
                     2: (Image.FLIP_LEFT_RIGHT,),
                     3: (Image.ROTATE_180,),
