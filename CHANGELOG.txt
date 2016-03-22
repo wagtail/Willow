@@ -1,4 +1,7 @@
-0.3 (IN DEVELOPMENT)
+0.3.1 (IN DEVELOPMENT)
+~~~~~~~~~~~~~~~~~~~~~~
+
+0.3 (09/03/2016)
 ~~~~~~~~~~~~~~~~~~~~
 
 A major internals refactor has taken place in this release, there are a number of breaking changes:
