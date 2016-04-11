@@ -123,6 +123,39 @@ For example, let's implement our own image class for Pillow:
 
             return cls(image)
 
+The image class then then be registered by calling :meth:`Registry.register_image_class`:
 
-Implementing new image formats
-------------------------------
+.. code-block:: python
+
+    from willow.registry import registry
+
+    from newpillow import NewPillowImage
+
+    registry.register_image_class(NewPillowImage)
+
+This will also register all operations and converters defined on the class.
+
+
+Plugins
+-------
+
+Plugins allow multiple image classes and/or operations to be registered together.
+They are Python modules with any of the following attributes defined:
+``willow_image_classes``, ``willow_operations`` or ``willow_converters``.
+
+For example, we can convert the Python module in the example above into a Willow
+plugin by adding the following line at the bottom of the file:
+
+.. code-block:: python
+
+    willow_image_operations = [NewPillowImage]
+
+It can now be registered using the :meth:`Registry.register_plugin` method:
+
+.. code-block:: python
+
+    from willow.registry import registry
+
+    import newpillow
+
+    registry.register_plugin(newpillow)
