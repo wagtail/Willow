@@ -9,7 +9,7 @@ Installation using ``pip``
 
 .. code-block:: shell
 
-    pip install Willow==0.3b3
+    pip install Willow
 
 Installing underlying libraries
 -------------------------------
