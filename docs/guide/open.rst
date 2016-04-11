@@ -26,20 +26,21 @@ If it succeeded, this will return a subclass of :class:`~ImageFile` (which itsel
 is a subclass of :class:`~Image`).
 
 The :class:`~ImageFile` subclass it chooses depends on the format of the image (
-detected by inspecting the header). In this case, it used :class:`~JPEGImageFile`
-as the image we loaded was a JPEG.
+detected by inspecting the file header). In this case, it used
+:class:`~JPEGImageFile` as the image we loaded was in JPEG format.
 
-This concept of different image classes for different formats helps Willow decide
-which plugin to use for resizing the image. For example, Willow will always
-favour Wand for resizing GIF images but will always favour Pillow for JPEG and
-PNG images.
+Using different image classes for different formats allows Willow to decide
+which plugin to use for performing operations on the image. For example, Willow
+will always favour Wand for resizing GIF images but will always favour Pillow
+for resizing JPEG and PNG images.
 
 From an existing Pillow object
 ------------------------------
 
-If the image has already been loaded with Pillow, you can very easily instantiate
-an :class:`~Image` object using the :class:`~willow.plugins.pillow.PillowImage`
-class:
+You can create a Willow :class:`~willow.image.Image` from an existing
+``PIL.Image`` object by creating an instance of the
+:class:`~willow.plugins.pillow.PillowImage` class
+(passing the ``PIL.Image`` object as the only parameter):
 
 .. code-block:: python
 
@@ -54,4 +55,6 @@ class:
     from willow.image import Image
     isinstance(i, Image)
 
-The same can be done for Wand and OpenCV.
+The same can be done with Wand and OpenCV, which use the
+:class:`~willow.plugins.wand.WandImage` and
+:class:`~willow.plugins.opencv.OpenCVColorImage` classes respectively.

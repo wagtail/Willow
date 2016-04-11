@@ -29,10 +29,11 @@ Resizing images
 To resize an image, call the :meth:`~Image.resize` method. This stretches the
 image to fit the new size.
 
-It takes a single argument, a two element sequence of integers representing the
+It takes a single argument, a two element sequence of integers containing the
 width and height of the final image.
 
-It returns a new :class:`~Image` object leaving the source image untouched.
+It returns a new :class:`~Image` object containing the resized image. The
+original image is not modified.
 
 .. code-block:: python
 
@@ -45,12 +46,13 @@ Cropping images
 ---------------
 
 To crop an image, call the :meth:`~Image.crop` method. This cuts the specified
-rect from the source image
+rectangle from the source image.
 
-It takes a single argument, a four element sequence of integers representing the
+It takes a single argument, a four element sequence of integers containing the
 location of the left, top, right and bottom edges to cut out.
 
-It returns a new :class:`~Image` object leaving the source image untouched.
+It returns a new :class:`~Image` object containing the cropped region. The
+original image is not modified.
 
 .. code-block:: python
 
