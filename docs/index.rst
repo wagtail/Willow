@@ -21,3 +21,4 @@ Index
    concepts
    guide/index
    reference
+   changelog
