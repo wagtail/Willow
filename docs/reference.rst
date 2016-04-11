@@ -109,12 +109,12 @@ Here's a full list of operations provided by Willow out of the box:
 
 .. method:: has_animation
 
-    Returns ``True`` if the image is animated..
+    Returns ``True`` if the image is animated.
 
     .. code-block:: python
 
         if image.has_animation():
-            # Image has alpha
+            # Image has animation
 
 .. method:: resize(size)
 
