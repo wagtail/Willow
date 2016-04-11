@@ -9,9 +9,7 @@ Willow image library
 
 A Python image library that sits on top of Pillow, Wand and OpenCV
 
-Documentation_
-
-.. _Documentation: http://willow.readthedocs.org/en/latest/index.html
+`Documentation <http://willow.readthedocs.org/en/latest/index.html>`_
 
 Overview
 --------
@@ -77,6 +75,8 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 
 Available operations
 --------------------
+
+`Documentation <http://willow.readthedocs.org/en/latest/reference.html#builtin-operations>`_
 
 =================================== ==================== ==================== ====================
 Operation                           Pillow               Wand                 OpenCV
