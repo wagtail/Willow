@@ -123,7 +123,7 @@ For example, let's implement our own image class for Pillow:
 
             return cls(image)
 
-The image class then then be registered by calling :meth:`Registry.register_image_class`:
+The image class can then be registered by calling :meth:`Registry.register_image_class`:
 
 .. code-block:: python
 
