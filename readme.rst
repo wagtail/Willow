@@ -7,6 +7,15 @@
 Willow image library
 ====================
 
+A Python image library that sits on top of Pillow, Wand and OpenCV
+
+Documentation_
+
+.. _Documentation: http://willow.readthedocs.org/en/latest/index.html
+
+Overview
+--------
+
 Willow provides a unified and extensible interface to the many imaging libraries that are available for Python. It can also automatically switch between libraries at runtime allowing you to use features in all of the imaging libraries with any image. 
 
 It includes backends for Pillow, Wand and OpenCV out of the box. It is easy to add new operations to existing backends or roll your own backend to add support for other imaging libraries.
