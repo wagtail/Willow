@@ -23,8 +23,8 @@ It is written in pure-Python (versions 2.7, 3.3, 3.4 and 3.5 are supported)
 Examples
 --------
 
-Resizing a PNG file
-```````````````````
+Resizing an image
+`````````````````
 
 .. code-block:: python
 
