@@ -14,20 +14,11 @@ A Python image library that sits on top of Pillow, Wand and OpenCV
 Overview
 --------
 
-Willow provides a unified and extensible interface to the many imaging libraries that are available for Python. It can also automatically switch between libraries at runtime allowing you to use features in all of the imaging libraries with any image. 
+Willow is a simple image library that combines the APIs of Pillow, Wand and OpenCV. It converts the image between the libraries when necessary.
 
-It includes backends for Pillow, Wand and OpenCV out of the box. It is easy to add new operations to existing backends or roll your own backend to add support for other imaging libraries.
+Willow currently has basic resize and crop operations, face and feature detection and animated GIF support. New operations and library integrations can also be `easily implemented <http://willow.readthedocs.org/en/latest/guide/extend.html>`_.
 
-
-Features
---------
-
-* Simple, extensible API
-* Basic resize and crop operations
-* Animated GIFs
-* Face and feature detection
-* Supports Python 2.7, 3.3, 3.4 and 3.5
-
+It is written in pure-Python (versions 2.7, 3.3, 3.4 and 3.5 are supported)
 
 Examples
 --------
