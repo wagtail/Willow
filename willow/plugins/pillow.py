@@ -92,7 +92,11 @@ class PillowImage(Image):
         image = self.image
 
         if hasattr(image, '_getexif'):
-            exif = image._getexif()
+            try:
+                exif = image._getexif()
+            except Exception:
+                # Blanket cover all the ways _getexif can fail in.
+                exif = None
             if exif is not None:
                 # 0x0112 = Orientation
                 orientation = exif.get(0x0112, 1)
