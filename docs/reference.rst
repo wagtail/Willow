@@ -252,7 +252,7 @@ Here's a full list of operations provided by Willow out of the box:
 
 .. method:: get_wand_image()
 
-    (Pillow only)
+    (Wand only)
 
     Returns a ``Wand.Image`` object for the specified image. This may be useful
     for reusing existing code that requires a Wand image.
