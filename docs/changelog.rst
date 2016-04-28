@@ -11,6 +11,7 @@ Changelog
 
  - Fixed crash in the Pillow auto_orient operation when the image has an invalid Orientation EXIF Tag (Sigurdur J Eggertsson)
  - The ``auto_orient`` operation now catches all errors raised while reading EXIF data (Tomas Olander)
+ - Palette formatted PNG and GIF files that have transparency no longer lose their transparency when resizing them
 
 0.3 (09/03/2016)
 ----------------
