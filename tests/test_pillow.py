@@ -82,7 +82,6 @@ class TestPillowOperations(unittest.TestCase):
         # Check that the alpha of pixel 1,1 is 0
         self.assertEqual(image.image.convert('RGBA').getpixel((1, 1))[3], 0)
 
-    @unittest.expectedFailure
     def test_resize_transparent_gif(self):
         with open('tests/images/transparent.gif', 'rb') as f:
             image = PillowImage.open(GIFImageFile(f))
