@@ -186,7 +186,7 @@ Here's a full list of operations provided by Willow out of the box:
 
         faces = image.detect_faces()
 
-.. method:: save_as_jpeg(file, quality=85)
+.. method:: save_as_jpeg(file, quality=85, optimize=False)
 
     (Pillow/Wand only)
 
@@ -199,7 +199,7 @@ Here's a full list of operations provided by Willow out of the box:
         with open('out.jpg', 'wb') as f:
             image.save_as_jpeg(f)
 
-.. method:: save_as_png(file)
+.. method:: save_as_png(file, optimize=False)
 
     (Pillow/Wand only)
 

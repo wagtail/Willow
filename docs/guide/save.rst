@@ -30,3 +30,17 @@ For example, to save an image with low quality:
 
     with open('low_quality.jpg', 'wb') as f:
         i.save_as_jpeg(f, quality=40)
+
+Optimized images
+----------------
+
+:meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_png` both take an
+``optimise`` keyword that when set to true, will output an optimized image.
+
+.. code-block:: python
+
+    with open('optimized.jpg', 'wb') as f:
+        i.save_as_jpeg(f, optimize=True)
+
+This feature is currently only supported in the Pillow backend, if you use Wand
+this argument will be ignored.
