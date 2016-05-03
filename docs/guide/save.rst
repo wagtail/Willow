@@ -31,6 +31,17 @@ For example, to save an image with low quality:
     with open('low_quality.jpg', 'wb') as f:
         i.save_as_jpeg(f, quality=40)
 
+Progressive JPEGs
+-----------------
+
+:meth:`~Image.save_as_jpeg` takes a ``progressive`` keyword argument, that can
+be used to make it output a progressive JPEG file:
+
+.. code-block:: python
+
+    with open('progressive.jpg', 'wb') as f:
+        i.save_as_jpeg(f, progressive=True)
+
 Optimized images
 ----------------
 

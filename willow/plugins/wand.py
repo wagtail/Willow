@@ -60,8 +60,8 @@ class WandImage(Image):
         return clone
 
     @Image.operation
-    def save_as_jpeg(self, f, quality=85, optimize=False):
-        with self.image.convert('jpeg') as converted:
+    def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
+        with self.image.convert('pjpeg' if progressive else 'jpeg') as converted:
             converted.compression_quality = quality
             converted.save(file=f)
 

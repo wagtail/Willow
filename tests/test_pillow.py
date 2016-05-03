@@ -2,6 +2,8 @@ import unittest
 import io
 import imghdr
 
+from PIL import Image as PILImage
+
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
 from willow.plugins.pillow import _PIL_Image, PillowImage
 
@@ -39,6 +41,11 @@ class TestPillowOperations(unittest.TestCase):
 
         # Optimised image must be smaller than unoptimised image
         self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
+
+    def test_save_as_jpeg_progressive(self):
+        image = self.image.save_as_jpeg(io.BytesIO(), progressive=True)
+
+        self.assertTrue(PILImage.open(image.f).info['progressive'])
 
     def test_save_as_png(self):
         output = io.BytesIO()

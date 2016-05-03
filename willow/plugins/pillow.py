@@ -57,7 +57,7 @@ class PillowImage(Image):
         return PillowImage(self.image.crop(rect))
 
     @Image.operation
-    def save_as_jpeg(self, f, quality=85, optimize=False):
+    def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
         if self.image.mode in ['1', 'P']:
             image = self.image.convert('RGB')
         else:
@@ -67,6 +67,8 @@ class PillowImage(Image):
         kwargs = {}
         if optimize:
             kwargs['optimize'] = True
+        if progressive:
+            kwargs['progressive'] = True
 
         image.save(f, 'JPEG', quality=quality, **kwargs)
         return JPEGImageFile(f)

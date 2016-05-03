@@ -4,6 +4,8 @@ import imghdr
 
 from wand.color import Color
 
+from PIL import Image as PILImage
+
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
 from willow.plugins.wand import _wand_image, WandImage
 
@@ -42,6 +44,11 @@ class TestWandOperations(unittest.TestCase):
 
         # Optimised image must be smaller than unoptimised image
         self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
+
+    def test_save_as_jpeg_progressive(self):
+        image = self.image.save_as_jpeg(io.BytesIO(), progressive=True)
+
+        self.assertTrue(PILImage.open(image.f).info['progressive'])
 
     def test_save_as_png(self):
         output = io.BytesIO()
