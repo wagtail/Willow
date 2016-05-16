@@ -6,8 +6,8 @@ Changelog
 
  - Added documentation
 
-0.3.1 (IN DEVELOPMENT)
-----------------------
+0.3.1 (16/05/2016)
+------------------
 
  - Fixed crash in the Pillow auto_orient operation when the image has an invalid Orientation EXIF Tag (Sigurdur J Eggertsson)
  - The ``auto_orient`` operation now catches all errors raised while reading EXIF data (Tomas Olander)
