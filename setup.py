@@ -25,7 +25,7 @@ setup(
     author='Karl Hobley',
     author_email='karlhobley10@gmail.com',
     url='',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     license='BSD',
     classifiers=[
