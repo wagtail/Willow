@@ -144,15 +144,15 @@ class TestPillowImageOrientation(unittest.TestCase):
         # Check that the red flower is in the bottom left
         # The JPEGs have compressed slightly differently so the colours won't be spot on
         colour = image.image.convert('RGB').getpixel((155, 282))
-        self.assertAlmostEqual(colour[0], 217, delta=10)
-        self.assertAlmostEqual(colour[1], 38, delta=11)
-        self.assertAlmostEqual(colour[2], 46, delta=13)
+        self.assertAlmostEqual(colour[0], 217, delta=25)
+        self.assertAlmostEqual(colour[1], 38, delta=25)
+        self.assertAlmostEqual(colour[2], 46, delta=25)
 
         # Check that the water is at the bottom
         colour = image.image.convert('RGB').getpixel((377, 434))
-        self.assertAlmostEqual(colour[0], 85, delta=11)
-        self.assertAlmostEqual(colour[1], 93, delta=12)
-        self.assertAlmostEqual(colour[2], 65, delta=11)
+        self.assertAlmostEqual(colour[0], 85, delta=25)
+        self.assertAlmostEqual(colour[1], 93, delta=25)
+        self.assertAlmostEqual(colour[2], 65, delta=25)
 
     def test_jpeg_with_orientation_1(self):
         with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
