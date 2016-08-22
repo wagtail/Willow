@@ -4,6 +4,7 @@ Changelog
 0.4 (IN DEVELOPMENT)
 --------------------
 
+ - Support for image optimisation and saving progressive JPEG files
  - Added documentation
 
 0.3.1 (16/05/2016)
