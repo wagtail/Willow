@@ -34,16 +34,17 @@ For example, to save an image with low quality:
 Progressive JPEGs
 -----------------
 
-:meth:`~Image.save_as_jpeg` takes a ``progressive`` keyword argument, that can
-be used to make it output a progressive JPEG file:
+By default, JPEG's are saved in the same format as their source file but you
+can force Willow to always save a "progressive" JPEG file by setting the
+``progressive`` keyword argument to ``True``:
 
 .. code-block:: python
 
     with open('progressive.jpg', 'wb') as f:
         i.save_as_jpeg(f, progressive=True)
 
-Optimized images
-----------------
+Image optimisation
+------------------
 
 :meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_png` both take an
 ``optimise`` keyword that when set to true, will output an optimized image.
