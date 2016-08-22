@@ -2,6 +2,8 @@ import unittest
 import io
 import imghdr
 
+from PIL import Image as PILImage
+
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
 from willow.plugins.pillow import _PIL_Image, PillowImage
 
@@ -33,6 +35,18 @@ class TestPillowOperations(unittest.TestCase):
         self.assertIsInstance(return_value, JPEGImageFile)
         self.assertEqual(return_value.f, output)
 
+    def test_save_as_jpeg_optimised(self):
+        unoptimised = self.image.save_as_jpeg(io.BytesIO())
+        optimised = self.image.save_as_jpeg(io.BytesIO(), optimize=True)
+
+        # Optimised image must be smaller than unoptimised image
+        self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
+
+    def test_save_as_jpeg_progressive(self):
+        image = self.image.save_as_jpeg(io.BytesIO(), progressive=True)
+
+        self.assertTrue(PILImage.open(image.f).info['progressive'])
+
     def test_save_as_png(self):
         output = io.BytesIO()
         return_value = self.image.save_as_png(output)
@@ -41,6 +55,13 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(imghdr.what(output), 'png')
         self.assertIsInstance(return_value, PNGImageFile)
         self.assertEqual(return_value.f, output)
+
+    def test_save_as_png_optimised(self):
+        unoptimised = self.image.save_as_png(io.BytesIO())
+        optimised = self.image.save_as_png(io.BytesIO(), optimize=True)
+
+        # Optimised image must be smaller than unoptimised image
+        self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
 
     def test_save_as_gif(self):
         output = io.BytesIO()
