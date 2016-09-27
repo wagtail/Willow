@@ -47,7 +47,7 @@ Image optimisation
 ------------------
 
 :meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_png` both take an
-``optimise`` keyword that when set to true, will output an optimized image.
+``optimize`` keyword that when set to true, will output an optimized image.
 
 .. code-block:: python
 
