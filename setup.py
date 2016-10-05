@@ -20,7 +20,7 @@ except ImportError:
 
 setup(
     name='Willow',
-    version='0.4a0',
+    version='0.4',
     description='A Python image library that sits on top of Pillow, Wand and OpenCV',
     author='Karl Hobley',
     author_email='karlhobley10@gmail.com',
