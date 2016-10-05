@@ -27,4 +27,4 @@ def setup():
 setup()
 
 
-__version__ = '0.4a0'
+__version__ = '0.4'

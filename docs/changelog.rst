@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.4 (IN DEVELOPMENT)
+0.4 (05/10/2016)
 --------------------
 
  - Support for image optimisation and saving progressive JPEG files
