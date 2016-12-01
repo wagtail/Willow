@@ -62,7 +62,7 @@ class MyImage(Image):
         ...
 ```
 
-### classmethod ``converter_to(other_class, cost=100)``
+### classmethod ``.converter_to(other_class, cost=100)``
 
 A decorator for registering a "to" converter, which is a method that converts
 this image into an instance of another class.
