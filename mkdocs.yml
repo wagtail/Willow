@@ -6,3 +6,12 @@ repo_url: https://github.com/torchbox/Willow
 
 pages:
  - Home: 'index.md'
+ - Installation: 'installation.md'
+ - Concepts: 'concepts.md'
+ - Usage guide:
+    - Opening images: 'guide/open.md'
+    - Basic image operations: 'guide/operations.md'
+    - Saving images: 'guide/save.md'
+    - Extending Willow: 'guide/extend.md'
+ - API reference: 'reference.md'
+ - Changelog: 'changelog.md'

@@ -1,17 +1,24 @@
-# Welcome to MkDocs
+# Willow image library
 
-For full documentation visit [mkdocs.org](http://mkdocs.org).
+Willow is a pure Python library that aims to unite many Python imaging libraries
+under a single interface.
 
-## Commands
+Out of the box, Willow can work with Pillow, Wand or OpenCV. None of these image
+libraries are required (but you should have either Pillow or Wand installed to
+use most features). It also has a plugin interface which allows you to add
+support for more libraries, image formats and operations.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
+## Index
 
-## Project layout
+```
+TODO
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+   installation
+   concepts
+   guide/index
+   reference
+   changelog
+```
