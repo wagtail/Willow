@@ -2,272 +2,272 @@
 
 ## The ``Image`` class
 
-.. class:: Image
+### ``.open(file)``
 
-.. classmethod:: open(file)
+Opens the provided image file detects the format from the image header using
+Python's :mod:`imghdr` module.
 
-    Opens the provided image file detects the format from the image header using
-    Python's :mod:`imghdr` module.
+Returns a subclass of :class:`ImageFile`
 
-    Returns a subclass of :class:`ImageFile`
+If the image format is unrecognised, this throws a :class:`willow.image.UnrecognisedImageFormatError`
+(a subclass of :class:`IOError`)
 
-    If the image format is unrecognised, this throws a :class:`willow.image.UnrecognisedImageFormatError`
-    (a subclass of :class:`IOError`)
+### classmethod ``.operation()``
 
-.. classmethod:: operation
+A decorator for registering operations.
 
-    A decorator for registering operations.
+The operations will be automatically registered when the image class is registered.
 
-    The operations will be automatically registered when the image class is registered.
+```python
+from willow.image import Image
 
-    .. code-block:: python
+class MyImage(Image):
 
-        from willow.image import Image
+    @Image.operation
+    def resize(self, size):
+        return MyImage(self.image.resize(size))
+```
 
-        class MyImage(Image):
+### classmethod ``.converter_from(other_classes, cost=100)``
 
-            @Image.operation
-            def resize(self, size):
-                return MyImage(self.image.resize(size))
+A decorator for registering a "from" converter, which is a classmethod that
+converts an instance of another image class into an instance of this one.
 
-.. classmethod:: converter_from(other_classes, cost=100)
+The ``other_classes`` parameter specifies which classes this converter can
+convert from. It can be a single class or a list.
 
-    A decorator for registering a "from" converter, which is a classmethod that
-    converts an instance of another image class into an instance of this one.
+```python
+from willow.image import Image
 
-    The ``other_classes`` parameter specifies which classes this converter can
-    convert from. It can be a single class or a list.
+class MyImage(Image):
+    ...
 
-    .. code-block:: python
+    @classmethod
+    @Image.converter_from(JPEGImageFile)
+    def open_jpeg_file(cls, image_file):
+        return cls(image=open_jpeg(image_file.f))
+```
 
-        from willow.image import Image
+It can also be applied multiple times to the same function allowing different
+costs to be specified for different classes:
 
-        class MyImage(Image):
-            ...
+```python
+class MyImage(Image):
+    ...
 
-            @classmethod
-            @Image.converter_from(JPEGImageFile)
-            def open_jpeg_file(cls, image_file):
-                return cls(image=open_jpeg(image_file.f))
+    @classmethod
+    @Image.converter_from([JPEGImageFile, PNGImageFile])
+    @Image.converter_from(GIFImageFile, cost=200)
+    def open_file(cls, image_file):
+        ...
+```
 
+### classmethod ``converter_to(other_class, cost=100)``
 
-    It can also be applied multiple times to the same function allowing different
-    costs to be specified for different classes:
+A decorator for registering a "to" converter, which is a method that converts
+this image into an instance of another class.
 
-    .. code-block:: python
+The ``other_class`` parameter specifies which class this function converts to.
+An individual "to" converter can only convert to a single class.
 
-        @classmethod
-        @Image.converter_from([JPEGImageFile, PNGImageFile])
-        @Image.converter_from(GIFImageFile, cost=200)
-        def open_file(cls, image_file):
-            ...
+```python
+from willow.image import Image
 
-.. classmethod:: converter_to(other_class, cost=100)
+class MyImage(Image):
+    ...
 
-    A decorator for registering a "to" converter, which is a method that converts
-    this image into an instance of another class.
-
-    The ``other_class`` parameter specifies which class this function converts to.
-    An individual "to" converter can only convert to a single class.
-
-    .. code-block:: python
-
-        from willow.image import Image
-
-        class MyImage(Image):
-            ...
-
-            @Image.converter_to(PillowImage)
-            def convert_to_pillow(self):
-                image = PIL.Image()  # Code to create PIL image object here
-                return PillowImage(image)
+    @Image.converter_to(PillowImage)
+    def convert_to_pillow(self):
+        image = PIL.Image()  # Code to create PIL image object here
+        return PillowImage(image)
+```
 
 ## Builtin operations
 
 Here's a full list of operations provided by Willow out of the box:
 
-.. method:: get_size()
+### ``.get_size()``
 
-    Returns the size of the image as a tuple of two integers:
+Returns the size of the image as a tuple of two integers:
 
-    .. code-block:: python
+```python
+width, height = image.get_size()
+```
 
-        width, height = image.get_size()
+### ``.has_alpha()``
 
-.. method:: has_alpha
+Returns ``True`` if the image has an alpha channel.
 
-    Returns ``True`` if the image has an alpha channel.
+```python
+if image.has_alpha():
+    # Image has alpha
+```
 
-    .. code-block:: python
+### ``.has_animation()``
 
-        if image.has_alpha():
-            # Image has alpha
+Returns ``True`` if the image is animated.
 
-.. method:: has_animation
+```python
+if image.has_animation():
+    # Image has animation
+```
 
-    Returns ``True`` if the image is animated.
+### ``.resize(size)``
 
-    .. code-block:: python
+*(Pillow/Wand only)*
 
-        if image.has_animation():
-            # Image has animation
+Stretches the image to fit the specified size. Size must be a sequence of two integers:
 
-.. method:: resize(size)
+```python
+# Resize the image to 100x100 pixels
+resized_image = source_image.resize((100, 100))
+```
 
-    (Pillow/Wand only)
+### ``.crop(region)``
 
-    Stretches the image to fit the specified size. Size must be a sequence of two integers:
+*(Pillow/Wand only)*
 
-    .. code-block:: python
+Cuts out the specified region of the image. The region must be a sequence of
+four integers (top, left, right, bottom):
 
-        # Resize the image to 100x100 pixels
-        resized_image = source_image.resize((100, 100))
+```python
+# Cut out a square from the middle of the image
+cropped_image = source_image.resize((100, 100, 200, 200))
+```
 
-.. method:: crop(region)
+### ``.auto_orient()``
 
-    (Pillow/Wand only)
+*(Pillow/Wand only)*
 
-    Cuts out the specified region of the image. The region must be a sequence of
-    four integers (top, left, right, bottom):
+Some JPEG files have orientation data in an EXIF tag that needs to be applied
+to the image. This method applies this orientation to the image (it is a no-op
+for other image formats).
 
-    .. code-block:: python
+This should be run before performing any other image operations.
 
-        # Cut out a square from the middle of the image
-        cropped_image = source_image.resize((100, 100, 200, 200))
+```python
+image = image.auto_orient()
+```
 
-.. method:: auto_orient()
+### ``.detect_features()``
 
-    (Pillow/Wand only)
+*(OpenCV only)*
 
-    Some JPEG files have orientation data in an EXIF tag that needs to be applied
-    to the image. This method applies this orientation to the image (it is a no-op
-    for other image formats).
+Uses OpenCV to find the most prominent corners in the image.
+Useful for detecting interesting features for cropping against.
 
-    This should be run before performing any other image operations.
+Returns a list of two integer tuples containing the coordinates of each
+point on the image
 
-    .. code-block:: python
+```python
+points = image.detect_features()
+```
 
-        image = image.auto_orient()
+### ``.detect_faces(cascade_filename)``
 
-.. method:: detect_features()
+*(OpenCV only)*
 
-    (OpenCV only)
+Uses OpenCV's `cascade classification
+<http://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html>`_
+to detect faces in the image.
 
-    Uses OpenCV to find the most prominent corners in the image.
-    Useful for detecting interesting features for cropping against.
+By default the ``haarcascade_frontalface_alt2.xml`` (provided by OpenCV)
+cascade file is used. You can specifiy the filename to a different cascade
+file in the first parameter.
 
-    Returns a list of two integer tuples containing the coordinates of each
-    point on the image
+Returns a list of four integer tuples containing the left, top, right, bottom
+locations of each face detected in the image.
 
-    .. code-block:: python
+```python
+faces = image.detect_faces()
+```
 
-        points = image.detect_features()
+### ``.save_as_jpeg(file, quality=85, optimize=False)``
 
-.. method:: detect_faces(cascade_filename)
+*(Pillow/Wand only)*
 
-    (OpenCV only)
+Saves the image to the specified file-like object in JPEG format.
 
-    Uses OpenCV's `cascade classification
-    <http://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html>`_
-    to detect faces in the image.
+Returns a ``JPEGImageFile`` wrapping the file.
 
-    By default the ``haarcascade_frontalface_alt2.xml`` (provided by OpenCV)
-    cascade file is used. You can specifiy the filename to a different cascade
-    file in the first parameter.
+```python
+with open('out.jpg', 'wb') as f:
+    image.save_as_jpeg(f)
+```
 
-    Returns a list of four integer tuples containing the left, top, right, bottom
-    locations of each face detected in the image.
+### ``.save_as_png(file, optimize=False)``
 
-    .. code-block:: python
+*(Pillow/Wand only)*
 
-        faces = image.detect_faces()
+Saves the image to the specified file-like object in PNG format.
 
-.. method:: save_as_jpeg(file, quality=85, optimize=False)
+Returns a ``PNGImageFile`` wrapping the file.
 
-    (Pillow/Wand only)
+```python
+with open('out.png', 'wb') as f:
+    image.save_as_png(f)
+```
 
-    Saves the image to the specified file-like object in JPEG format.
+### ``.save_as_gif(file)``
 
-    Returns a ``JPEGImageFile`` wrapping the file.
+*(Pillow/Wand only)*
 
-    .. code-block:: python
+Saves the image to the specified file-like object in GIF format.
 
-        with open('out.jpg', 'wb') as f:
-            image.save_as_jpeg(f)
+returns a ``GIFImageFile`` wrapping the file.
 
-.. method:: save_as_png(file, optimize=False)
+```python
+with open('out.gif', 'wb') as f:
+    image.save_as_gif(f)
+```
 
-    (Pillow/Wand only)
+### ``.get_pillow_image()``
 
-    Saves the image to the specified file-like object in PNG format.
+*(Pillow only)*
 
-    Returns a ``PNGImageFile`` wrapping the file.
+Returns a ``PIL.Image`` object for the specified image. This may be useful
+for reusing existing code that requires a Pillow image.
 
-    .. code-block:: python
+```python
+do_thing(image.get_pillow_image())
+```
 
-        with open('out.png', 'wb') as f:
-            image.save_as_png(f)
+You can convert a ``PIL.Image`` object back into a Willow :class:`Image`
+using the ``PillowImage`` class:
 
-.. method:: save_as_gif(file)
+```python
+import PIL.Image
+from willow.plugins.pillow import PillowImage
 
-    (Pillow/Wand only)
+pillow_image = PIL.Image.open('test.jpg')
+image = PillowImage(pillow_image)
 
-    Saves the image to the specified file-like object in GIF format.
+# Now you can use any Willow operation on that image
+faces = image.detect_faces()
+```
 
-    returns a ``GIFImageFile`` wrapping the file.
+### ``.get_wand_image()``
 
-    .. code-block:: python
+*(Wand only)*
 
-        with open('out.gif', 'wb') as f:
-            image.save_as_gif(f)
+Returns a ``Wand.Image`` object for the specified image. This may be useful
+for reusing existing code that requires a Wand image.
 
-.. method:: get_pillow_image()
+```python
+do_thing(image.get_wand_image())
+```
 
-    (Pillow only)
+You can convert a ``Wand.Image` object back into a Willow :class:`Image`
+using the ``WandImage`` class:
 
-    Returns a ``PIL.Image`` object for the specified image. This may be useful
-    for reusing existing code that requires a Pillow image.
+```python
+from wand.image import Image
+from willow.plugins.wand import WandImage
 
-    .. code-block:: python
+# wand_image is an instance of Wand.Image
+wand_image = Image(filename='pikachu.png')
+image = WandImage(wand_image)
 
-        do_thing(image.get_pillow_image())
-
-    You can convert a ``PIL.Image`` object back into a Willow :class:`Image`
-    using the ``PillowImage`` class:
-
-    .. code-block:: python
-
-        import PIL.Image
-        from willow.plugins.pillow import PillowImage
-
-        pillow_image = PIL.Image.open('test.jpg')
-        image = PillowImage(pillow_image)
-
-        # Now you can use any Willow operation on that image
-        faces = image.detect_faces()
-
-.. method:: get_wand_image()
-
-    (Wand only)
-
-    Returns a ``Wand.Image`` object for the specified image. This may be useful
-    for reusing existing code that requires a Wand image.
-
-    .. code-block:: python
-
-        do_thing(image.get_wand_image())
-
-    You can convert a ``Wand.Image` object back into a Willow :class:`Image`
-    using the ``WandImage`` class:
-
-    .. code-block:: python
-
-        from wand.image import Image
-        from willow.plugins.wand import WandImage
-
-        # wand_image is an instance of Wand.Image
-        wand_image = Image(filename='pikachu.png')
-        image = WandImage(wand_image)
-
-        # Now you can use any Willow operation on that image
-        faces = image.detect_faces()
+# Now you can use any Willow operation on that image
+faces = image.detect_faces()
+```
