@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/torchbox/Willow.svg?branch=master
-    :target: https://travis-ci.org/torchbox/Willow
+.. image:: https://travis-ci.org/wagtail/Willow.svg?branch=master
+    :target: https://travis-ci.org/wagtail/Willow
 
 .. image:: http://drone4.kaed.uk/api/badges/torchbox/Willow/status.svg
     :target: http://drone4.kaed.uk/torchbox/Willow
