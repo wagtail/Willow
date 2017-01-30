@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.5 (in development)
+--------------------
+
+ - OpenCV 3 support (Will Giddens)
+ - Removed Apple copyrighted ICC profile from orientation test images (Christopher Hoskin)
+
 0.4 (05/10/2016)
 --------------------
 
