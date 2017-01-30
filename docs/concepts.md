@@ -1,8 +1,6 @@
-Concepts
-========
+# Concepts
 
-Image classes
--------------
+## Image classes
 
 An image can either be a file, an image loaded into an underlying library or a
 simple buffer of pixels. Each of these states has its own Python class
@@ -11,8 +9,7 @@ simple buffer of pixels. Each of these states has its own Python class
 For example ``JPEGImageFile``, ``PillowImage`` and ``RGBAImageBuffer`` are three
 of the image classes in Willow.
 
-Operations
-----------
+## Operations
 
 These are functions that perform actions on an image in a particular state. For
 example, ``resize`` and ``crop``.
@@ -29,8 +26,7 @@ Operations that alter an image return a new image object instead of altering the
 source one. This also means that if a conversion took place, the new image's
 class would be different.
 
-Converters
-----------
+## Converters
 
 These are functions that convert an image between two image classes. For
 example, a converter from ``JPEGImageFile`` to ``PillowImage`` would simply be a
@@ -43,8 +39,7 @@ separately.
 Each converter has a cost which helps Willow decide which is the best available
 image library to use for a particular file format.
 
-Registry
---------
+## Registry
 
 The registry is where all image classes, operations and converters are
 registered. It contains methods to allow you to register new items and even
@@ -53,8 +48,7 @@ override existing ones.
 It also is responsible for finding operations and planning routes between image
 classes.
 
-Plugins
--------
+## Plugins
 
 These are used to group related image classes, operations and converters
 together allowing them to be registered as a single unit.

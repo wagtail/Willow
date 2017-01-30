@@ -1,26 +1,24 @@
-Opening images
-==============
+# Opening images
 
 Images can be either opened from a file or an existing Pillow/Wand object.
 
-From a file
------------
+## From a file
 
 To open an image, call :meth:`Image.open` passing in a file-like object that
 contains the image data.
 
-.. code-block:: python
+```python
+from willow.image import Image
 
-    from willow.image import Image
+with open('test.jpg', 'rb') as f:
+    i = Image.open(f)
 
-    with open('test.jpg', 'rb') as f:
-        i = Image.open(f)
+    isinstance(i, Image)
 
-        isinstance(i, Image)
-
-        from willow.image import ImageFile, JPEGImageFile
-        isinstance(i, ImageFile)
-        isinstance(i, JPEGImageFile)
+    from willow.image import ImageFile, JPEGImageFile
+    isinstance(i, ImageFile)
+    isinstance(i, JPEGImageFile)
+```
 
 If it succeeded, this will return a subclass of :class:`~ImageFile` (which itself
 is a subclass of :class:`~Image`).
@@ -34,26 +32,25 @@ which plugin to use for performing operations on the image. For example, Willow
 will always favour Wand for resizing GIF images but will always favour Pillow
 for resizing JPEG and PNG images.
 
-From an existing Pillow object
-------------------------------
+## From an existing Pillow object
 
 You can create a Willow :class:`~willow.image.Image` from an existing
 ``PIL.Image`` object by creating an instance of the
 :class:`~willow.plugins.pillow.PillowImage` class
 (passing the ``PIL.Image`` object as the only parameter):
 
-.. code-block:: python
+```python
+from willow.plugins.pillow import PillowImage
 
-    from willow.plugins.pillow import PillowImage
+pillow_image = PIL.Image.open(...)
 
-    pillow_image = PIL.Image.open(...)
+i = PillowImage(pillow_image)
 
-    i = PillowImage(pillow_image)
+isinstance(i, PillowImage)
 
-    isinstance(i, PillowImage)
-
-    from willow.image import Image
-    isinstance(i, Image)
+from willow.image import Image
+isinstance(i, Image)
+```
 
 The same can be done with Wand and OpenCV, which use the
 :class:`~willow.plugins.wand.WandImage` and

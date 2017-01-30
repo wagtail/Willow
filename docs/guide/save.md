@@ -1,5 +1,4 @@
-Saving images
-=============
+# Saving images
 
 In Willow there are separate save operations for each image format:
 
@@ -12,13 +11,12 @@ data to.
 
 For example, to save an image as a PNG file:
 
-.. code-block:: python
+```python
+with open('out.png', 'wb') as f:
+    i.save_as_png(f)
+```
 
-    with open('out.png', 'wb') as f:
-        i.save_as_png(f)
-
-Changing the JPEG quality setting
----------------------------------
+## Changing the JPEG quality setting
 
 :meth:`~Image.save_as_jpeg` takes a ``quality`` keyword argument, which is a
 number between 1 and 100 which defaults to 85. Decreasing this number will
@@ -26,33 +24,31 @@ decrease the output file size at the cost of losing image quality.
 
 For example, to save an image with low quality:
 
-.. code-block:: python
+```python
+with open('low_quality.jpg', 'wb') as f:
+    i.save_as_jpeg(f, quality=40)
+```
 
-    with open('low_quality.jpg', 'wb') as f:
-        i.save_as_jpeg(f, quality=40)
-
-Progressive JPEGs
------------------
+## Progressive JPEGs
 
 By default, JPEG's are saved in the same format as their source file but you
 can force Willow to always save a "progressive" JPEG file by setting the
 ``progressive`` keyword argument to ``True``:
 
-.. code-block:: python
+```python
+with open('progressive.jpg', 'wb') as f:
+    i.save_as_jpeg(f, progressive=True)
+```
 
-    with open('progressive.jpg', 'wb') as f:
-        i.save_as_jpeg(f, progressive=True)
-
-Image optimisation
-------------------
+## Image optimisation
 
 :meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_png` both take an
 ``optimize`` keyword that when set to true, will output an optimized image.
 
-.. code-block:: python
-
-    with open('optimized.jpg', 'wb') as f:
-        i.save_as_jpeg(f, optimize=True)
+```python
+with open('optimized.jpg', 'wb') as f:
+    i.save_as_jpeg(f, optimize=True)
+```
 
 This feature is currently only supported in the Pillow backend, if you use Wand
 this argument will be ignored.
