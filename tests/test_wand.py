@@ -134,7 +134,7 @@ class TestWandImageOrientation(unittest.TestCase):
         # Check that the red flower is in the bottom left
         # The JPEGs have compressed slightly differently so the colours won't be spot on
         colour = image.image[282][155]
-        self.assertAlmostEqual(colour.red * 255, 217, delta=10)
+        self.assertAlmostEqual(colour.red * 255, 217, delta=12)
         self.assertAlmostEqual(colour.green * 255, 38, delta=11)
         self.assertAlmostEqual(colour.blue * 255, 46, delta=13)
 
