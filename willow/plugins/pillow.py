@@ -6,6 +6,7 @@ from willow.image import (
     PNGImageFile,
     GIFImageFile,
     BMPImageFile,
+    TIFFImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
 )
@@ -143,6 +144,7 @@ class PillowImage(Image):
     @Image.converter_from(PNGImageFile)
     @Image.converter_from(GIFImageFile, cost=200)
     @Image.converter_from(BMPImageFile)
+    @Image.converter_from(TIFFImageFile)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _PIL_Image().open(image_file.f)

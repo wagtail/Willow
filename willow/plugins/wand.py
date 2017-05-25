@@ -10,6 +10,7 @@ from willow.image import (
     BMPImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
+    TIFFImageFile
 )
 
 
@@ -119,6 +120,7 @@ class WandImage(Image):
     @Image.converter_from(PNGImageFile, cost=150)
     @Image.converter_from(GIFImageFile, cost=150)
     @Image.converter_from(BMPImageFile, cost=150)
+    @Image.converter_from(TIFFImageFile, cost=150)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _wand_image().Image(file=image_file.f)
