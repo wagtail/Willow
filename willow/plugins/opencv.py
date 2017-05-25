@@ -76,7 +76,7 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         """
         cv2 = _cv2()
         points = cv2.goodFeaturesToTrack(self.image, 20, 0.04, 1.0)
-        return points
+        return points.tolist()
 
     @Image.operation
     def detect_faces(self, cascade_filename='haarcascade_frontalface_alt2.xml'):
