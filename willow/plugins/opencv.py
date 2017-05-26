@@ -74,11 +74,13 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         """
         Find interesting features of an image suitable for cropping to.
         """
+        numpy = _numpy()
         cv2 = _cv2()
         points = cv2.goodFeaturesToTrack(self.image, 20, 0.04, 1.0)
         if points is None:
             return []
         else:
+            points = numpy.reshape(points, (-1, 2))  # Numpy returns it with an extra third dimension
             return points.tolist()
 
     @Image.operation
