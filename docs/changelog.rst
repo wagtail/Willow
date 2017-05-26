@@ -6,6 +6,7 @@ Changelog
 
  - OpenCV 3 support (Will Giddens)
  - Removed Apple copyrighted ICC profile from orientation test images (Christopher Hoskin)
+ - Fix: Altered `detect_features` in OpenCV 3 to return a list instead of a numpy array (Trent Holliday)
 
 0.4 (05/10/2016)
 --------------------
