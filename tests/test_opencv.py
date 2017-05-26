@@ -40,14 +40,14 @@ class TestOpenCVOperations(unittest.TestCase):
         features = self.image.detect_features()
 
         self.assertIsInstance(features, list)
-        self.assertEqual(features, self.expected_features)
         # There are 20 features in the image
         self.assertEqual(len(features), 20)
+        self.assertEqual(features, self.expected_features)
 
     def test_detect_faces(self):
         faces = self.image.detect_faces()
 
         self.assertIsInstance(faces, list)
-        self.assertEqual(faces, self.expected_faces)
         # There are two faces in the image
         self.assertEqual(len(faces), 2)
+        self.assertEqual(faces, self.expected_faces)
