@@ -2,7 +2,10 @@ import io
 import unittest
 import mock
 
-from willow.image import Image, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError
+from willow.image import (
+    Image, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError,
+    BMPImageFile, TIFFImageFile
+)
 
 
 class TestOpenImage(unittest.TestCase):
@@ -57,6 +60,30 @@ class TestOpenImage(unittest.TestCase):
 
         with self.assertRaises(UnrecognisedImageFormatError) as e:
             Image.open(f)
+
+
+class TestImageFormats(unittest.TestCase):
+    """
+    Tests image formats that are not well covered by the remaining tests.
+    """
+
+    def test_bmp(self):
+        with open('tests/images/sails.bmp', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, BMPImageFile)
+        self.assertEqual(width, 768)
+        self.assertEqual(height, 512)
+
+    def test_tiff(self):
+        with open('tests/images/cameraman.tif', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, TIFFImageFile)
+        self.assertEqual(width, 256)
+        self.assertEqual(height, 256)
 
 
 class TestSaveImage(unittest.TestCase):
