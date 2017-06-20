@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.5 (in development)
+1.0 (in development)
 --------------------
 
  - OpenCV 3 support (Will Giddens)
