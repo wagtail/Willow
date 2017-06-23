@@ -82,7 +82,7 @@ class Image(object):
 
     def save(self, image_format, output):
         # Get operation name
-        if image_format not in ['jpeg', 'png', 'gif']:
+        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff']:
             raise ValueError("Unknown image format: %s" % image_format)
 
         operation_name = 'save_as_' + image_format
@@ -154,12 +154,17 @@ class BMPImageFile(ImageFile):
     format_name = 'bmp'
 
 
+class TIFFImageFile(ImageFile):
+    format_name = 'tiff'
+
+
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     'jpeg': JPEGImageFile,
     'png': PNGImageFile,
     'gif': GIFImageFile,
     'bmp': BMPImageFile,
+    'tiff': TIFFImageFile,
 }
 
 
