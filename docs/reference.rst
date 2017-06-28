@@ -261,7 +261,7 @@ Here's a full list of operations provided by Willow out of the box:
 
         do_thing(image.get_wand_image())
 
-    You can convert a ``Wand.Image` object back into a Willow :class:`Image`
+    You can convert a ``Wand.Image`` object back into a Willow :class:`Image`
     using the ``WandImage`` class:
 
     .. code-block:: python
