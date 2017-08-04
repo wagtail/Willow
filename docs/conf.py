@@ -62,7 +62,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Willow'
-copyright = '2015, Torchbox'
+copyright = '2017, Torchbox'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
