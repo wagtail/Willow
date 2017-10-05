@@ -58,6 +58,24 @@ class PillowImage(Image):
         return PillowImage(self.image.crop(rect))
 
     @Image.operation
+    def set_background_color_rgb(self, color):
+        if not self.has_alpha():
+            # Don't change image that doesn't have an alpha channel
+            return self
+
+        # Convert non-RGB colour formats to RGB
+        # As we only allow the background color to be passed in as RGB, we
+        # convert the format of the original image to match.
+        image = self.image.convert('RGBA')
+
+        # Generate a new image with background colour and draw existing image on top of it
+        # The new image must temporarily be RGBA in order for alpha_composite to work
+        new_image = _PIL_Image().new('RGBA', self.image.size, (color[0], color[1], color[2], 255))
+        new_image.alpha_composite(image)
+
+        return PillowImage(new_image.convert('RGB'))
+
+    @Image.operation
     def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
         if self.image.mode in ['1', 'P']:
             image = self.image.convert('RGB')

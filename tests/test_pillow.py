@@ -26,6 +26,11 @@ class TestPillowOperations(unittest.TestCase):
         cropped_image = self.image.crop((10, 10, 100, 100))
         self.assertEqual(cropped_image.get_size(), (90, 90))
 
+    def test_set_background_color_rgb(self):
+        red_background_image = self.image.set_background_color_rgb((255, 0, 0))
+        self.assertFalse(red_background_image.has_alpha())
+        self.assertEqual(red_background_image.image.getpixel((10, 10)), (255, 0, 0))
+
     def test_save_as_jpeg(self):
         output = io.BytesIO()
         return_value = self.image.save_as_jpeg(output)

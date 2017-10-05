@@ -139,6 +139,25 @@ Here's a full list of operations provided by Willow out of the box:
         # Cut out a square from the middle of the image
         cropped_image = source_image.resize((100, 100, 200, 200))
 
+.. method:: set_background_color_rgb(color)
+
+    (Pillow/Wand only)
+
+    If the image has an alpha channel, this will add a background colour using
+    the alpha channel as a mask. The alpha channel will be removed from the
+    resulting image.
+
+    The background colour must be specified as a tuple of three integers with
+    values between 0 - 255.
+
+    This operation will convert the image to RGB format, but will not do
+    anything if there is not an alpha channel.
+
+    .. code-block:: python
+
+        # Set the background colour of the image to white
+        image = source_image.set_background_color_rgb((255, 255, 255))
+
 .. method:: auto_orient()
 
     (Pillow/Wand only)
@@ -191,6 +210,11 @@ Here's a full list of operations provided by Willow out of the box:
     (Pillow/Wand only)
 
     Saves the image to the specified file-like object in JPEG format.
+
+    Note: If the image has an alpha channel, this operation may raise an
+    exception or save a broken image (depending on the backend being used).
+    To resolve this, use the :meth:`~Image.set_background_color_rgb` method to
+    replace the alpha channel with a solid background color before saving as JPEG.
 
     Returns a ``JPEGImageFile`` wrapping the file.
 
