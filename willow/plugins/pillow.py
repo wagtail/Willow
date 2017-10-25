@@ -71,7 +71,13 @@ class PillowImage(Image):
         # Generate a new image with background colour and draw existing image on top of it
         # The new image must temporarily be RGBA in order for alpha_composite to work
         new_image = _PIL_Image().new('RGBA', self.image.size, (color[0], color[1], color[2], 255))
-        new_image.alpha_composite(image)
+
+        if hasattr(new_image, 'alpha_composite'):
+            new_image.alpha_composite(image)
+        else:
+            # Pillow < 4.2.0 fallback
+            # This method may be slower as the operation generates a new image
+            new_image = _PIL_Image().alpha_composite(new_image, image)
 
         return PillowImage(new_image.convert('RGB'))
 
