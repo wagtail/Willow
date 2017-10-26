@@ -31,6 +31,12 @@ class TestPillowOperations(unittest.TestCase):
         self.assertFalse(red_background_image.has_alpha())
         self.assertEqual(red_background_image.image.getpixel((10, 10)), (255, 0, 0))
 
+    def test_set_background_color_rgb_color_argument_check(self):
+        with self.assertRaises(TypeError) as e:
+            self.image.set_background_color_rgb('rgb(255, 0, 0)')
+
+        self.assertEqual(str(e.exception), "the 'color' argument must be a 3-element tuple or list")
+
     def test_save_as_jpeg(self):
         # Remove alpha channel from image
         image = self.image.set_background_color_rgb((255, 255, 255))

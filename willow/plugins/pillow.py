@@ -63,6 +63,10 @@ class PillowImage(Image):
             # Don't change image that doesn't have an alpha channel
             return self
 
+        # Check type of color
+        if not isinstance(color, (tuple, list)) or not len(color) == 3:
+            raise TypeError("the 'color' argument must be a 3-element tuple or list")
+
         # Convert non-RGB colour formats to RGB
         # As we only allow the background color to be passed in as RGB, we
         # convert the format of the original image to match.
