@@ -28,9 +28,26 @@ class TestWandOperations(unittest.TestCase):
         cropped_image = self.image.crop((10, 10, 100, 100))
         self.assertEqual(cropped_image.get_size(), (90, 90))
 
+    def test_set_background_color_rgb(self):
+        red_background_image = self.image.set_background_color_rgb((255, 0, 0))
+        self.assertFalse(red_background_image.has_alpha())
+        colour = red_background_image.image[10][10]
+        self.assertEqual(colour.red, 1.0)
+        self.assertEqual(colour.green, 0.0)
+        self.assertEqual(colour.blue, 0.0)
+
+    def test_set_background_color_rgb_color_argument_check(self):
+        with self.assertRaises(TypeError) as e:
+            self.image.set_background_color_rgb('rgb(255, 0, 0)')
+
+        self.assertEqual(str(e.exception), "the 'color' argument must be a 3-element tuple or list")
+
     def test_save_as_jpeg(self):
+        # Remove alpha channel from image
+        image = self.image.set_background_color_rgb((255, 255, 255))
+
         output = io.BytesIO()
-        return_value = self.image.save_as_jpeg(output)
+        return_value = image.save_as_jpeg(output)
         output.seek(0)
 
         self.assertEqual(imghdr.what(output), 'jpeg')
@@ -39,14 +56,20 @@ class TestWandOperations(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_save_as_jpeg_optimised(self):
-        unoptimised = self.image.save_as_jpeg(io.BytesIO())
-        optimised = self.image.save_as_jpeg(io.BytesIO(), optimize=True)
+        # Remove alpha channel from image
+        image = self.image.set_background_color_rgb((255, 255, 255))
+
+        unoptimised = image.save_as_jpeg(io.BytesIO())
+        optimised = image.save_as_jpeg(io.BytesIO(), optimize=True)
 
         # Optimised image must be smaller than unoptimised image
         self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
 
     def test_save_as_jpeg_progressive(self):
-        image = self.image.save_as_jpeg(io.BytesIO(), progressive=True)
+        # Remove alpha channel from image
+        image = self.image.set_background_color_rgb((255, 255, 255))
+
+        image = image.save_as_jpeg(io.BytesIO(), progressive=True)
 
         self.assertTrue(PILImage.open(image.f).info['progressive'])
 
