@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1 (IN DEVELOPMENT)
+--------------------
+
+ - Added `set_background_color_rgb` operation
+
 1.0 (04/08/2016)
 ----------------
 
