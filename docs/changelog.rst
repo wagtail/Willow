@@ -1,12 +1,12 @@
 Changelog
 =========
 
-1.1 (IN DEVELOPMENT)
---------------------
+1.1 (04/12/2017)
+----------------
 
  - Added `set_background_color_rgb` operation
 
-1.0 (04/08/2016)
+1.0 (04/08/2017)
 ----------------
 
  - OpenCV 3 support (Will Giddens)
