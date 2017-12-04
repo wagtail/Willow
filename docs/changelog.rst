@@ -5,6 +5,7 @@ Changelog
 ----------------
 
  - Added `set_background_color_rgb` operation
+ - Update MANIFEST.in (Sanny Kumar)
 
 1.0 (04/08/2017)
 ----------------
