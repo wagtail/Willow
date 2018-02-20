@@ -99,6 +99,7 @@ class PillowImage(Image):
         if progressive:
             kwargs['progressive'] = True
         kwargs['icc_profile'] = image.info.get('icc_profile')
+        kwargs['exif'] = image.info.get('exif')
 
         image.save(f, 'JPEG', quality=quality, **kwargs)
         return JPEGImageFile(f)
@@ -110,6 +111,7 @@ class PillowImage(Image):
         if optimize:
             kwargs['optimize'] = True
         kwargs['icc_profile'] = self.image.info.get('icc_profile')
+        kwargs['exif'] = self.image.info.get('exif')
 
         self.image.save(f, 'PNG', **kwargs)
         return PNGImageFile(f)
