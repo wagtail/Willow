@@ -115,10 +115,6 @@ class PillowImage(Image):
             kwargs['optimize'] = True
         kwargs['icc_profile'] = self.image.info.get('icc_profile')
 
-        exif = self.image.info.get('exif')
-        if exif:
-            kwargs['exif'] = exif
-
         self.image.save(f, 'PNG', **kwargs)
         return PNGImageFile(f)
 
