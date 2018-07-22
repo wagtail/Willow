@@ -29,7 +29,7 @@ setup(
     include_package_data=True,
     license='BSD',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Graphics :: Graphics Conversion',
         'Intended Audience :: Developers',
