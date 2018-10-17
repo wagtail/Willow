@@ -7,7 +7,7 @@
 Willow image library
 ====================
 
-A Python image library that sits on top of Pillow, Wand and OpenCV
+A wrapper that combines the functionality of multiple Python image libraries into one API.
 
 `Documentation <http://willow.readthedocs.org/en/latest/index.html>`_
 
