@@ -17,6 +17,7 @@ def setup():
         TIFFImageFile,
         WebPImageFile,
     )
+    from willow.optimizers import Gifsicle, Jpegoptim, Optipng, Pngquant
     from willow.plugins import opencv, pillow, wand
     from willow.registry import registry
     from willow.svg import SvgImage
@@ -37,6 +38,11 @@ def setup():
     registry.register_plugin(pillow)
     registry.register_plugin(wand)
     registry.register_plugin(opencv)
+
+    registry.register_optimizer(Gifsicle)
+    registry.register_optimizer(Jpegoptim)
+    registry.register_optimizer(Optipng)
+    registry.register_optimizer(Pngquant)
 
     # Prevents etree from prefixing XML tag names with anonymous
     # namespaces, e.g. "<ns0:svg ..."
