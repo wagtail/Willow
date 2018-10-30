@@ -148,7 +148,7 @@ plugin by adding the following line at the bottom of the file:
 
 .. code-block:: python
 
-    willow_image_operations = [NewPillowImage]
+    willow_image_classes = [NewPillowImage]
 
 It can now be registered using the :meth:`Registry.register_plugin` method:
 
