@@ -1,4 +1,8 @@
 from collections import defaultdict
+from typing import TYPE_CHECKING, Set
+
+if TYPE_CHECKING:
+    from .optimizers import OptimizerBase
 
 
 class UnrecognisedOperationError(LookupError):
@@ -34,6 +38,7 @@ class WillowRegistry:
         self._registered_operations = defaultdict(dict)
         self._registered_converters = {}
         self._registered_converter_costs = {}
+        self._registered_optimizers = set()
 
     def register_operation(self, image_class, operation_name, func):
         self._registered_operations[image_class][operation_name] = func
@@ -82,6 +87,11 @@ class WillowRegistry:
 
         for converter in converters:
             self.register_converter(converter[0], converter[1], converter[2])
+
+    def register_optimizer(self, optimizer_class):
+        """Registers an optimizer class."""
+        if optimizer_class.check_binary():
+            self._registered_optimizers.add(optimizer_class)
 
     def get_operation(self, image_class, operation_name):
         return self._registered_operations[image_class][operation_name]
@@ -152,6 +162,14 @@ class WillowRegistry:
             return available_image_classes
         else:
             return image_classes
+
+    def get_optimizers_for_format(self, image_format: str) -> Set["OptimizerBase"]:
+        optimizers = set()
+        for optimizer in self._registered_optimizers:
+            if optimizer.applies_to(image_format):
+                optimizers.add(optimizer)
+
+        return optimizers
 
     # Routing
 
