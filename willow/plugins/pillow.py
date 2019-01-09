@@ -7,6 +7,7 @@ from willow.image import (
     GIFImageFile,
     BMPImageFile,
     TIFFImageFile,
+    WebPImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
 )
@@ -130,6 +131,11 @@ class PillowImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
+    def save_as_webp(self, f):
+        self.image.save(f, 'WEBP')
+        return WebPImageFile(f)
+
+    @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
@@ -173,6 +179,7 @@ class PillowImage(Image):
     @Image.converter_from(GIFImageFile, cost=200)
     @Image.converter_from(BMPImageFile)
     @Image.converter_from(TIFFImageFile)
+    @Image.converter_from(WebPImageFile)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _PIL_Image().open(image_file.f)
