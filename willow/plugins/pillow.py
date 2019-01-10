@@ -26,6 +26,11 @@ class PillowImage(Image):
     def check(cls):
         _PIL_Image()
 
+    @classmethod
+    def is_format_supported(cls, image_format):
+        formats = _PIL_Image().registered_extensions()
+        return image_format in formats.values()
+
     @Image.operation
     def get_size(self):
         return self.image.size

@@ -30,6 +30,11 @@ def _wand_api():
     return wand.api
 
 
+def _wand_version():
+    import wand.version
+    return wand.version
+
+
 class WandImage(Image):
     def __init__(self, image):
         self.image = image
@@ -39,9 +44,14 @@ class WandImage(Image):
         _wand_image()
         _wand_color()
         _wand_api()
+        _wand_version()
 
     def _clone(self):
         return WandImage(self.image.clone())
+
+    @classmethod
+    def is_format_supported(cls, image_format):
+        return bool(_wand_version().formats(image_format))
 
     @Image.operation
     def get_size(self):
