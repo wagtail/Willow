@@ -5,6 +5,16 @@ from .registry import registry
 from .utils.deprecation import RemovedInWillow05Warning
 
 
+try:
+    imghdr.test_webp
+except AttributeError:
+    # Add in webp test for 2.7 and 3.5, see http://bugs.python.org/issue20197
+    def test_webp(h, f):
+        if h.startswith(b'RIFF') and h[8:12] == b'WEBP':
+            return 'webp'
+    imghdr.tests.append(test_webp)
+
+
 class UnrecognisedImageFormatError(IOError):
     pass
 
