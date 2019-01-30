@@ -6,8 +6,11 @@ from wand.color import Color
 
 from PIL import Image as PILImage
 
-from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
+from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile
 from willow.plugins.wand import _wand_image, WandImage
+
+
+no_webp_support = not WandImage.is_format_supported("WEBP")
 
 
 class TestWandOperations(unittest.TestCase):
@@ -147,6 +150,35 @@ class TestWandOperations(unittest.TestCase):
         wand_image = self.image.get_wand_image()
 
         self.assertIsInstance(wand_image, _wand_image().Image)
+
+    @unittest.skipIf(no_webp_support,
+                     "imagemagic was not built with WebP support")
+    def test_save_as_webp(self):
+        output = io.BytesIO()
+        return_value = self.image.save_as_webp(output)
+        output.seek(0)
+
+        self.assertEqual(imghdr.what(output), 'webp')
+        self.assertIsInstance(return_value, WebPImageFile)
+        self.assertEqual(return_value.f, output)
+
+    @unittest.skipIf(no_webp_support,
+                     "imagemagic was not built with WebP support")
+    def test_open_webp(self):
+        with open('tests/images/tree.webp', 'rb') as f:
+            image = PillowImage.open(WebPImageFile(f))
+
+        self.assertFalse(image.has_alpha())
+        self.assertFalse(image.has_animation())
+
+    @unittest.skipIf(no_webp_support,
+                     "imagemagic was not built with WebP support")
+    def test_open_webp_w_alpha(self):
+        with open('tests/images/tux_w_alpha.webp', 'rb') as f:
+            image = PillowImage.open(WebPImageFile(f))
+
+        self.assertTrue(image.has_alpha())
+        self.assertFalse(image.has_animation())
 
 
 class TestWandImageOrientation(unittest.TestCase):

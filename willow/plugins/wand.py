@@ -10,7 +10,8 @@ from willow.image import (
     BMPImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
-    TIFFImageFile
+    TIFFImageFile,
+    WebPImageFile,
 )
 
 
@@ -29,6 +30,11 @@ def _wand_api():
     return wand.api
 
 
+def _wand_version():
+    import wand.version
+    return wand.version
+
+
 class WandImage(Image):
     def __init__(self, image):
         self.image = image
@@ -38,9 +44,14 @@ class WandImage(Image):
         _wand_image()
         _wand_color()
         _wand_api()
+        _wand_version()
 
     def _clone(self):
         return WandImage(self.image.clone())
+
+    @classmethod
+    def is_format_supported(cls, image_format):
+        return bool(_wand_version().formats(image_format))
 
     @Image.operation
     def get_size(self):
@@ -110,6 +121,13 @@ class WandImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
+    def save_as_webp(self, f):
+        with self.image.convert('webp') as converted:
+            converted.save(file=f)
+
+        return WebPImageFile(f)
+
+    @Image.operation
     def auto_orient(self):
         image = self.image
 
@@ -148,6 +166,7 @@ class WandImage(Image):
     @Image.converter_from(GIFImageFile, cost=150)
     @Image.converter_from(BMPImageFile, cost=150)
     @Image.converter_from(TIFFImageFile, cost=150)
+    @Image.converter_from(WebPImageFile, cost=150)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _wand_image().Image(file=image_file.f)
