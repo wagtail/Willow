@@ -192,6 +192,17 @@ class PillowImage(Image):
 
         return cls(image)
 
+    @Image.operation
+    def rotate(self, angle):
+        image = self.image
+
+        if angle > 360:
+            angle = 360
+        elif angle < -360:
+            angle = -360
+        
+        return PillowImage(self.image.rotate(angle))
+
     @Image.converter_to(RGBImageBuffer)
     def to_buffer_rgb(self):
         image = self.image

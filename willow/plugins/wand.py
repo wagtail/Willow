@@ -159,6 +159,18 @@ class WandImage(Image):
     @Image.operation
     def get_wand_image(self):
         return self.image
+    
+    @Image.operation
+    def rotate(self, angle, background_color = 'rgb(0,255,0)'):
+        new_image = self._clone().image
+        print('here in wand code')
+
+        if angle > 360:
+            angle = 360
+        elif angle < -360:
+            angle = -360
+        
+        return new_image.rotate(angle, _wand_color().Color(background_color))
 
     @classmethod
     @Image.converter_from(JPEGImageFile, cost=150)
