@@ -79,7 +79,7 @@ class WandImage(Image):
         return clone
 
     @Image.operation
-    def rotate(self, angle=90):
+    def rotate(self, angle):
         not_a_multiple_of_90 = angle % 90
 
         if not_a_multiple_of_90:

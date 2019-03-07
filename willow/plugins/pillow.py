@@ -13,7 +13,7 @@ from willow.image import (
 )
 
 class UnsupportedRotation(Exception): pass
-    
+
 def _PIL_Image():
     import PIL.Image
     return PIL.Image
@@ -65,7 +65,7 @@ class PillowImage(Image):
         return PillowImage(self.image.crop(rect))
 
     @Image.operation
-    def rotate(self, angle=90):
+    def rotate(self, angle):
         """
         Accept a multiple of 90 to pass to the underlying Pillow function
         to rotate the image.
