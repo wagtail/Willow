@@ -14,6 +14,7 @@ from willow.image import (
     WebPImageFile,
 )
 
+class UnsupportedRotation(Exception): pass
 
 def _wand_image():
     import wand.image
@@ -76,6 +77,19 @@ class WandImage(Image):
         clone = self._clone()
         clone.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
         return clone
+
+    @Image.operation
+    def rotate(self, angle=90):
+        not_a_multiple_of_90 = angle % 90
+
+        if not_a_multiple_of_90:
+            raise UnsupportedRotation(
+                "Sorry - we only support rotations by 90, 180, or 270 degrees"
+            )
+
+        clone = self.image.clone()
+        clone.rotate(angle)
+        return WandImage(clone)
 
     @Image.operation
     def set_background_color_rgb(self, color):
@@ -159,18 +173,6 @@ class WandImage(Image):
     @Image.operation
     def get_wand_image(self):
         return self.image
-    
-    @Image.operation
-    def rotate(self, angle, background_color = 'rgb(0,255,0)'):
-        new_image = self._clone().image
-        print('here in wand code')
-
-        if angle > 360:
-            angle = 360
-        elif angle < -360:
-            angle = -360
-        
-        return new_image.rotate(angle, _wand_color().Color(background_color))
 
     @classmethod
     @Image.converter_from(JPEGImageFile, cost=150)

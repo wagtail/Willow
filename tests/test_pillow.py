@@ -5,7 +5,7 @@ import imghdr
 from PIL import Image as PILImage
 
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile
-from willow.plugins.pillow import _PIL_Image, PillowImage
+from willow.plugins.pillow import _PIL_Image, PillowImage, UnsupportedRotation
 
 
 no_webp_support = not PillowImage.is_format_supported("WEBP")
@@ -28,6 +28,15 @@ class TestPillowOperations(unittest.TestCase):
     def test_crop(self):
         cropped_image = self.image.crop((10, 10, 100, 100))
         self.assertEqual(cropped_image.get_size(), (90, 90))
+
+    def test_rotate(self):
+        rotated_image = self.image.rotate(90)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (150, 200))
+
+    def test_rotate_without_multiple_of_90(self):
+        with self.assertRaises(UnsupportedRotation) as e:
+            rotated_image = self.image.rotate(45)
 
     def test_set_background_color_rgb(self):
         red_background_image = self.image.set_background_color_rgb((255, 0, 0))
