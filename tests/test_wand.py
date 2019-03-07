@@ -40,6 +40,17 @@ class TestWandOperations(unittest.TestCase):
         with self.assertRaises(UnsupportedRotation) as e:
             rotated_image = self.image.rotate(45)
 
+    def test_rotate_greater_than_360(self):
+        # 450 should end up the same as a 90 rotation
+        rotated_image = self.image.rotate(450)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (150, 200))
+
+    def test_rotate_multiple_of_360(self):
+        rotated_image = self.image.rotate(720)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (200, 150))
+
     def test_set_background_color_rgb(self):
         red_background_image = self.image.set_background_color_rgb((255, 0, 0))
         self.assertFalse(red_background_image.has_alpha())

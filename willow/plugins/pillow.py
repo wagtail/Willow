@@ -75,13 +75,20 @@ class PillowImage(Image):
         ORIENTATION_TO_TRANSPOSE = {
             90: Image.ROTATE_90,
             180: Image.ROTATE_180,
-            270: Image.ROTATE_270
+            270: Image.ROTATE_270,
         }
-        transpose_code = ORIENTATION_TO_TRANSPOSE.get(angle)
+
+        modulo_angle = angle % 360
+
+        # is we're rotating a multiple of 360, it's the same as a no-op
+        if not modulo_angle:
+            return self
+
+        transpose_code = ORIENTATION_TO_TRANSPOSE.get(modulo_angle)
 
         if not transpose_code:
             raise UnsupportedRotation(
-                "Sorry - we only support rotations by 90, 180, or 270 degrees"
+                "Sorry - we only support right angle rotations - i.e. multiples of 90 degrees"
             )
 
         # We call "transpose", as it rotates the image,

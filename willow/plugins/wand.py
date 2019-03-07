@@ -84,7 +84,7 @@ class WandImage(Image):
 
         if not_a_multiple_of_90:
             raise UnsupportedRotation(
-                "Sorry - we only support rotations by 90, 180, or 270 degrees"
+                "Sorry - we only support right angle rotations - i.e. multiples of 90 degrees"
             )
 
         clone = self.image.clone()
