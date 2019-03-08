@@ -7,7 +7,7 @@ from wand.color import Color
 from PIL import Image as PILImage
 
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile
-from willow.plugins.wand import _wand_image, WandImage
+from willow.plugins.wand import _wand_image, WandImage, UnsupportedRotation
 
 
 no_webp_support = not WandImage.is_format_supported("WEBP")
@@ -30,6 +30,26 @@ class TestWandOperations(unittest.TestCase):
     def test_crop(self):
         cropped_image = self.image.crop((10, 10, 100, 100))
         self.assertEqual(cropped_image.get_size(), (90, 90))
+
+    def test_rotate(self):
+        rotated_image = self.image.rotate(90)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (150, 200))
+
+    def test_rotate_without_multiple_of_90(self):
+        with self.assertRaises(UnsupportedRotation) as e:
+            rotated_image = self.image.rotate(45)
+
+    def test_rotate_greater_than_360(self):
+        # 450 should end up the same as a 90 rotation
+        rotated_image = self.image.rotate(450)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (150, 200))
+
+    def test_rotate_multiple_of_360(self):
+        rotated_image = self.image.rotate(720)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (200, 150))
 
     def test_set_background_color_rgb(self):
         red_background_image = self.image.set_background_color_rgb((255, 0, 0))

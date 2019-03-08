@@ -12,6 +12,7 @@ from willow.image import (
     RGBAImageBuffer,
 )
 
+class UnsupportedRotation(Exception): pass
 
 def _PIL_Image():
     import PIL.Image
@@ -62,6 +63,40 @@ class PillowImage(Image):
     @Image.operation
     def crop(self, rect):
         return PillowImage(self.image.crop(rect))
+
+    @Image.operation
+    def rotate(self, angle):
+        """
+        Accept a multiple of 90 to pass to the underlying Pillow function
+        to rotate the image.
+        """
+
+        Image = _PIL_Image()
+        ORIENTATION_TO_TRANSPOSE = {
+            90: Image.ROTATE_90,
+            180: Image.ROTATE_180,
+            270: Image.ROTATE_270,
+        }
+
+        modulo_angle = angle % 360
+
+        # is we're rotating a multiple of 360, it's the same as a no-op
+        if not modulo_angle:
+            return self
+
+        transpose_code = ORIENTATION_TO_TRANSPOSE.get(modulo_angle)
+
+        if not transpose_code:
+            raise UnsupportedRotation(
+                "Sorry - we only support right angle rotations - i.e. multiples of 90 degrees"
+            )
+
+        # We call "transpose", as it rotates the image,
+        # updating the height and width, whereas using 'rotate'
+        # only changes the contents of the image.
+        rotated = self.image.transpose(transpose_code)
+
+        return PillowImage(rotated)
 
     @Image.operation
     def set_background_color_rgb(self, color):

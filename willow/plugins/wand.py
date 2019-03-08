@@ -14,6 +14,7 @@ from willow.image import (
     WebPImageFile,
 )
 
+class UnsupportedRotation(Exception): pass
 
 def _wand_image():
     import wand.image
@@ -76,6 +77,19 @@ class WandImage(Image):
         clone = self._clone()
         clone.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
         return clone
+
+    @Image.operation
+    def rotate(self, angle):
+        not_a_multiple_of_90 = angle % 90
+
+        if not_a_multiple_of_90:
+            raise UnsupportedRotation(
+                "Sorry - we only support right angle rotations - i.e. multiples of 90 degrees"
+            )
+
+        clone = self.image.clone()
+        clone.rotate(angle)
+        return WandImage(clone)
 
     @Image.operation
     def set_background_color_rgb(self, color):

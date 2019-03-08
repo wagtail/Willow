@@ -75,6 +75,7 @@ Operation                           Pillow               Wand                 Op
 ``get_size()``                      ✓                    ✓                    ✓
 ``resize(size)``                    ✓                    ✓
 ``crop(rect)``                      ✓                    ✓
+``rotate(angle)``                   ✓                    ✓
 ``set_background_color_rgb(color)`` ✓                    ✓
 ``auto_orient()``                   ✓                    ✓
 ``save_as_jpeg(file, quality)``     ✓                    ✓

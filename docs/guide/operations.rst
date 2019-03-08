@@ -42,6 +42,21 @@ original image is not modified.
     isinstance(i, Image)
     i.get_size() == (100, 100)
 
+Rotating images
+---------------
+
+To rotate an image, call the :meth:`~Image.rotate` method. This rotates the image clockwise, by a multiple of 90 degrees (i.e 90, 180, 270).
+
+It returns a new :class:`~Image` object containing the rotated image. The
+original image is not modified.
+
+.. code-block:: python
+    # in this case, assume 'i' is a 300x150 pixel image
+    i = i.rotate(90)
+    isinstance(i, Image)
+    i.get_size() == (150, 300)
+
+
 Cropping images
 ---------------
 
