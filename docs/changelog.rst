@@ -5,6 +5,7 @@ Changelog
 ----------------
 
  - Added WebP support (@frmdstryr)
+ - Added ``.rotate()`` operaton (@mrchrisadams)
 
 1.1 (04/12/2017)
 ----------------
