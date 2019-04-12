@@ -98,6 +98,14 @@ Here's a full list of operations provided by Willow out of the box:
 
         width, height = image.get_size()
 
+.. method:: get_frame_count()
+
+    Returns the number of frames in an animated image:
+
+    .. code-block:: python
+
+        number_of_frames = image.get_frame_count()
+
 .. method:: has_alpha
 
     Returns ``True`` if the image has an alpha channel.
