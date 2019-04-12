@@ -27,6 +27,10 @@ class TestWandOperations(unittest.TestCase):
         frames = self.image.get_frame_count()
         self.assertEqual(frames, 1)
 
+    def test_get_pixel_count(self):
+        pixels = self.image.get_pixel_count()
+        self.assertEqual(pixels, 200 * 150)
+
     def test_resize(self):
         resized_image = self.image.resize((100, 75))
         self.assertEqual(resized_image.get_size(), (100, 75))
@@ -162,7 +166,9 @@ class TestWandOperations(unittest.TestCase):
 
         self.assertTrue(image.has_animation())
 
+        self.assertEqual(image.get_size(), (480, 360))
         self.assertEqual(image.get_frame_count(), 34)
+        self.assertEqual(image.get_pixel_count(), 480 * 360 * 34)
 
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:

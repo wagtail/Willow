@@ -74,6 +74,7 @@ Operation                           Pillow               Wand                 Op
 =================================== ==================== ==================== ====================
 ``get_size()``                      ✓                    ✓                    ✓
 ``get_frame_count()``               ✓**                  ✓                    ✓**
+``get_pixel_count()``               ✓                    ✓                    ✓
 ``resize(size)``                    ✓                    ✓
 ``crop(rect)``                      ✓                    ✓
 ``rotate(angle)``                   ✓                    ✓
