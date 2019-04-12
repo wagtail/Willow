@@ -37,6 +37,11 @@ class PillowImage(Image):
         return self.image.size
 
     @Image.operation
+    def get_frame_count(self):
+        # Animation is not supported by PIL
+        return 1
+
+    @Image.operation
     def has_alpha(self):
         img = self.image
         return img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)

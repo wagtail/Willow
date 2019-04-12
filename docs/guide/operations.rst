@@ -23,6 +23,12 @@ height as a tuple of two integers:
     # For example, 'i' is a 200x200 pixel image
     i.get_size() == (200, 200)
 
+For animated GIFs, you can get the number of frames by calling the :meth:`Image.get_frame_count` method:
+
+.. code-block:: python
+
+    i.get_frame_count() == 34
+
 Resizing images
 ---------------
 

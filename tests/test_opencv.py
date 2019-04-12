@@ -28,6 +28,10 @@ class TestOpenCVOperations(unittest.TestCase):
         self.assertEqual(width, 600)
         self.assertEqual(height, 400)
 
+    def test_get_frame_count(self):
+        frames = self.image.get_frame_count()
+        self.assertEqual(frames, 1)
+
     def test_has_alpha(self):
         has_alpha = self.image.has_alpha()
         self.assertFalse(has_alpha)
