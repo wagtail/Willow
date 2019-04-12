@@ -19,6 +19,11 @@ def _PIL_Image():
     return PIL.Image
 
 
+def is_format_supported(image_format):
+    formats = _PIL_Image().registered_extensions()
+    return image_format in formats.values()
+
+
 class PillowImage(Image):
     def __init__(self, image):
         self.image = image
@@ -29,8 +34,7 @@ class PillowImage(Image):
 
     @classmethod
     def is_format_supported(cls, image_format):
-        formats = _PIL_Image().registered_extensions()
-        return image_format in formats.values()
+        return is_format_supported(image_format)
 
     @Image.operation
     def get_size(self):
@@ -221,7 +225,6 @@ class PillowImage(Image):
     @classmethod
     @Image.converter_from(JPEGImageFile)
     @Image.converter_from(PNGImageFile)
-    @Image.converter_from(GIFImageFile, cost=200)
     @Image.converter_from(BMPImageFile)
     @Image.converter_from(TIFFImageFile)
     @Image.converter_from(WebPImageFile)
@@ -251,4 +254,144 @@ class PillowImage(Image):
         return RGBAImageBuffer(image.size, image.tobytes())
 
 
-willow_image_classes = [PillowImage]
+class PillowAnimatedImage(Image):
+    def __init__(self, frames):
+        self.frames = frames
+
+    @classmethod
+    def check(cls):
+        _PIL_Image()
+
+    @classmethod
+    def is_format_supported(cls, image_format):
+        return is_format_supported(image_format)
+
+    @Image.operation
+    def get_size(self):
+        return self.frames[0].get_size()
+
+    @Image.operation
+    def get_frame_count(self):
+        return len(self.frames)
+
+    @Image.operation
+    def has_alpha(self):
+        return self.frames[0].has_alpha()
+
+    @Image.operation
+    def has_animation(self):
+        return self.get_frame_count() > 1
+
+    @Image.operation
+    def resize(self, size):
+        return PillowAnimatedImage([frame.resize(size) for frame in self.frames])
+
+    @Image.operation
+    def crop(self, rect):
+        return PillowAnimatedImage([frame.crop(rect) for frame in self.frames])
+
+    @Image.operation
+    def rotate(self, angle):
+        return PillowAnimatedImage([frame.rotate(angle) for frame in self.frames])
+
+    @Image.operation
+    def set_background_color_rgb(self, color):
+        return PillowAnimatedImage([frame.set_background_color_rgb(color) for frame in self.frames])
+
+    @Image.operation
+    def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        return self.frames[0].save_as_jpeg(f, quality=quality, optimize=optimize, progressive=progressive)
+
+    @Image.operation
+    def save_as_png(self, f, optimize=False):
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        return self.frames[0].save_as_png(f, optimize=optimize)
+
+    @Image.operation
+    def save_as_gif(self, f):
+        image = self.frames[0].image
+        frames = self.frames
+
+        # All gif files use either the L or P mode but we sometimes convert them
+        # to RGB/RGBA to improve the quality of resizing. We must make sure that
+        # they are converted back before saving.
+        if image.mode not in ['L', 'P']:
+            frames = [
+                frame.convert('P', palette=_PIL_Image().ADAPTIVE)
+                for frame in frames
+            ]
+
+        params = {
+            'save_all': True,
+            'duration': image.info['duration'],
+            'append_images': [frame.image for frame in frames[1:]]
+        }
+
+        if 'transparency' in image.info:
+            params['transparency'] = image.info['transparency']
+
+        image.save(f, 'GIF', **params)
+
+        return GIFImageFile(f)
+
+    @Image.operation
+    def save_as_webp(self, f):
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        return self.frames[0].save_as_png(f, optimize=optimize)
+
+    @Image.operation
+    def auto_orient(self):
+        # Animated GIFs don't have EXIF data
+        return self
+
+    @classmethod
+    @Image.converter_from(GIFImageFile)
+    def open(cls, image_file):
+        image_file.f.seek(0)
+        image = _PIL_Image().open(image_file.f)
+
+        frame = image
+        frames = []
+        while frame:
+            frames.append(frame.copy())
+
+            try:
+                foo = image.seek(image.tell() + 1)
+            except EOFError:
+                break
+
+        return cls([PillowImage(frame) for frame in frames])
+
+    @Image.converter_to(RGBImageBuffer, cost=200)
+    def to_buffer_rgb(self):
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        image = self.image
+
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        return RGBImageBuffer(image.size, image.tobytes())
+
+    @Image.converter_to(RGBAImageBuffer, cost=200)
+    def to_buffer_rgba(self):
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        image = self.image
+
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
+
+        return RGBAImageBuffer(image.size, image.tobytes())
+
+
+willow_image_classes = [PillowImage, PillowAnimatedImage]

@@ -5,7 +5,7 @@ import imghdr
 from PIL import Image as PILImage
 
 from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile
-from willow.plugins.pillow import _PIL_Image, PillowImage, UnsupportedRotation
+from willow.plugins.pillow import _PIL_Image, PillowImage, PillowAnimatedImage, UnsupportedRotation
 
 
 no_webp_support = not PillowImage.is_format_supported("WEBP")
@@ -136,6 +136,19 @@ class TestPillowOperations(unittest.TestCase):
         image = _PIL_Image().open(output)
         self.assertEqual(image.mode, 'P')
 
+    def test_save_as_gif_animated(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            image = PillowAnimatedImage.open(GIFImageFile(f))
+
+        output = io.BytesIO()
+        return_value = image.save_as_gif(output)
+        output.seek(0)
+
+        loaded_image = PillowAnimatedImage.open(GIFImageFile(output))
+
+        self.assertTrue(loaded_image.has_animation())
+        self.assertEqual(loaded_image.get_frame_count(), 34)
+
     def test_has_alpha(self):
         has_alpha = self.image.has_alpha()
         self.assertTrue(has_alpha)
@@ -184,22 +197,20 @@ class TestPillowOperations(unittest.TestCase):
         # Check that the alpha of pixel 1,1 is 0
         self.assertEqual(image.image.convert('RGBA').getpixel((1, 1))[3], 0)
 
-    @unittest.expectedFailure  # Pillow doesn't support animation
     def test_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
-            image = PillowImage.open(GIFImageFile(f))
+            image = PillowAnimatedImage.open(GIFImageFile(f))
 
-        self.assertFalse(image.has_alpha())
+        self.assertTrue(image.has_alpha())
         self.assertTrue(image.has_animation())
 
-    @unittest.expectedFailure  # Pillow doesn't support animation
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
-            image = PillowImage.open(GIFImageFile(f))
+            image = PillowAnimatedImage.open(GIFImageFile(f))
 
         resized_image = image.resize((100, 75))
 
-        self.assertFalse(resized_image.has_alpha())
+        self.assertTrue(resized_image.has_alpha())
         self.assertTrue(resized_image.has_animation())
 
     def test_get_pillow_image(self):

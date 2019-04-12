@@ -271,6 +271,9 @@ class WillowRegistry(object):
         for image_class in image_classes:
             path, cost = self.find_shortest_path(start, image_class)
 
+            if path is None:
+                continue
+
             if current_cost is None or cost < current_cost:
                 current_class = image_class
                 current_cost = cost

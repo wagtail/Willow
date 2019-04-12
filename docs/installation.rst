@@ -19,6 +19,3 @@ or Wand.
 
  - `Pillow installation <http://pillow.readthedocs.org/en/3.0.x/installation.html#basic-installation>`_
  - `Wand installation <http://docs.wand-py.org/en/0.4.2/guide/install.html>`_
-
-Note that Pillow doesn't support animated GIFs and Wand isn't as fast.
-Installing both will give best results.

@@ -130,6 +130,19 @@ class TestWandOperations(unittest.TestCase):
         self.assertIsInstance(return_value, GIFImageFile)
         self.assertEqual(return_value.f, output)
 
+    def test_save_as_gif_animated(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            image = WandImage.open(GIFImageFile(f))
+
+        output = io.BytesIO()
+        return_value = image.save_as_gif(output)
+        output.seek(0)
+
+        loaded_image = WandImage.open(GIFImageFile(output))
+
+        self.assertTrue(loaded_image.has_animation())
+        self.assertEqual(loaded_image.get_frame_count(), 34)
+
     def test_has_alpha(self):
         has_alpha = self.image.has_alpha()
         self.assertTrue(has_alpha)
