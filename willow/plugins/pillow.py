@@ -24,9 +24,21 @@ def is_format_supported(image_format):
     return image_format in formats.values()
 
 
+def image_has_alpha(image):
+    return image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info)
+
+
 class PillowImage(Image):
-    def __init__(self, image):
-        self.image = image
+    def __init__(self, image_or_frames):
+        if isinstance(image_or_frames, _PIL_Image().Image):
+            self.frames = [image_or_frames]
+        else:
+            self.frames = list(image_or_frames)
+
+    @property
+    def image(self):
+        # TODO: Deprecation warning
+        return self.frames[0]
 
     @classmethod
     def check(cls):
@@ -38,40 +50,38 @@ class PillowImage(Image):
 
     @Image.operation
     def get_size(self):
-        return self.image.size
+        return self.frames[0].size
 
     @Image.operation
     def get_frame_count(self):
-        # Animation is not supported by PIL
-        return 1
+        return len(self.frames)
 
     @Image.operation
     def has_alpha(self):
-        img = self.image
-        return img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)
+        return any(image_has_alpha(frame) for frame in self.frames)
 
     @Image.operation
     def has_animation(self):
-        # Animation is not supported by PIL
-        return False
+        return self.get_frame_count() > 1
 
     @Image.operation
     def resize(self, size):
-        # Convert 1 and P images to RGB to improve resize quality
-        # (palleted images don't get antialiased or filtered when minified)
-        if self.image.mode in ['1', 'P']:
-            if self.has_alpha():
-                image = self.image.convert('RGBA')
-            else:
-                image = self.image.convert('RGB')
-        else:
-            image = self.image
+        def _resize_frame(frame):
+            # Convert 1 and P images to RGB to improve resize quality
+            # (palleted images don't get antialiased or filtered when minified)
+            if frame.mode in ['1', 'P']:
+                if image_has_alpha(frame):
+                    frame = frame.convert('RGBA')
+                else:
+                    frame = frame.convert('RGB')
 
-        return PillowImage(image.resize(size, _PIL_Image().ANTIALIAS))
+            return frame.resize(size, _PIL_Image().ANTIALIAS)
+
+        return PillowImage([_resize_frame(frame) for frame in self.frames])
 
     @Image.operation
     def crop(self, rect):
-        return PillowImage(self.image.crop(rect))
+        return PillowImage([frame.crop(rect) for frame in self.frames])
 
     @Image.operation
     def rotate(self, angle):
@@ -103,7 +113,7 @@ class PillowImage(Image):
         # We call "transpose", as it rotates the image,
         # updating the height and width, whereas using 'rotate'
         # only changes the contents of the image.
-        rotated = self.image.transpose(transpose_code)
+        rotated = [frame.transpose(transpose_code) for frame in self.frames]
 
         return PillowImage(rotated)
 
@@ -117,30 +127,36 @@ class PillowImage(Image):
         if not isinstance(color, (tuple, list)) or not len(color) == 3:
             raise TypeError("the 'color' argument must be a 3-element tuple or list")
 
-        # Convert non-RGB colour formats to RGB
-        # As we only allow the background color to be passed in as RGB, we
-        # convert the format of the original image to match.
-        image = self.image.convert('RGBA')
+        def _set_frame_background_color_rgb(frame):
+            # Convert non-RGB colour formats to RGB
+            # As we only allow the background color to be passed in as RGB, we
+            # convert the format of the original image to match.
+            frame = frame.convert('RGBA')
 
-        # Generate a new image with background colour and draw existing image on top of it
-        # The new image must temporarily be RGBA in order for alpha_composite to work
-        new_image = _PIL_Image().new('RGBA', self.image.size, (color[0], color[1], color[2], 255))
+            # Generate a new image with background colour and draw existing image on top of it
+            # The new image must temporarily be RGBA in order for alpha_composite to work
+            new_frame = _PIL_Image().new('RGBA', frame.size, (color[0], color[1], color[2], 255))
 
-        if hasattr(new_image, 'alpha_composite'):
-            new_image.alpha_composite(image)
-        else:
-            # Pillow < 4.2.0 fallback
-            # This method may be slower as the operation generates a new image
-            new_image = _PIL_Image().alpha_composite(new_image, image)
+            if hasattr(new_frame, 'alpha_composite'):
+                new_frame.alpha_composite(frame)
+            else:
+                # Pillow < 4.2.0 fallback
+                # This method may be slower as the operation generates a new image
+                new_frame = _PIL_Image().alpha_composite(new_frame, frame)
 
-        return PillowImage(new_image.convert('RGB'))
+            return new_frame.convert('RGB')
+
+        return PillowImage([_set_frame_background_color_rgb(frame) for frame in self.frames])
 
     @Image.operation
     def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
-        if self.image.mode in ['1', 'P']:
-            image = self.image.convert('RGB')
-        else:
-            image = self.image
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        frame = self.frames[0]
+
+        if frame.mode in ['1', 'P']:
+            frame = frame.convert('RGB')
 
         # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {}
@@ -149,50 +165,70 @@ class PillowImage(Image):
         if progressive:
             kwargs['progressive'] = True
 
-        image.save(f, 'JPEG', quality=quality, **kwargs)
+        frame.save(f, 'JPEG', quality=quality, **kwargs)
         return JPEGImageFile(f)
 
     @Image.operation
     def save_as_png(self, f, optimize=False):
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        frame = self.frames[0]
+
         # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {}
         if optimize:
             kwargs['optimize'] = True
 
-        self.image.save(f, 'PNG', **kwargs)
+        frame.save(f, 'PNG', **kwargs)
         return PNGImageFile(f)
 
     @Image.operation
     def save_as_gif(self, f):
-        image = self.image
+        frames = self.frames
 
         # All gif files use either the L or P mode but we sometimes convert them
         # to RGB/RGBA to improve the quality of resizing. We must make sure that
         # they are converted back before saving.
-        if image.mode not in ['L', 'P']:
-            image = image.convert('P', palette=_PIL_Image().ADAPTIVE)
+        if frames[0].mode not in ['L', 'P']:
+            frames = [
+                frame.convert('P', palette=_PIL_Image().ADAPTIVE)
+                for frame in frames
+            ]
 
-        if 'transparency' in image.info:
-            image.save(f, 'GIF', transparency=image.info['transparency'])
+        if self.has_animation():
+            params = {
+                'save_all': True,
+                'duration': frames[0].info['duration'],
+                'append_images': [frame for frame in frames[1:]]
+            }
         else:
-            image.save(f, 'GIF')
+            params = {}
+
+        if 'transparency' in frames[0].info:
+            params['transparency'] = frames[0].info['transparency']
+
+        frames[0].save(f, 'GIF', **params)
 
         return GIFImageFile(f)
 
     @Image.operation
     def save_as_webp(self, f):
-        self.image.save(f, 'WEBP')
+        if self.has_animation():
+            pass  # TODO: Raise warning
+
+        frame = self.frames[0]
+
+        frame.save(f, 'WEBP')
         return WebPImageFile(f)
 
     @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
-        image = self.image
-
-        if hasattr(image, '_getexif'):
+        if hasattr(self.frames[0], '_getexif'):
             try:
-                exif = image._getexif()
+                exif = self.frames[0]._getexif()
             except Exception:
                 # Blanket cover all the ways _getexif can fail in.
                 exif = None
@@ -213,14 +249,20 @@ class PillowImage(Image):
                         8: (Image.ROTATE_90,),
                     }
 
-                    for transpose in ORIENTATION_TO_TRANSPOSE[orientation]:
-                        image = image.transpose(transpose)
+                    def _orient_frame(frame):
+                        for transpose in ORIENTATION_TO_TRANSPOSE[orientation]:
+                            frame = frame.transpose(transpose)
 
-        return PillowImage(image)
+                        return frame
+
+                    return PillowImage([_orient_frame(frame) for frame in self.frames])
+
+        return self
 
     @Image.operation
     def get_pillow_image(self):
-        return self.image
+        # TODO: Deprecation warning
+        return self.frames[0]
 
     @classmethod
     @Image.converter_from(JPEGImageFile)
@@ -235,125 +277,9 @@ class PillowImage(Image):
 
         return cls(image)
 
-    @Image.converter_to(RGBImageBuffer)
-    def to_buffer_rgb(self):
-        image = self.image
-
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-
-        return RGBImageBuffer(image.size, image.tobytes())
-
-    @Image.converter_to(RGBAImageBuffer)
-    def to_buffer_rgba(self):
-        image = self.image
-
-        if image.mode != 'RGBA':
-            image = image.convert('RGBA')
-
-        return RGBAImageBuffer(image.size, image.tobytes())
-
-
-class PillowAnimatedImage(Image):
-    def __init__(self, frames):
-        self.frames = frames
-
-    @classmethod
-    def check(cls):
-        _PIL_Image()
-
-    @classmethod
-    def is_format_supported(cls, image_format):
-        return is_format_supported(image_format)
-
-    @Image.operation
-    def get_size(self):
-        return self.frames[0].get_size()
-
-    @Image.operation
-    def get_frame_count(self):
-        return len(self.frames)
-
-    @Image.operation
-    def has_alpha(self):
-        return self.frames[0].has_alpha()
-
-    @Image.operation
-    def has_animation(self):
-        return self.get_frame_count() > 1
-
-    @Image.operation
-    def resize(self, size):
-        return PillowAnimatedImage([frame.resize(size) for frame in self.frames])
-
-    @Image.operation
-    def crop(self, rect):
-        return PillowAnimatedImage([frame.crop(rect) for frame in self.frames])
-
-    @Image.operation
-    def rotate(self, angle):
-        return PillowAnimatedImage([frame.rotate(angle) for frame in self.frames])
-
-    @Image.operation
-    def set_background_color_rgb(self, color):
-        return PillowAnimatedImage([frame.set_background_color_rgb(color) for frame in self.frames])
-
-    @Image.operation
-    def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
-        if self.has_animation():
-            pass  # TODO: Raise warning
-
-        return self.frames[0].save_as_jpeg(f, quality=quality, optimize=optimize, progressive=progressive)
-
-    @Image.operation
-    def save_as_png(self, f, optimize=False):
-        if self.has_animation():
-            pass  # TODO: Raise warning
-
-        return self.frames[0].save_as_png(f, optimize=optimize)
-
-    @Image.operation
-    def save_as_gif(self, f):
-        image = self.frames[0].image
-        frames = self.frames
-
-        # All gif files use either the L or P mode but we sometimes convert them
-        # to RGB/RGBA to improve the quality of resizing. We must make sure that
-        # they are converted back before saving.
-        if image.mode not in ['L', 'P']:
-            frames = [
-                frame.convert('P', palette=_PIL_Image().ADAPTIVE)
-                for frame in frames
-            ]
-
-        params = {
-            'save_all': True,
-            'duration': image.info['duration'],
-            'append_images': [frame.image for frame in frames[1:]]
-        }
-
-        if 'transparency' in image.info:
-            params['transparency'] = image.info['transparency']
-
-        image.save(f, 'GIF', **params)
-
-        return GIFImageFile(f)
-
-    @Image.operation
-    def save_as_webp(self, f):
-        if self.has_animation():
-            pass  # TODO: Raise warning
-
-        return self.frames[0].save_as_png(f, optimize=optimize)
-
-    @Image.operation
-    def auto_orient(self):
-        # Animated GIFs don't have EXIF data
-        return self
-
     @classmethod
     @Image.converter_from(GIFImageFile)
-    def open(cls, image_file):
+    def open_animated(cls, image_file):
         image_file.f.seek(0)
         image = _PIL_Image().open(image_file.f)
 
@@ -363,35 +289,35 @@ class PillowAnimatedImage(Image):
             frames.append(frame.copy())
 
             try:
-                foo = image.seek(image.tell() + 1)
+                image.seek(image.tell() + 1)
             except EOFError:
                 break
 
-        return cls([PillowImage(frame) for frame in frames])
+        return cls(frames)
 
-    @Image.converter_to(RGBImageBuffer, cost=200)
+    @Image.converter_to(RGBImageBuffer)
     def to_buffer_rgb(self):
         if self.has_animation():
             pass  # TODO: Raise warning
 
-        image = self.image
+        frame = self.frames[0]
 
         if image.mode != 'RGB':
-            image = image.convert('RGB')
+            frame = frame.convert('RGB')
 
-        return RGBImageBuffer(image.size, image.tobytes())
+        return RGBImageBuffer(frame.size, frame.tobytes())
 
-    @Image.converter_to(RGBAImageBuffer, cost=200)
+    @Image.converter_to(RGBAImageBuffer)
     def to_buffer_rgba(self):
         if self.has_animation():
             pass  # TODO: Raise warning
 
-        image = self.image
+        frame = self.frames[0]
 
-        if image.mode != 'RGBA':
-            image = image.convert('RGBA')
+        if frame.mode != 'RGBA':
+            frame = frame.convert('RGBA')
 
-        return RGBAImageBuffer(image.size, image.tobytes())
+        return RGBAImageBuffer(frame.size, frame.tobytes())
 
 
-willow_image_classes = [PillowImage, PillowAnimatedImage]
+willow_image_classes = [PillowImage]
