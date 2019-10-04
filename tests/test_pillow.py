@@ -189,7 +189,7 @@ class TestPillowOperations(unittest.TestCase):
 
         # Reload it
         f.seek(0)
-        image = PillowImage.open(GIFImageFile(f))
+        image = PillowImage.open_animated(GIFImageFile(f))
 
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
@@ -212,6 +212,21 @@ class TestPillowOperations(unittest.TestCase):
 
         self.assertTrue(resized_image.has_alpha())
         self.assertTrue(resized_image.has_animation())
+
+    def test_save_transparent_animated_gif(self):
+        with open('tests/images/animatedgifwithtransparency.gif', 'rb') as f:
+            image = PillowImage.open_animated(GIFImageFile(f))
+
+        # Save it into memory
+        f = io.BytesIO()
+        image.save_as_gif(f)
+
+        # Reload it
+        f.seek(0)
+        image = PillowImage.open_animated(GIFImageFile(f))
+
+        self.assertTrue(image.has_alpha())
+        self.assertTrue(image.has_animation())
 
     def test_get_pillow_image(self):
         pillow_image = self.image.get_pillow_image()
