@@ -1,7 +1,11 @@
 Changelog
 =========
 
-1.2 (xx/xx/2019)
+1.3 (xx/xx/20xx)
+----------------
+
+
+1.2 (11/10/2019)
 ----------------
 
  - Added WebP support (@frmdstryr)
