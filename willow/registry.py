@@ -1,6 +1,13 @@
 from collections import defaultdict
 
 
+class OperationNameConflict(Exception):
+    """
+    Raised when an operation is registered that clashes with an existing generic operation's name
+    """
+    pass
+
+
 class UnrecognisedOperationError(LookupError):
     """
     Raised when the operation isn't in any of the known image classes.
@@ -26,14 +33,28 @@ class UnroutableOperationError(LookupError):
 
 class WillowRegistry(object):
     def __init__(self):
+        self._used_operation_names = set()
         self._registered_image_classes = set()
         self._unavailable_image_classes = dict()
         self._registered_operations = defaultdict(dict)
+        self._registered_generic_operations = dict()
         self._registered_converters = dict()
         self._registered_converter_costs = dict()
 
     def register_operation(self, image_class, operation_name, func):
+        if operation_name in self._registered_generic_operations:
+            return OperationNameConflict("A generic operation already exists with the name '{0}'".format(operation_name))
+
         self._registered_operations[image_class][operation_name] = func
+
+    def register_generic_operation(self, dependencies, operation_name, func):
+        if self.operation_exists(operation_name):
+            return OperationNameConflict("An operation already exists with the name '{0}'".format(operation_name))
+
+        self._registered_generic_operations[operation_name] = {
+            'dependencies': dependencies,
+            'func': func,
+        }
 
     def register_converter(self, from_image_class, to_image_class, func, cost=None):
         self._registered_converters[from_image_class, to_image_class] = func
@@ -76,6 +97,15 @@ class WillowRegistry(object):
             self.register_converter(converter[0], converter[1], converter[2])
 
     def get_operation(self, image_class, operation_name):
+        if operation_name in self._registered_generic_operations:
+            generic_operation = self._registered_generic_operations[operation_name]
+
+            for dependency in generic_operation['dependencies']:
+                if dependency not in self._registered_operations[image_class]:
+                    raise LookupError("Generic operation dependencies not met")
+
+            return generic_operation['func']
+
         return self._registered_operations[image_class][operation_name]
 
     def operation_exists(self, operation_name):

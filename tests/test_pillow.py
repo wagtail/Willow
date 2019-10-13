@@ -21,6 +21,14 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(width, 200)
         self.assertEqual(height, 150)
 
+    def test_get_frame_count(self):
+        frames = self.image.get_frame_count()
+        self.assertEqual(frames, 1)
+
+    def test_get_pixel_count(self):
+        pixels = self.image.get_pixel_count()
+        self.assertEqual(pixels, 200 * 150)
+
     def test_resize(self):
         resized_image = self.image.resize((100, 75))
         self.assertEqual(resized_image.get_size(), (100, 75))

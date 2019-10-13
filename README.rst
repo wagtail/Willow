@@ -73,6 +73,8 @@ Available operations
 Operation                           Pillow               Wand                 OpenCV
 =================================== ==================== ==================== ====================
 ``get_size()``                      ✓                    ✓                    ✓
+``get_frame_count()``               ✓**                  ✓                    ✓**
+``get_pixel_count()``               ✓                    ✓                    ✓
 ``resize(size)``                    ✓                    ✓
 ``crop(rect)``                      ✓                    ✓
 ``rotate(angle)``                   ✓                    ✓
@@ -90,3 +92,4 @@ Operation                           Pillow               Wand                 Op
 =================================== ==================== ==================== ====================
 
 \* Always returns ``False``
+\** Always returns ``1``

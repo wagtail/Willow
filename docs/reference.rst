@@ -98,6 +98,24 @@ Here's a full list of operations provided by Willow out of the box:
 
         width, height = image.get_size()
 
+.. method:: get_frame_count()
+
+    Returns the number of frames in an animated image:
+
+    .. code-block:: python
+
+        number_of_frames = image.get_frame_count()
+
+.. method:: get_pixel_count()
+
+    Returns the number of pixels in an image. This is just the width, height and number
+    of frames multiplied together and can be used to work out the amount of memory an
+    image will used when decompressed:
+
+    .. code-block:: python
+
+        number_of_pixels = image.get_pixel_count()
+
 .. method:: has_alpha
 
     Returns ``True`` if the image has an alpha channel.
