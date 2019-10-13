@@ -32,6 +32,11 @@ class BaseOpenCVImage(Image):
         return self.size
 
     @Image.operation
+    def get_frame_count(self):
+        # Animation is not supported by OpenCV
+        return 1
+
+    @Image.operation
     def has_alpha(self):
         # Alpha is not supported by OpenCV
         return False

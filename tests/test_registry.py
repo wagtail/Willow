@@ -309,9 +309,14 @@ class TestFindOperation(PathfindingTestCase):
         self.registry._registered_image_classes.add(self.ImageF)
 
         # Add some operations
+        # foo - reachable on both ImageB and ImageE
+        # bar - reachable on Image E but unreachable on ImageF
+        # baz - only unreachable on ImageF
         self.b_foo = 'b_foo'
         self.e_foo = 'e_foo'
-        self.f_unreachable = 'f_unreachable'
+        self.e_bar = 'e_bar'
+        self.f_bar = 'f_bar'
+        self.f_baz = 'f_baz'
 
         self.registry._registered_operations = {
             self.ImageB: {
@@ -319,9 +324,12 @@ class TestFindOperation(PathfindingTestCase):
             },
             self.ImageE: {
                 'foo': self.e_foo,
+                'bar': self.e_bar,
             },
+            # An unreachable class
             self.ImageF: {
-                'unreachable': self.f_unreachable,
+                'bar': self.f_bar,
+                'baz': self.f_baz,
             }
         }
 
@@ -374,8 +382,22 @@ class TestFindOperation(PathfindingTestCase):
         self.assertIn("ImageB: missing image library", str(e.exception))
         self.assertIn("ImageE: another missing image library", str(e.exception))
 
-    def test_find_operation_unreachable_from_a(self):
-        with self.assertRaises(UnroutableOperationError) as e:
-            func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'unreachable')
+    def test_find_operation_bar_from_a(self):
+        # This operation has both a reachable and an unreachable class it could go to
+        func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'bar')
 
-        self.assertEqual(e.exception.args, ("The operation 'unreachable' is available in the image class 'ImageF' but it can't be converted to from 'ImageA'", ))
+        self.assertEqual(func, self.e_bar)
+        self.assertEqual(image_class, self.ImageE)
+        self.assertEqual(path, [
+            (self.conv_a_to_b, self.ImageB),
+            (self.conv_b_to_d, self.ImageD),
+            (self.conv_d_to_e, self.ImageE),
+        ])
+        self.assertEqual(cost, 300)
+
+    def test_find_operation_baz_from_a(self):
+        # This operation is only on the unreachable class so should give exception
+        with self.assertRaises(UnroutableOperationError) as e:
+            func, image_class, path, cost = self.registry.find_operation(self.ImageA, 'baz')
+
+        self.assertEqual(e.exception.args, ("The operation 'baz' is available in the image class 'ImageF' but it can't be converted to from 'ImageA'", ))

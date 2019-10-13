@@ -59,6 +59,10 @@ class WandImage(Image):
         return self.image.size
 
     @Image.operation
+    def get_frame_count(self):
+        return len(self.image.sequence)
+
+    @Image.operation
     def has_alpha(self):
         return self.image.alpha_channel
 
