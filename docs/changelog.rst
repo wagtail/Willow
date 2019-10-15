@@ -4,6 +4,7 @@ Changelog
 1.3 (xx/xx/20xx)
 ----------------
 
+ - Added ``.get_frame_count()`` operaton (@kaedroho)
 
 1.2 (11/10/2019)
 ----------------
