@@ -6,8 +6,11 @@ from wand.color import Color
 
 from PIL import Image as PILImage
 
-from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile
-from willow.plugins.wand import _wand_image, WandImage
+from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile
+from willow.plugins.wand import _wand_image, WandImage, UnsupportedRotation
+
+
+no_webp_support = not WandImage.is_format_supported("WEBP")
 
 
 class TestWandOperations(unittest.TestCase):
@@ -20,6 +23,10 @@ class TestWandOperations(unittest.TestCase):
         self.assertEqual(width, 200)
         self.assertEqual(height, 150)
 
+    def test_get_frame_count(self):
+        frames = self.image.get_frame_count()
+        self.assertEqual(frames, 1)
+
     def test_resize(self):
         resized_image = self.image.resize((100, 75))
         self.assertEqual(resized_image.get_size(), (100, 75))
@@ -27,6 +34,26 @@ class TestWandOperations(unittest.TestCase):
     def test_crop(self):
         cropped_image = self.image.crop((10, 10, 100, 100))
         self.assertEqual(cropped_image.get_size(), (90, 90))
+
+    def test_rotate(self):
+        rotated_image = self.image.rotate(90)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (150, 200))
+
+    def test_rotate_without_multiple_of_90(self):
+        with self.assertRaises(UnsupportedRotation) as e:
+            rotated_image = self.image.rotate(45)
+
+    def test_rotate_greater_than_360(self):
+        # 450 should end up the same as a 90 rotation
+        rotated_image = self.image.rotate(450)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (150, 200))
+
+    def test_rotate_multiple_of_360(self):
+        rotated_image = self.image.rotate(720)
+        width, height = rotated_image.get_size()
+        self.assertEqual((width, height), (200, 150))
 
     def test_set_background_color_rgb(self):
         red_background_image = self.image.set_background_color_rgb((255, 0, 0))
@@ -135,6 +162,8 @@ class TestWandOperations(unittest.TestCase):
 
         self.assertTrue(image.has_animation())
 
+        self.assertEqual(image.get_frame_count(), 34)
+
     def test_resize_animated_gif(self):
         with open('tests/images/newtons_cradle.gif', 'rb') as f:
             image = WandImage.open(GIFImageFile(f))
@@ -147,6 +176,35 @@ class TestWandOperations(unittest.TestCase):
         wand_image = self.image.get_wand_image()
 
         self.assertIsInstance(wand_image, _wand_image().Image)
+
+    @unittest.skipIf(no_webp_support,
+                     "imagemagic was not built with WebP support")
+    def test_save_as_webp(self):
+        output = io.BytesIO()
+        return_value = self.image.save_as_webp(output)
+        output.seek(0)
+
+        self.assertEqual(imghdr.what(output), 'webp')
+        self.assertIsInstance(return_value, WebPImageFile)
+        self.assertEqual(return_value.f, output)
+
+    @unittest.skipIf(no_webp_support,
+                     "imagemagic was not built with WebP support")
+    def test_open_webp(self):
+        with open('tests/images/tree.webp', 'rb') as f:
+            image = PillowImage.open(WebPImageFile(f))
+
+        self.assertFalse(image.has_alpha())
+        self.assertFalse(image.has_animation())
+
+    @unittest.skipIf(no_webp_support,
+                     "imagemagic was not built with WebP support")
+    def test_open_webp_w_alpha(self):
+        with open('tests/images/tux_w_alpha.webp', 'rb') as f:
+            image = PillowImage.open(WebPImageFile(f))
+
+        self.assertTrue(image.has_alpha())
+        self.assertFalse(image.has_animation())
 
 
 class TestWandImageOrientation(unittest.TestCase):

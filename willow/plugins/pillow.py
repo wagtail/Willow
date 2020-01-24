@@ -7,10 +7,12 @@ from willow.image import (
     GIFImageFile,
     BMPImageFile,
     TIFFImageFile,
+    WebPImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
 )
 
+class UnsupportedRotation(Exception): pass
 
 def _PIL_Image():
     import PIL.Image
@@ -25,9 +27,19 @@ class PillowImage(Image):
     def check(cls):
         _PIL_Image()
 
+    @classmethod
+    def is_format_supported(cls, image_format):
+        formats = _PIL_Image().registered_extensions()
+        return image_format in formats.values()
+
     @Image.operation
     def get_size(self):
         return self.image.size
+
+    @Image.operation
+    def get_frame_count(self):
+        # Animation is not supported by PIL
+        return 1
 
     @Image.operation
     def has_alpha(self):
@@ -56,6 +68,40 @@ class PillowImage(Image):
     @Image.operation
     def crop(self, rect):
         return PillowImage(self.image.crop(rect))
+
+    @Image.operation
+    def rotate(self, angle):
+        """
+        Accept a multiple of 90 to pass to the underlying Pillow function
+        to rotate the image.
+        """
+
+        Image = _PIL_Image()
+        ORIENTATION_TO_TRANSPOSE = {
+            90: Image.ROTATE_90,
+            180: Image.ROTATE_180,
+            270: Image.ROTATE_270,
+        }
+
+        modulo_angle = angle % 360
+
+        # is we're rotating a multiple of 360, it's the same as a no-op
+        if not modulo_angle:
+            return self
+
+        transpose_code = ORIENTATION_TO_TRANSPOSE.get(modulo_angle)
+
+        if not transpose_code:
+            raise UnsupportedRotation(
+                "Sorry - we only support right angle rotations - i.e. multiples of 90 degrees"
+            )
+
+        # We call "transpose", as it rotates the image,
+        # updating the height and width, whereas using 'rotate'
+        # only changes the contents of the image.
+        rotated = self.image.transpose(transpose_code)
+
+        return PillowImage(rotated)
 
     @Image.operation
     def set_background_color_rgb(self, color):
@@ -136,6 +182,11 @@ class PillowImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
+    def save_as_webp(self, f):
+        self.image.save(f, 'WEBP')
+        return WebPImageFile(f)
+
+    @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
@@ -179,6 +230,7 @@ class PillowImage(Image):
     @Image.converter_from(GIFImageFile, cost=200)
     @Image.converter_from(BMPImageFile)
     @Image.converter_from(TIFFImageFile)
+    @Image.converter_from(WebPImageFile)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _PIL_Image().open(image_file.f)

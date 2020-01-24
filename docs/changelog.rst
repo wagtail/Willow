@@ -1,6 +1,21 @@
 Changelog
 =========
 
+1.4 (xx/xx/20xx)
+----------------
+
+
+1.3 (16/10/2019)
+----------------
+
+ - Added ``.get_frame_count()`` operaton (@kaedroho)
+
+1.2 (11/10/2019)
+----------------
+
+ - Added WebP support (@frmdstryr)
+ - Added ``.rotate()`` operaton (@mrchrisadams & @simo97)
+
 1.1 (04/12/2017)
 ----------------
 
