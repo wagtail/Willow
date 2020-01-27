@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from PIL import ImageOps
 from willow.image import (
     Image,
     JPEGImageFile,
@@ -189,35 +190,8 @@ class PillowImage(Image):
     @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
-        # Make sure this orientation is applied to the data
-        image = self.image
-
-        if hasattr(image, '_getexif'):
-            try:
-                exif = image._getexif()
-            except Exception:
-                # Blanket cover all the ways _getexif can fail in.
-                exif = None
-            if exif is not None:
-                # 0x0112 = Orientation
-                orientation = exif.get(0x0112, 1)
-
-                if 1 <= orientation <= 8:
-                    Image = _PIL_Image()
-                    ORIENTATION_TO_TRANSPOSE = {
-                        1: (),
-                        2: (Image.FLIP_LEFT_RIGHT,),
-                        3: (Image.ROTATE_180,),
-                        4: (Image.ROTATE_180, Image.FLIP_LEFT_RIGHT),
-                        5: (Image.ROTATE_270, Image.FLIP_LEFT_RIGHT),
-                        6: (Image.ROTATE_270,),
-                        7: (Image.ROTATE_90, Image.FLIP_LEFT_RIGHT),
-                        8: (Image.ROTATE_90,),
-                    }
-
-                    for transpose in ORIENTATION_TO_TRANSPOSE[orientation]:
-                        image = image.transpose(transpose)
-
+        # Make sure this orientation is applied to the data.
+        image = ImageOps.exif_transpose(self.image)
         return PillowImage(image)
 
     @Image.operation
