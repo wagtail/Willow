@@ -278,114 +278,87 @@ class TestPillowImageOrientation(unittest.TestCase):
         self.assertAlmostEqual(colour[1], 93, delta=25)
         self.assertAlmostEqual(colour[2], 65, delta=25)
 
+    def assert_exif_orientation_equals_value(self, image, value):
+        exif = image.image.getexif()
+        self.assertIsNotNone(exif)
+        self.assertEqual(exif.get(0x0112, 1), value) # 0x0112 = Orientation
+
     def test_jpeg_with_orientation_1(self):
         with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 1) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 1)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_2(self):
         with open('tests/images/orientation/landscape_2.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 2) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 2)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_3(self):
         with open('tests/images/orientation/landscape_3.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 3) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 3)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_4(self):
         with open('tests/images/orientation/landscape_4.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 4) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 4)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_5(self):
         with open('tests/images/orientation/landscape_5.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 5) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 5)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_6(self):
         with open('tests/images/orientation/landscape_6.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 6) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 6)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_7(self):
         with open('tests/images/orientation/landscape_7.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 7) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 7)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_8(self):
         with open('tests/images/orientation/landscape_8.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = image.image.getexif()
-            self.assertIsNotNone(exif)
-            self.assertEqual(exif.get(0x0112), 8) # 0x0112 = Orientation
+            self.assert_exif_orientation_equals_value(image, 8)
 
         image = image.auto_orient()
-        exif = image.image.getexif()
 
         self.assert_orientation_landscape_image_is_correct(image)
-        self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), 1) # 0x0112 = Orientation
+        self.assert_exif_orientation_equals_value(image, 1)
