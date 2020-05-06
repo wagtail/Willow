@@ -257,6 +257,19 @@ Here's a full list of operations provided by Willow out of the box:
         with open('out.gif', 'wb') as f:
             image.save_as_gif(f)
 
+.. method:: save_as_webp(file, quality=80, lossless=False)
+
+    (Pillow/Wand only)
+
+    Saves the image to the specified file-like object in WEBP format.
+
+    returns a ``WebPImageFile`` wrapping the file.
+
+    .. code-block:: python
+
+        with open('out.webp', 'wb') as f:
+            image.save_as_webp(f)
+
 .. method:: get_pillow_image()
 
     (Pillow only)
