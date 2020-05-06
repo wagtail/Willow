@@ -192,7 +192,7 @@ class TestWandOperations(unittest.TestCase):
                      "imagemagic was not built with WebP support")
     def test_open_webp(self):
         with open('tests/images/tree.webp', 'rb') as f:
-            image = PillowImage.open(WebPImageFile(f))
+            image = WandImage.open(WebPImageFile(f))
 
         self.assertFalse(image.has_alpha())
         self.assertFalse(image.has_animation())
@@ -201,7 +201,7 @@ class TestWandOperations(unittest.TestCase):
                      "imagemagic was not built with WebP support")
     def test_open_webp_w_alpha(self):
         with open('tests/images/tux_w_alpha.webp', 'rb') as f:
-            image = PillowImage.open(WebPImageFile(f))
+            image = WandImage.open(WebPImageFile(f))
 
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
