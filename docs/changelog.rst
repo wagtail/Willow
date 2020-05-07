@@ -4,6 +4,8 @@ Changelog
 1.4 (xx/xx/20xx)
 ----------------
 
+ - Implemented save quality/lossless options for WebP (@mozgsml)
+ - Added missing docs for WebP support (@mozgsml)
 
 1.3 (16/10/2019)
 ----------------
