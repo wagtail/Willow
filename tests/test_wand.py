@@ -207,14 +207,14 @@ class TestWandOperations(unittest.TestCase):
         self.assertFalse(image.has_animation())
 
     @unittest.skipIf(no_webp_support,
-                     "Pillow does not have WebP support")
+                     "imagemagic does not have WebP support")
     def test_open_webp_quality(self):
         high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
         low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
         self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
 
     @unittest.skipIf(no_webp_support,
-                     "Pillow does not have WebP support")
+                     "imagemagic does not have WebP support")
     def test_open_webp_lossless(self):
         compressed = self.image.save_as_webp(io.BytesIO())
         lossless = self.image.save_as_webp(io.BytesIO(), lossless=True)
