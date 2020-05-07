@@ -82,6 +82,7 @@ Operation                           Pillow               Wand                 Op
 ``save_as_jpeg(file, quality)``     ✓                    ✓
 ``save_as_png(file)``               ✓                    ✓
 ``save_as_gif(file)``               ✓                    ✓
+``save_as_webp(file, quality)``     ✓                    ✓
 ``has_alpha()``                     ✓                    ✓                    ✓*
 ``has_animation()``                 ✓*                   ✓                    ✓*
 ``get_pillow_image()``              ✓
