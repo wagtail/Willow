@@ -216,9 +216,20 @@ class TestWandOperations(unittest.TestCase):
     @unittest.skipIf(no_webp_support,
                      "imagemagic does not have WebP support")
     def test_open_webp_lossless(self):
-        compressed = self.image.save_as_webp(io.BytesIO())
-        lossless = self.image.save_as_webp(io.BytesIO(), lossless=True)
-        self.assertTrue(compressed.f.tell() < lossless.f.tell())
+        original_image = self.image.image
+        lossless_file = self.image.save_as_webp(io.BytesIO(), lossless=True)
+        lossless_image = WandImage.open(lossless_file).image
+        identically = True
+        for x in range(original_image.width):
+            for y in range(original_image.height):
+                original_pixel = original_image[x, y]
+                # don't compare fully transparent pixels
+                if original_pixel.alpha == 0.0:
+                    continue
+                if original_pixel != lossless_image[x, y]:
+                    identically = False
+                    break
+        self.assertTrue(identically)
 
 
 class TestWandImageOrientation(unittest.TestCase):
