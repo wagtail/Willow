@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.4 (xx/xx/20xx)
+1.4 (26/05/2020)
 ----------------
 
  - Implemented save quality/lossless options for WebP (@mozgsml)
