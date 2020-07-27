@@ -195,8 +195,8 @@ class PillowImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
-    def save_as_webp(self, f):
-        self.image.save(f, 'WEBP')
+    def save_as_webp(self, f, quality=80, lossless=False):
+        self.image.save(f, 'WEBP', quality=quality, lossless=lossless)
         return WebPImageFile(f)
 
     @Image.operation

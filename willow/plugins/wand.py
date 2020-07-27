@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from ctypes import c_void_p, c_char_p
+
 import functools
 
 from willow.image import (
@@ -14,7 +16,10 @@ from willow.image import (
     WebPImageFile,
 )
 
-class UnsupportedRotation(Exception): pass
+
+class UnsupportedRotation(Exception):
+    pass
+
 
 def _wand_image():
     import wand.image
@@ -139,8 +144,17 @@ class WandImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
-    def save_as_webp(self, f):
+    def save_as_webp(self, f, quality=80, lossless=False):
         with self.image.convert('webp') as converted:
+            converted.compression_quality = quality
+            if lossless:
+                library = _wand_api().library
+                library.MagickSetOption.argtypes = [c_void_p,
+                                                    c_char_p,
+                                                    c_char_p]
+                library.MagickSetOption(converted.wand,
+                                        "webp:lossless".encode('utf-8'),
+                                        "true".encode('utf-8'))
             converted.save(file=f)
 
         return WebPImageFile(f)

@@ -259,6 +259,29 @@ class TestPillowOperations(unittest.TestCase):
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
 
+    @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
+    def test_open_webp_quality(self):
+        high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
+        low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
+        self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
+
+    @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
+    def test_open_webp_lossless(self):
+        original_image = self.image.image
+        lossless_file = self.image.save_as_webp(io.BytesIO(), lossless=True)
+        lossless_image = PillowImage.open(lossless_file).image
+        identically = True
+        for x in range(original_image.width):
+            for y in range(original_image.height):
+                original_pixel = original_image.getpixel((x, y))
+                # don't compare fully transparent pixels
+                if original_pixel[3] == 0:
+                    continue
+                if original_pixel != lossless_image.getpixel((x, y)):
+                    identically = False
+                    break
+        self.assertTrue(identically)
+
 
 class TestPillowImageOrientation(unittest.TestCase):
     def assert_orientation_landscape_image_is_correct(self, image):
