@@ -240,15 +240,15 @@ class TestWandImageOrientation(unittest.TestCase):
         # Check that the red flower is in the bottom left
         # The JPEGs have compressed slightly differently so the colours won't be spot on
         colour = image.image[282][155]
-        self.assertAlmostEqual(colour.red * 255, 217, delta=12)
-        self.assertAlmostEqual(colour.green * 255, 38, delta=11)
-        self.assertAlmostEqual(colour.blue * 255, 46, delta=13)
+        self.assertAlmostEqual(colour.red * 255, 217, delta=15)
+        self.assertAlmostEqual(colour.green * 255, 38, delta=15)
+        self.assertAlmostEqual(colour.blue * 255, 46, delta=15)
 
         # Check that the water is at the bottom
         colour = image.image[434][377]
-        self.assertAlmostEqual(colour.red * 255, 85, delta=11)
-        self.assertAlmostEqual(colour.green * 255, 93, delta=12)
-        self.assertAlmostEqual(colour.blue * 255, 65, delta=11)
+        self.assertAlmostEqual(colour.red * 255, 85, delta=15)
+        self.assertAlmostEqual(colour.green * 255, 93, delta=15)
+        self.assertAlmostEqual(colour.blue * 255, 65, delta=15)
 
     def test_jpeg_with_orientation_1(self):
         with open('tests/images/orientation/landscape_1.jpg', 'rb') as f:
