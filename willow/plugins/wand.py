@@ -116,8 +116,9 @@ class WandImage(Image):
         clone.image.background_color = _wand_color().Color('rgb({}, {}, {})'.format(*color))
         clone.image.alpha_channel = 'remove'
 
-        # Set alpha_channel to False manually as Wand doesn't do it
-        clone.image.alpha_channel = False
+        if clone.image.alpha_channel:
+            # ImageMagick <=6 fails to set alpha_channel to False, so do it manually
+            clone.image.alpha_channel = False
 
         return clone
 
