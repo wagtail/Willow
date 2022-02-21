@@ -19,6 +19,14 @@ class UnrecognisedImageFormatError(IOError):
     pass
 
 
+class BadImageOperationError(ValueError):
+    """
+    Raised when the arguments to an image operation are invalid,
+    e.g. a crop where the left coordinate is greater than the right coordinate
+    """
+    pass
+
+
 class Image(object):
     @classmethod
     def check(cls):

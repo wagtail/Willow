@@ -10,6 +10,7 @@ from willow.image import (
     WebPImageFile,
     RGBImageBuffer,
     RGBAImageBuffer,
+    BadImageOperationError,
 )
 
 class UnsupportedRotation(Exception): pass
@@ -67,7 +68,25 @@ class PillowImage(Image):
 
     @Image.operation
     def crop(self, rect):
-        return PillowImage(self.image.crop(rect))
+        left, top, right, bottom = rect
+        width, height = self.image.size
+        if (
+            left >= right or left >= width
+            or right <= 0
+            or top >= bottom or top >= height
+            or bottom <= 0
+        ):
+            raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
+
+        # clamp to image boundaries
+        clamped_rect = (
+            max(0, left),
+            max(0, top),
+            min(right, width),
+            min(bottom, height),
+        )
+
+        return PillowImage(self.image.crop(clamped_rect))
 
     @Image.operation
     def rotate(self, angle):
