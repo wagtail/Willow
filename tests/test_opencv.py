@@ -1,6 +1,7 @@
 import unittest
 import io
 import imghdr
+from numpy.testing import assert_allclose
 
 from willow.image import JPEGImageFile
 from willow.plugins.pillow import PillowImage
@@ -46,7 +47,7 @@ class TestOpenCVOperations(unittest.TestCase):
         self.assertIsInstance(features, list)
         # There are 20 features in the image
         self.assertEqual(len(features), 20)
-        self.assertEqual(features, self.expected_features)
+        assert_allclose(features, self.expected_features, atol=2)
 
     def test_detect_faces(self):
         faces = self.image.detect_faces()
@@ -54,4 +55,4 @@ class TestOpenCVOperations(unittest.TestCase):
         self.assertIsInstance(faces, list)
         # There are two faces in the image
         self.assertEqual(len(faces), 2)
-        self.assertEqual(faces, self.expected_faces)
+        assert_allclose(faces, self.expected_faces, atol=2)
