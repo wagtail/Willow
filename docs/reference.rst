@@ -140,12 +140,18 @@ Here's a full list of operations provided by Willow out of the box:
     (Pillow/Wand only)
 
     Cuts out the specified region of the image. The region must be a sequence of
-    four integers (top, left, right, bottom):
+    four integers (left, top, right, bottom):
 
     .. code-block:: python
 
         # Cut out a square from the middle of the image
         cropped_image = source_image.resize((100, 100, 200, 200))
+
+    If the crop rectangle overlaps the image boundaries, it will be reduced to fit within those
+    boundaries, resulting in an output image smaller than specified. If the crop rectangle is
+    entirely outside the image, or the coordinates are out of range in any other way (such as
+    a left coordinate greater than the right coordinate), this throws a
+    :class:`willow.image.BadImageOperationError` (a subclass of :class:`ValueError`).
 
 .. method:: set_background_color_rgb(color)
 

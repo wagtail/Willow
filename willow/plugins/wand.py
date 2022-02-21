@@ -14,6 +14,7 @@ from willow.image import (
     RGBAImageBuffer,
     TIFFImageFile,
     WebPImageFile,
+    BadImageOperationError,
 )
 
 
@@ -83,8 +84,24 @@ class WandImage(Image):
 
     @Image.operation
     def crop(self, rect):
+        left, top, right, bottom = rect
+        width, height = self.image.size
+        if (
+            left >= right or left >= width
+            or right <= 0
+            or top >= bottom or top >= height
+            or bottom <= 0
+        ):
+            raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
+
         clone = self._clone()
-        clone.image.crop(left=rect[0], top=rect[1], right=rect[2], bottom=rect[3])
+        clone.image.crop(
+            # clamp to image boundaries
+            left=max(0, left),
+            top=max(0, top),
+            right=min(right, width),
+            bottom=min(bottom, height)
+        )
         return clone
 
     @Image.operation

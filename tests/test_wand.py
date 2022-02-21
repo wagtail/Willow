@@ -6,7 +6,9 @@ from wand.color import Color
 
 from PIL import Image as PILImage
 
-from willow.image import JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile
+from willow.image import (
+    JPEGImageFile, PNGImageFile, GIFImageFile, WebPImageFile, BadImageOperationError
+)
 from willow.plugins.wand import _wand_image, WandImage, UnsupportedRotation
 
 
@@ -34,6 +36,52 @@ class TestWandOperations(unittest.TestCase):
     def test_crop(self):
         cropped_image = self.image.crop((10, 10, 100, 100))
         self.assertEqual(cropped_image.get_size(), (90, 90))
+
+    def test_crop_out_of_bounds(self):
+        # crop rectangle should be clamped to the image boundaries
+        bottom_right_cropped_image = self.image.crop((150, 100, 250, 200))
+        self.assertEqual(bottom_right_cropped_image.get_size(), (50, 50))
+
+        top_left_cropped_image = self.image.crop((-50, -50, 50, 50))
+        self.assertEqual(top_left_cropped_image.get_size(), (50, 50))
+
+        # fail if the crop rectangle is entirely to the left of the image
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((-100, 50, -50, 100))
+        # right edge of crop rectangle is exclusive, so 0 is also invalid
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((-50, 50, 0, 100))
+
+        # fail if the crop rectangle is entirely above the image
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((50, -100, 100, -50))
+        # bottom edge of crop rectangle is exclusive, so 0 is also invalid
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((50, -50, 100, 0))
+
+        # fail if the crop rectangle is entirely to the right of the image
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((250, 50, 300, 100))
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((200, 50, 250, 100))
+
+        # fail if the crop rectangle is entirely below the image
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((50, 200, 100, 250))
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((50, 150, 100, 200))
+
+        # fail if left edge >= right edge
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((125, 25, 25, 125))
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((100, 25, 100, 125))
+
+        # fail if bottom edge >= top edge
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((25, 125, 125, 25))
+        with self.assertRaises(BadImageOperationError):
+            self.image.crop((25, 100, 125, 100))
 
     def test_rotate(self):
         rotated_image = self.image.rotate(90)
