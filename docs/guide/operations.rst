@@ -57,6 +57,7 @@ It returns a new :class:`~Image` object containing the rotated image. The
 original image is not modified.
 
 .. code-block:: python
+
     # in this case, assume 'i' is a 300x150 pixel image
     i = i.rotate(90)
     isinstance(i, Image)
