@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.5 (xx/xx/xxxx)
+----------------
+
+ - Imagemagick 7 compatibility fixes (Matt Westcott)
+
 1.4 (26/05/2020)
 ----------------
 
