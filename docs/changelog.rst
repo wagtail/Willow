@@ -5,6 +5,7 @@ Changelog
 ----------------
 
  - Imagemagick 7 compatibility fixes (Matt Westcott)
+ - Fix: Implemented consistent behaviour between Pillow and Wand for out-of-bounds crop rectangles (Matt Westcott)
 
 1.4 (26/05/2020)
 ----------------
