@@ -4,6 +4,7 @@ Changelog
 1.5 (xx/xx/xxxx)
 ----------------
 
+ - Drop support for Python 3.4
  - Imagemagick 7 compatibility fixes (Matt Westcott)
  - Fix: Implemented consistent behaviour between Pillow and Wand for out-of-bounds crop rectangles (Matt Westcott)
 
