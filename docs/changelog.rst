@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.5 (xx/xx/xxxx)
-----------------
+1.4.1 (25/02/2022)
+------------------
 
  - Drop support for Python 3.4
  - Imagemagick 7 compatibility fixes (Matt Westcott)
