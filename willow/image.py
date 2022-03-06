@@ -100,10 +100,10 @@ class Image(object):
 
     def save(self, image_format, output):
         # Get operation name
-        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp']:
+        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'webm/vp9', 'ogg/theora', 'mp4/h264']:
             raise ValueError("Unknown image format: %s" % image_format)
 
-        operation_name = 'save_as_' + image_format
+        operation_name = 'save_as_' + image_format.replace('/', '_')
         return getattr(self, operation_name)(output)
 
 
@@ -178,6 +178,18 @@ class TIFFImageFile(ImageFile):
 
 class WebPImageFile(ImageFile):
     format_name = 'webp'
+
+
+class WebMVP9ImageFile(ImageFile):
+    format_name = 'webm/vp9'
+
+
+class OggTheoraImageFile(ImageFile):
+    format_name = 'ogg/theora'
+
+
+class MP4H264ImageFile(ImageFile):
+    format_name = 'mp4/h264'
 
 
 INITIAL_IMAGE_CLASSES = {
