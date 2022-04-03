@@ -10,7 +10,7 @@ The ``Image`` class
 .. classmethod:: open(file)
 
     Opens the provided image file detects the format from the image header using
-    Python's :mod:`imghdr` module.
+    Python's :mod:`filetype` module.
 
     Returns a subclass of :class:`ImageFile`
 

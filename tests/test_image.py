@@ -1,6 +1,7 @@
 import io
 import unittest
 import mock
+import filetype
 
 from willow.image import (
     Image, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError,
@@ -16,8 +17,6 @@ class TestOpenImage(unittest.TestCase):
     these tests do not require valid images.
     """
     def test_opens_jpeg(self):
-        import imghdr
-
         f = io.BytesIO()
         f.write(b'\xff\xd8\xff\xe0\x00\x10JFIF\x00')
         f.seek(0)
@@ -28,8 +27,6 @@ class TestOpenImage(unittest.TestCase):
         self.assertEqual(image.original_format, 'jpeg')
 
     def test_opens_png(self):
-        import imghdr
-
         f = io.BytesIO()
         f.write(b'\x89PNG\x0d\x0a\x1a\x0a')
         f.seek(0)
@@ -40,8 +37,6 @@ class TestOpenImage(unittest.TestCase):
         self.assertEqual(image.original_format, 'png')
 
     def test_opens_gif(self):
-        import imghdr
-
         f = io.BytesIO()
         f.write(b'GIF89a')
         f.seek(0)
@@ -52,8 +47,6 @@ class TestOpenImage(unittest.TestCase):
         self.assertEqual(image.original_format, 'gif')
 
     def test_raises_error_on_invalid_header(self):
-        import imghdr
-
         f = io.BytesIO()
         f.write(b'Not an image')
         f.seek(0)
@@ -111,23 +104,19 @@ class TestSaveImage(unittest.TestCase):
 
 class TestImghdrJPEGPatch(unittest.TestCase):
     def test_detects_photoshop3_jpeg(self):
-        import imghdr
-
         f = io.BytesIO()
         f.write(b'\xff\xd8\xff\xed\x00,Photoshop 3.0\x00')
         f.seek(0)
 
-        image_format = imghdr.what(f)
+        image_format = filetype.guess_extension(f)
 
-        self.assertEqual(image_format, 'jpeg')
+        self.assertEqual(image_format, 'jpg')
 
     def test_junk(self):
-        import imghdr
-
         f = io.BytesIO()
         f.write(b'Not an image')
         f.seek(0)
 
-        image_format = imghdr.what(f)
+        image_format = filetype.guess_extension(f)
 
         self.assertIsNone(image_format)

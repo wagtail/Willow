@@ -1,18 +1,10 @@
-import imghdr
+import filetype
 import warnings
+
+from filetype.types import image as image_types
 
 from .registry import registry
 from .utils.deprecation import RemovedInWillow05Warning
-
-
-try:
-    imghdr.test_webp
-except AttributeError:
-    # Add in webp test for 2.7 and 3.5, see http://bugs.python.org/issue20197
-    def test_webp(h, f):
-        if h.startswith(b'RIFF') and h[8:12] == b'WEBP':
-            return 'webp'
-    imghdr.tests.append(test_webp)
 
 
 class UnrecognisedImageFormatError(IOError):
@@ -86,13 +78,13 @@ class Image(object):
     @classmethod
     def open(cls, f):
         # Detect image format
-        image_format = imghdr.what(f)
+        image_format = filetype.guess_extension(f)
 
         # Find initial class
         initial_class = INITIAL_IMAGE_CLASSES.get(image_format)
         if not initial_class:
             if image_format:
-                raise UnrecognisedImageFormatError("Cannot load %s images" % image_format)
+                raise UnrecognisedImageFormatError("Cannot load %s images (%r)" % (image_format, INITIAL_IMAGE_CLASSES))
             else:
                 raise UnrecognisedImageFormatError("Unknown image format")
 
@@ -182,18 +174,10 @@ class WebPImageFile(ImageFile):
 
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
-    'jpeg': JPEGImageFile,
-    'png': PNGImageFile,
-    'gif': GIFImageFile,
-    'bmp': BMPImageFile,
-    'tiff': TIFFImageFile,
-    'webp': WebPImageFile,
+    image_types.Jpeg().extension: JPEGImageFile,
+    image_types.Png().extension: PNGImageFile,
+    image_types.Gif().extension: GIFImageFile,
+    image_types.Bmp().extension: BMPImageFile,
+    image_types.Tiff().extension: TIFFImageFile,
+    image_types.Webp().extension: WebPImageFile,
 }
-
-
-# 12 - Make imghdr detect JPEGs based on first two bytes
-def test_jpeg(h, f):
-    if h[0:1] == b'\377':
-        return 'jpeg'
-
-imghdr.tests.append(test_jpeg)
