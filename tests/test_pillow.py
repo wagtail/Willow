@@ -1,6 +1,6 @@
 import unittest
 import io
-import imghdr
+import filetype
 
 from PIL import Image as PILImage
 
@@ -120,7 +120,7 @@ class TestPillowOperations(unittest.TestCase):
         return_value = image.save_as_jpeg(output)
         output.seek(0)
 
-        self.assertEqual(imghdr.what(output), 'jpeg')
+        self.assertEqual(filetype.guess_extension(output), 'jpg')
         self.assertIsInstance(return_value, JPEGImageFile)
         self.assertEqual(return_value.f, output)
 
@@ -147,7 +147,7 @@ class TestPillowOperations(unittest.TestCase):
         return_value = self.image.save_as_png(output)
         output.seek(0)
 
-        self.assertEqual(imghdr.what(output), 'png')
+        self.assertEqual(filetype.guess_extension(output), 'png')
         self.assertIsInstance(return_value, PNGImageFile)
         self.assertEqual(return_value.f, output)
 
@@ -163,7 +163,7 @@ class TestPillowOperations(unittest.TestCase):
         return_value = self.image.save_as_gif(output)
         output.seek(0)
 
-        self.assertEqual(imghdr.what(output), 'gif')
+        self.assertEqual(filetype.guess_extension(output), 'gif')
         self.assertIsInstance(return_value, GIFImageFile)
         self.assertEqual(return_value.f, output)
 
@@ -257,7 +257,7 @@ class TestPillowOperations(unittest.TestCase):
         return_value = self.image.save_as_webp(output)
         output.seek(0)
 
-        self.assertEqual(imghdr.what(output), 'webp')
+        self.assertEqual(filetype.guess_extension(output), 'webp')
         self.assertIsInstance(return_value, WebPImageFile)
         self.assertEqual(return_value.f, output)
 

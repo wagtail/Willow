@@ -1,6 +1,5 @@
 import unittest
 import io
-import imghdr
 from numpy.testing import assert_allclose
 
 from willow.image import JPEGImageFile
