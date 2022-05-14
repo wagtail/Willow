@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.5.0 (xx/xx/2022) - IN DEVELOPMENT
+-----------------------------------
+
+ - Replace deprecated ``imghdr`` with ``filetype``. This allows detecting newer image formats such as HEIC (Herbert Poul)
+
+
 1.4.1 (25/02/2022)
 ------------------
 
