@@ -47,7 +47,7 @@ setup(
         "defusedxml>=0.7,<1.0",
     ],
     extras_require={"testing": [
-        "Pillow>=6.0.0,<10.0.0",
+        "Pillow>=9.1.0,<11.0.0",
         "Wand>=0.6,<1.0",
         "mock>=3.0,<4.0",
     ]},
