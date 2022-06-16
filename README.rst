@@ -18,7 +18,7 @@ Willow is a simple image library that combines the APIs of `Pillow <https://pill
 
 Willow currently has basic resize and crop operations, face and feature detection and animated GIF support. New operations and library integrations can also be `easily implemented <http://willow.readthedocs.org/en/latest/guide/extend.html>`_.
 
-It is written in pure-Python (versions 2.7, 3.3, 3.4, 3.5 and 3.6 are supported)
+It is written in pure-Python (versions 3.7, 3.8 3.9 and 3.10 are supported)
 
 Examples
 --------
