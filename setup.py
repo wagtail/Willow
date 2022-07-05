@@ -49,6 +49,7 @@ setup(
         "Pillow>=6.0.0,<10.0.0",
         "Wand>=0.6,<1.0",
         "mock>=3.0,<4.0",
+        "svglib>=1.0,<2.0",
     ]},
     zip_safe=False,
 )

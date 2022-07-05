@@ -12,8 +12,10 @@ def setup():
         RGBAImageBuffer,
         TIFFImageFile,
         WebPImageFile,
+        SVGImageFile,
     )
-    from willow.plugins import pillow, wand, opencv
+    from willow.plugins import pillow, wand, opencv, svglib
+    from willow import svg
 
     registry.register_image_class(JPEGImageFile)
     registry.register_image_class(PNGImageFile)
@@ -23,10 +25,14 @@ def setup():
     registry.register_image_class(WebPImageFile)
     registry.register_image_class(RGBImageBuffer)
     registry.register_image_class(RGBAImageBuffer)
+    registry.register_image_class(SVGImageFile)
 
     registry.register_plugin(pillow)
     registry.register_plugin(wand)
     registry.register_plugin(opencv)
+    registry.register_plugin(svg)
+    registry.register_plugin(svglib)
+
 
 setup()
 
