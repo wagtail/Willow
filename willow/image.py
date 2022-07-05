@@ -1,6 +1,8 @@
 import warnings
+from xml.etree.ElementTree import ParseError as XMLParseError
 
 import filetype
+from defusedxml import ElementTree
 from filetype.types import image as image_types
 
 from .registry import registry
@@ -80,6 +82,16 @@ class Image(object):
         # Detect image format
         image_format = filetype.guess_extension(f)
 
+        if image_format is None:
+            try:
+                f.seek(0)
+                ElementTree.parse(f, forbid_dtd=True)
+                image_format = "svg"
+            except XMLParseError:
+                pass
+            finally:
+                f.seek(0)
+
         # Find initial class
         initial_class = INITIAL_IMAGE_CLASSES.get(image_format)
         if not initial_class:
@@ -92,7 +104,7 @@ class Image(object):
 
     def save(self, image_format, output):
         # Get operation name
-        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp']:
+        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg']:
             raise ValueError("Unknown image format: %s" % image_format)
 
         operation_name = 'save_as_' + image_format
@@ -223,6 +235,19 @@ class WebPImageFile(ImageFile):
         return "image/webp"
 
 
+class SVGImageFile(ImageFile):
+    format_name = "svg"
+
+    def __init__(self, f, dom=None):
+        if dom is None:
+            f.seek(0)
+            self.dom = ElementTree.parse(f, forbid_dtd=True)
+            f.seek(0)
+        else:
+            self.dom = dom
+        super().__init__(f)
+
+
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     image_types.Jpeg().extension: JPEGImageFile,
@@ -231,4 +256,5 @@ INITIAL_IMAGE_CLASSES = {
     image_types.Bmp().extension: BMPImageFile,
     image_types.Tiff().extension: TIFFImageFile,
     image_types.Webp().extension: WebPImageFile,
+    "svg": SVGImageFile,
 }
