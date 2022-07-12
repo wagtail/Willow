@@ -26,8 +26,14 @@ class SVGWrapper:
     # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#length
     UNIT_RE = re.compile(r"(?:em|ex|px|in|cm|mm|pt|pc|%)$")
 
+    # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#number
+    NUMBER_PATTERN = r"(\d+(?:[Ee]\d+)?|[+-]?\d*\.\d+(?:[Ee]\d+)?)"
+
     # https://www.w3.org/Graphics/SVG/1.1/coords.html#ViewBoxAttribute
-    VIEW_BOX_RE = re.compile(r"(\d+)[, ] *(\d+)[, ] *(\d+)[, ] *(\d+)")
+    VIEW_BOX_RE = re.compile(
+        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}[, ] *"
+        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}$"
+    )
 
     # Borrowed from cairosvg
     COEFFICIENTS = {
@@ -55,12 +61,14 @@ class SVGWrapper:
             return self._parse_size(attr)
         elif self.view_box is not None:
             return self.view_box.width
+        return 1
 
     def _get_height(self):
         if attr := (self.root.get("height") or self.root.get("width")):
             return self._parse_size(attr)
         elif self.view_box is not None:
             return self.view_box.height
+        return 1
 
     def _parse_size(self, raw_value):
         clean_value = raw_value.strip()
@@ -72,13 +80,8 @@ class SVGWrapper:
                 f"Unable to handle relative size units ({raw_value})"
             )
 
-        # TODO: better handling of invalid, not %, units
-
         amount_raw = clean_value[: -len(unit)] if unit else clean_value
         try:
-            # Might be real number or int, may have a sign, so try to
-            # cast to a float rather than (e.g.) using a complex regex.
-            # https://www.w3.org/TR/2008/REC-CSS2-20080411/syndata.html#length-units
             amount = float(amount_raw)
         except ValueError as err:
             raise InvalidSizeAttribute(
@@ -86,14 +89,14 @@ class SVGWrapper:
             ) from err
 
         if unit is None or unit == "px":
-            return round(amount)
+            return amount
         elif unit == "em":
-            return round(amount * self.font_size_px)
+            return amount * self.font_size_px
         elif unit == "ex":
             # This is not exactly correct, but it's the best we can do
-            return round(amount * self.font_size_px / 2)
+            return amount * self.font_size_px / 2
         else:
-            return round(amount * self.dpi * self.COEFFICIENTS[unit])
+            return amount * self.dpi * self.COEFFICIENTS[unit]
 
     def _get_view_box(self):
         if attr := self.root.get("viewBox"):
@@ -103,27 +106,27 @@ class SVGWrapper:
         match = self.VIEW_BOX_RE.match(raw_value.strip())
         if match is None:
             raise ViewBoxParseError(f"Unable to parse viewBox value '{raw_value}'")
-        return ViewBox(*map(int, match.groups()))
+        return ViewBox(*map(float, match.groups()))
 
     def write(self, f):
         self.dom.write(f, encoding="utf-8")
-        f.seek(0)
 
 
-class SVGImageOperation(str, Enum):
+class SVGImageTransform(str, Enum):
     CROP = "crop"
     RESIZE = "resize"
 
 
 class SVGImage(Image):
-    def __init__(self, dom, operations=None, dpi=96, font_size="12pt"):
-        self.image = SVGWrapper(dom)
+    def __init__(self, image, operations=None):
+        self.image = image
         self.operations = [] if operations is None else operations
 
     @classmethod
     @Image.converter_from(SVGImageFile)
     def open(cls, svg_image_file):
-        return cls(svg_image_file.dom)
+        svg_wrapper = SVGWrapper(svg_image_file.dom)
+        return cls(image=svg_wrapper)
 
     @Image.operation
     def get_size(self):
@@ -135,14 +138,15 @@ class SVGImage(Image):
 
     @Image.operation
     def crop(self, rect):
-        self.operations.append((SVGImageOperation.CROP, rect))
-        # return a new instance from all of these
-        return self
+        return self.__class__(
+            self.image, [*self.operations, (SVGImageTransform.CROP, rect)]
+        )
 
     @Image.operation
     def resize(self, size):
-        self.operations.append((SVGImageOperation.RESIZE, size))
-        return self
+        return self.__class__(
+            self.image, [*self.operations, (SVGImageTransform.RESIZE, size)]
+        )
 
     @Image.operation
     def has_animation(self):
@@ -150,6 +154,7 @@ class SVGImage(Image):
 
     def write(self, f):
         self.image.write(f)
+        f.seek(0)
 
     @Image.operation
     def save_as_svg(self, f):

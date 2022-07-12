@@ -11,6 +11,10 @@ class SVGWrapperSizeTestCase(unittest.TestCase):
         '<svg width="$width" height="$height" viewBox="$view_box"></svg>'
     )
 
+    @classmethod
+    def setUpClass(cls):
+        cls.epsilon = 0.2
+
     def get_svg_wrapper(
         self, *, dpi=96, font_size_px=16, width="", height="", view_box=""
     ):
@@ -53,15 +57,16 @@ class SVGWrapperSizeTestCase(unittest.TestCase):
 
     def test_size_pt_unit(self):
         svg = self.get_svg_wrapper(width="12pt", height="16pt")
-        self.assertEqual((svg.width, svg.height), (16, 21))
+        self.assertEqual(svg.width, 16)
+        self.assertLess(abs(21.5 - svg.height), self.epsilon)
 
     def test_size_mm_unit(self):
         svg = self.get_svg_wrapper(width="25mm")
-        self.assertEqual(svg.width, 94)
+        self.assertLess(abs(94.5 - svg.width), self.epsilon)
 
     def test_size_cm_unit(self):
         svg = self.get_svg_wrapper(width="2.5cm")
-        self.assertEqual(svg.width, 94)
+        self.assertLess(abs(94.5 - svg.width), self.epsilon)
 
     def test_size_in_unit(self):
         svg = self.get_svg_wrapper(width="0.5in")
@@ -110,3 +115,26 @@ class SVGWrapperSizeTestCase(unittest.TestCase):
             svg = self.get_svg_wrapper(view_box=view_box)
             with self.subTest(view_box=view_box):
                 self.assertEqual((svg.width, svg.height), (30, 40))
+
+    def test_view_box_float_parsing(self):
+        values = (
+            ("0 0 0 10.0", 10.0),
+            ("0 0 0 -1.0", -1.0),
+            ("0 0 0 +1.0", 1.0),
+            ("0 0 0 +.5", 0.5),
+            ("0 0 0 -.5", -0.5),
+            ("0 0 0 +.5e9", 0.5e9),
+            ("0 0 0 +.5E9", 0.5e9),
+            ("0 0 0 -.5e9", -0.5e9),
+            ("0 0 0 -.5E9", -0.5e9),
+            ("0 0 0 1.55e9", 1.55e9),
+            ("0 0 0 1.55E9", 1.55e9),
+            ("0 0 0 +12.55e9", 12.55e9),
+            ("0 0 0 -12.55E9", -12.55e9),
+            ("0 0 0 1e9", 1e9),
+            ("0 0 0 1E9", 1e9),
+        )
+        for view_box, expected in values:
+            svg = self.get_svg_wrapper(view_box=view_box)
+            with self.subTest(view_box=view_box):
+                self.assertEqual(svg.height, expected)
