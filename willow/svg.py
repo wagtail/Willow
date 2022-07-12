@@ -4,7 +4,7 @@ from enum import Enum
 
 from xml.etree.ElementTree import ElementTree
 
-from .image import Image, SVGImageFile
+from .image import Image, SVGImageFile, BadImageOperationError
 
 
 class WillowSVGException(Exception):
@@ -138,8 +138,28 @@ class SVGImage(Image):
 
     @Image.operation
     def crop(self, rect):
+        # Validate the rect here rather than when we actually apply
+        # the crop during rasterisation to give immediate feedback
+        left, top, right, bottom = rect
+        width, height = self.get_size()
+        if (
+            left >= right
+            or left >= width
+            or right <= 0
+            or top >= bottom
+            or top >= height
+            or bottom <= 0
+        ):
+            raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
+
+        clamped_rect = (
+            max(0, left),
+            max(0, top),
+            min(width, right),
+            min(height, bottom),
+        )
         return self.__class__(
-            self.image, [*self.operations, (SVGImageTransform.CROP, rect)]
+            self.image, [*self.operations, (SVGImageTransform.CROP, clamped_rect)]
         )
 
     @Image.operation
