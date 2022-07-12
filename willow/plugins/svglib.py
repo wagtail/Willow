@@ -9,18 +9,19 @@ from willow.svg import SVGImage, SVGImageTransform
 
 
 def crop_drawing(drawing, rect):
-    group = drawing.contents[0]
-    drawing = Drawing(
-        width=rect.right - rect.left,
-        height=rect.bottom - rect.top,
-    )
+    # svglib/reportlab have no explicit crop operation, emulate it by
+    # translating the graphic and putting it into a new container
+    # (reportlab.graphics Drawing) of the required size
+    left, top, right, bottom = rect
 
-    # Translate the inner object here rather than the drawing,
+    # Translate the inner object here rather than the outer Drawing,
     # otherwise the translation won't be scaled in subsequent scale
     # operations
-    group.translate(-rect.left, -rect.top)
-    drawing.add(group)
-    return drawing
+    group = drawing.contents[0]
+    group.translate(-left, -top)
+    new_container = Drawing(width=right - left, height=bottom - top)
+    new_container.add(group)
+    return new_container
 
 
 def resize_drawing(drawing, size):
