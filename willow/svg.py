@@ -182,6 +182,3 @@ class SVGImage(Image):
     def save_as_svg(self, f):
         self.write(f)
         return SVGImageFile(f, dom=self.image.dom)
-
-
-willow_image_classes = [SVGImage]

@@ -1,5 +1,3 @@
-from willow.image import Image
-
 def setup():
     from willow.registry import registry
 
@@ -15,7 +13,7 @@ def setup():
         SVGImageFile,
     )
     from willow.plugins import pillow, wand, opencv, svglib
-    from willow import svg
+    from willow.svg import SVGImage
 
     registry.register_image_class(JPEGImageFile)
     registry.register_image_class(PNGImageFile)
@@ -26,11 +24,11 @@ def setup():
     registry.register_image_class(RGBImageBuffer)
     registry.register_image_class(RGBAImageBuffer)
     registry.register_image_class(SVGImageFile)
+    registry.register_image_class(SVGImage)
 
     registry.register_plugin(pillow)
     registry.register_plugin(wand)
     registry.register_plugin(opencv)
-    registry.register_plugin(svg)
     registry.register_plugin(svglib)
 
 
