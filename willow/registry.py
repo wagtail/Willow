@@ -241,8 +241,8 @@ class WillowRegistry(object):
         for image_class in image_classes:
             path, cost = self.find_shortest_path(start, image_class)
 
-            # cost is None for SVGImage
             if cost is None:
+                # no path found, e.g. from BMP to SVG
                 continue
 
             if current_cost is None or cost < current_cost:
