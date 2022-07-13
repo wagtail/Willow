@@ -138,3 +138,11 @@ class SVGWrapperSizeTestCase(unittest.TestCase):
             svg = self.get_svg_wrapper(view_box=view_box)
             with self.subTest(view_box=view_box):
                 self.assertEqual(svg.height, expected)
+
+    def test_raises_negative_size(self):
+        with self.assertRaises(InvalidSizeAttribute):
+            self.get_svg_wrapper(width="-3")
+
+    def test_raises_zero_size(self):
+        with self.assertRaises(InvalidSizeAttribute):
+            self.get_svg_wrapper(width="0")
