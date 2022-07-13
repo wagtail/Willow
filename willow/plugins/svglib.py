@@ -13,13 +13,20 @@ def crop_drawing(drawing, rect):
     # translating the graphic and putting it into a new container
     # (reportlab.graphics Drawing) of the required size
     left, top, right, bottom = rect
+    left_clamped = max(0, left)
+    top_clamped = max(0, top)
+    right_clamped = min(drawing.width, right)
+    bottom_clamped = min(drawing.height, bottom)
 
     # Translate the inner object here rather than the outer Drawing,
     # otherwise the translation won't be scaled in subsequent scale
     # operations
     group = drawing.contents[0]
-    group.translate(-left, -top)
-    new_container = Drawing(width=right - left, height=bottom - top)
+    group.translate(-left_clamped, -top_clamped)
+    new_container = Drawing(
+        width=right_clamped - left_clamped,
+        height=bottom_clamped - top_clamped,
+    )
     new_container.add(group)
     return new_container
 

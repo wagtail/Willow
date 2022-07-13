@@ -154,14 +154,8 @@ class SVGImage(Image):
         ):
             raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
 
-        clamped_rect = (
-            max(0, left),
-            max(0, top),
-            min(width, right),
-            min(height, bottom),
-        )
         return self.__class__(
-            self.image, [*self.operations, (SVGImageTransform.CROP, clamped_rect)]
+            self.image, [*self.operations, (SVGImageTransform.CROP, rect)]
         )
 
     @Image.operation
