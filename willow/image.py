@@ -1,7 +1,8 @@
-import warnings
-from xml.etree.ElementTree import ParseError as XMLParseError
+import re
 
 import filetype
+import warnings
+
 from defusedxml import ElementTree
 from filetype.types import image as image_types
 
@@ -82,15 +83,8 @@ class Image(object):
         # Detect image format
         image_format = filetype.guess_extension(f)
 
-        if image_format is None:
-            try:
-                f.seek(0)
-                ElementTree.parse(f, forbid_dtd=True)
-                image_format = "svg"
-            except XMLParseError:
-                pass
-            finally:
-                f.seek(0)
+        if image_format is None and cls.maybe_xml(f):
+            image_format = "svg"
 
         # Find initial class
         initial_class = INITIAL_IMAGE_CLASSES.get(image_format)
@@ -101,6 +95,19 @@ class Image(object):
                 raise UnrecognisedImageFormatError("Unknown image format")
 
         return initial_class(f)
+
+    @classmethod
+    def maybe_xml(cls, f):
+        # Check if it looks like an XML doc, it will be validated
+        # properly when we parse it in SVGImageFile
+        f.seek(0)
+        pattern = re.compile(rb"^\s*<")
+        for line in f:
+            if pattern.match(line):
+                f.seek(0)
+                return True
+        f.seek(0)
+        return False
 
     def save(self, image_format, output):
         # Get operation name
@@ -241,6 +248,7 @@ class SVGImageFile(ImageFile):
     def __init__(self, f, dom=None):
         if dom is None:
             f.seek(0)
+            # Will raise xml.etree.ElementTree.ParseError if invalid
             self.dom = ElementTree.parse(f, forbid_dtd=True)
             f.seek(0)
         else:
