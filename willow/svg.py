@@ -87,6 +87,8 @@ class SVGWrapper:
             raise InvalidSizeAttribute(
                 f"Unable to parse value from '{raw_value}'"
             ) from err
+        if amount <= 0:
+            raise InvalidSizeAttribute(f"Negative or 0 sizes are invalid ({amount})")
 
         if unit is None or unit == "px":
             return amount
