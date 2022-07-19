@@ -4,7 +4,7 @@ from io import BytesIO
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 from reportlab.graphics.shapes import Drawing
-from willow.image import PNGImageFile
+from willow.image import PNGImageFile, BadImageOperationError
 from willow.svg import SVGImage, SVGImageTransform
 
 
@@ -13,6 +13,17 @@ def crop_drawing(drawing, rect):
     # translating the graphic and putting it into a new container
     # (reportlab.graphics Drawing) of the required size
     left, top, right, bottom = rect
+
+    if (
+        left >= right
+        or left >= drawing.width
+        or right <= 0
+        or top >= bottom
+        or top >= drawing.height
+        or bottom <= 0
+    ):
+        raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
+
     left_clamped = max(0, left)
     top_clamped = max(0, top)
     right_clamped = min(drawing.width, right)
