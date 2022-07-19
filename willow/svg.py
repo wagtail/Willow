@@ -57,15 +57,17 @@ class SVGWrapper:
         return self.dom.getroot()
 
     def _get_width(self):
-        if attr := (self.root.get("width") or self.root.get("height")):
-            return self._parse_size(attr)
+        attr_value = self.root.get("width") or self.root.get("height")
+        if attr_value:
+            return self._parse_size(attr_value)
         elif self.view_box is not None:
             return self.view_box.width
         return 1
 
     def _get_height(self):
-        if attr := (self.root.get("height") or self.root.get("width")):
-            return self._parse_size(attr)
+        attr_value = self.root.get("height") or self.root.get("width")
+        if attr_value:
+            return self._parse_size(attr_value)
         elif self.view_box is not None:
             return self.view_box.height
         return 1
@@ -101,8 +103,9 @@ class SVGWrapper:
             return amount * self.dpi * self.COEFFICIENTS[unit]
 
     def _get_view_box(self):
-        if attr := self.root.get("viewBox"):
-            return self._parse_view_box(attr)
+        attr_value = self.root.get("viewBox")
+        if attr_value:
+            return self._parse_view_box(attr_value)
 
     def _parse_view_box(self, raw_value):
         match = self.VIEW_BOX_RE.match(raw_value.strip())
