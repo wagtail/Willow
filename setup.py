@@ -43,7 +43,7 @@ setup(
     ],
     python_requires='>=3.7',
     install_requires=[
-        "filetype>=1.0.10",
+        "filetype>=1.0.10,!=1.1.0",
     ],
     extras_require={"testing": [
         "Pillow>=6.0.0,<10.0.0",
