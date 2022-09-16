@@ -1,9 +1,6 @@
 from functools import reduce
 from io import BytesIO
 
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
-from reportlab.graphics.shapes import Drawing
 from willow.image import PNGImageFile, BadImageOperationError
 from willow.svg import SVGImage, SVGImageTransform
 
@@ -13,6 +10,7 @@ def crop_drawing(drawing, rect):
     # translating the graphic and putting it into a new container
     # (reportlab.graphics Drawing) of the required size
     left, top, right, bottom = rect
+    from reportlab.graphics.shapes import Drawing
 
     if (
         left >= right
@@ -62,6 +60,9 @@ def transform(drawing, operation):
 
 
 def rasterise_to_png(image):
+    from reportlab.graphics import renderPM
+    from svglib.svglib import svg2rlg
+
     in_buf = BytesIO()
     image.write(in_buf)
 
