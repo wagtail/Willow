@@ -9,6 +9,7 @@ from tests.test_wand import *
 from tests.test_image import *
 from tests.test_svglib import *
 from tests.test_svg_image import *
+from tests.test_svg_coordinate_transforms import *
 
 
 if __name__ == '__main__':

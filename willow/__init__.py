@@ -1,4 +1,5 @@
 def setup():
+    from xml.etree import ElementTree
     from willow.registry import registry
 
     from willow.image import (
@@ -10,10 +11,10 @@ def setup():
         RGBAImageBuffer,
         TIFFImageFile,
         WebPImageFile,
-        SVGImageFile,
+        SvgImageFile,
     )
     from willow.plugins import pillow, wand, opencv, svglib
-    from willow.svg import SVGImage
+    from willow.svg import SvgImage
 
     registry.register_image_class(JPEGImageFile)
     registry.register_image_class(PNGImageFile)
@@ -23,16 +24,20 @@ def setup():
     registry.register_image_class(WebPImageFile)
     registry.register_image_class(RGBImageBuffer)
     registry.register_image_class(RGBAImageBuffer)
-    registry.register_image_class(SVGImageFile)
-    registry.register_image_class(SVGImage)
+    registry.register_image_class(SvgImageFile)
+    registry.register_image_class(SvgImage)
 
     registry.register_plugin(pillow)
     registry.register_plugin(wand)
     registry.register_plugin(opencv)
     registry.register_plugin(svglib)
 
+    # Prevents etree from prefixing XML tag names with anonymous
+    # namespaces, e.g. "<ns0:svg ..."
+    ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
+
 
 setup()
 
 
-__version__ = '1.4'
+__version__ = "1.4"

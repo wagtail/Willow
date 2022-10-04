@@ -99,7 +99,7 @@ class Image(object):
     @classmethod
     def maybe_xml(cls, f):
         # Check if it looks like an XML doc, it will be validated
-        # properly when we parse it in SVGImageFile
+        # properly when we parse it in SvgImageFile
         f.seek(0)
         pattern = re.compile(rb"^\s*<")
         for line in f:
@@ -242,7 +242,7 @@ class WebPImageFile(ImageFile):
         return "image/webp"
 
 
-class SVGImageFile(ImageFile):
+class SvgImageFile(ImageFile):
     format_name = "svg"
 
     def __init__(self, f, dom=None):
@@ -264,5 +264,5 @@ INITIAL_IMAGE_CLASSES = {
     image_types.Bmp().extension: BMPImageFile,
     image_types.Tiff().extension: TIFFImageFile,
     image_types.Webp().extension: WebPImageFile,
-    "svg": SVGImageFile,
+    "svg": SvgImageFile,
 }
