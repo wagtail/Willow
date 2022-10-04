@@ -10,11 +10,15 @@ class WillowSvgException(Exception):
     pass
 
 
-class InvalidSizeAttribute(WillowSvgException):
+class InvalidSvgAttribute(WillowSvgException):
     pass
 
 
-class ViewBoxParseError(WillowSvgException):
+class InvalidSvgSizeAttribute(WillowSvgException):
+    pass
+
+
+class SvgViewBoxParseError(WillowSvgException):
     pass
 
 
@@ -31,135 +35,11 @@ UserSpaceToViewportTransform = namedtuple(
 )
 
 
-class SvgWrapper:
-    # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#length
-    UNIT_RE = re.compile(r"(?:em|ex|px|in|cm|mm|pt|pc|%)$")
-
-    # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#number
-    NUMBER_PATTERN = r"(\d+(?:[Ee]\d+)?|[+-]?\d*\.\d+(?:[Ee]\d+)?)"
-
-    # https://www.w3.org/Graphics/SVG/1.1/coords.html#ViewBoxAttribute
-    VIEW_BOX_RE = re.compile(
-        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}[, ] *"
-        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}$"
-    )
-
-    # Borrowed from cairosvg
-    COEFFICIENTS = {
-        "mm": 1 / 25.4,
-        "cm": 1 / 2.54,
-        "in": 1,
-        "pt": 1 / 72.0,
-        "pc": 1 / 6.0,
-    }
-
-    def __init__(self, dom: ElementTree, dpi=96, font_size_px=16):
-        self.dom = dom
-        self.dpi = dpi
-        self.font_size_px = font_size_px
-        self.view_box = self._get_view_box()
-
-        # If the root svg element has no width, height, or viewBox attributes,
-        # emulate browser behaviour and set width and height to 300 and 150
-        # respectively, and set the viewBox to match
-        # (https://svgwg.org/specs/integration/#svg-css-sizing). This means we
-        # can always crop and resize without needing to rasterise
-        self.width = self._get_width() or 300
-        self.height = self._get_height() or 150
-        if self.view_box is None:
-            self.view_box = ViewBox(0, 0, self.width, self.height)
-
-    @property
-    def root(self):
-        return self.dom.getroot()
-
-    @property
-    def preserve_aspect_ratio(self):
-        # Not self.root.get("preserveAspectRatio", "xMidYMid meet"), as an
-        # empty string value also maps to the default
-        return self.root.get("preserveAspectRatio") or "xMidYMid meet"
-
-    def _get_width(self):
-        attr_value = self.root.get("width") or self.root.get("height")
-        if attr_value:
-            return self._parse_size(attr_value)
-        elif self.view_box is not None:
-            return self.view_box.width
-
-    def _get_height(self):
-        attr_value = self.root.get("height") or self.root.get("width")
-        if attr_value:
-            return self._parse_size(attr_value)
-        elif self.view_box is not None:
-            return self.view_box.height
-
-    def _parse_size(self, raw_value):
-        clean_value = raw_value.strip()
-        match = self.UNIT_RE.search(clean_value)
-        unit = clean_value[match.start() :] if match else None
-
-        if unit == "%":
-            raise InvalidSizeAttribute(
-                f"Unable to handle relative size units ({raw_value})"
-            )
-
-        amount_raw = clean_value[: -len(unit)] if unit else clean_value
-        try:
-            amount = float(amount_raw)
-        except ValueError as err:
-            raise InvalidSizeAttribute(
-                f"Unable to parse value from '{raw_value}'"
-            ) from err
-        if amount <= 0:
-            raise InvalidSizeAttribute(f"Negative or 0 sizes are invalid ({amount})")
-
-        if unit is None or unit == "px":
-            return amount
-        elif unit == "em":
-            return amount * self.font_size_px
-        elif unit == "ex":
-            # This is not exactly correct, but it's the best we can do
-            return amount * self.font_size_px / 2
-        else:
-            return amount * self.dpi * self.COEFFICIENTS[unit]
-
-    def _get_view_box(self):
-        attr_value = self.root.get("viewBox")
-        if attr_value:
-            return self._parse_view_box(attr_value)
-
-    def _parse_view_box(self, raw_value):
-        match = self.VIEW_BOX_RE.match(raw_value.strip())
-        if match is None:
-            raise ViewBoxParseError(f"Unable to parse viewBox value '{raw_value}'")
-        return ViewBox(*map(float, match.groups()))
-
-    def set_root_attr(self, attr, value):
-        self.root.set(attr, str(value))
-
-    def set_width(self, width):
-        self.set_root_attr("width", width)
-        self.width = width
-
-    def set_height(self, height):
-        self.set_root_attr("height", height)
-        self.height = height
-
-    def set_view_box(self, view_box):
-        self.set_root_attr("viewBox", view_box_to_attr_str(view_box))
-        self.view_box = view_box
-
-    def write(self, f):
-        self.dom.write(f, encoding="utf-8")
-
-
 def get_user_space_to_viewport_transform(
     svg: "SvgImage",
 ) -> UserSpaceToViewportTransform:
     # cairosvg used as a reference
     view_box = svg.image.view_box
-    if view_box is None:
-        return UserSpaceToViewportTransform(1, 1, 0, 0)
 
     viewport_aspect_ratio = Fraction(round(svg.image.width), round(svg.image.height))
     user_aspect_ratio = Fraction(round(view_box.width), round(view_box.height))
@@ -201,6 +81,137 @@ def get_user_space_to_viewport_transform(
         translate_y += svg.image.height - view_box.height * scale_y
 
     return UserSpaceToViewportTransform(scale_x, scale_y, translate_x, translate_y)
+
+
+class SvgWrapper:
+    # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#length
+    UNIT_RE = re.compile(r"(?:em|ex|px|in|cm|mm|pt|pc|%)$")
+
+    # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#number
+    NUMBER_PATTERN = r"(\d+(?:[Ee]\d+)?|[+-]?\d*\.\d+(?:[Ee]\d+)?)"
+
+    # https://www.w3.org/Graphics/SVG/1.1/coords.html#ViewBoxAttribute
+    VIEW_BOX_RE = re.compile(
+        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}[, ] *"
+        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}$"
+    )
+
+    PRESERVE_ASPECT_RATIO_RE = re.compile(
+        r"^none$|^x(Min|Mid|Max)Y(Min|Mid|Max)(\s+(meet|slice))?$",
+    )
+
+    # Borrowed from cairosvg
+    COEFFICIENTS = {
+        "mm": 1 / 25.4,
+        "cm": 1 / 2.54,
+        "in": 1,
+        "pt": 1 / 72.0,
+        "pc": 1 / 6.0,
+    }
+
+    def __init__(self, dom: ElementTree, dpi=96, font_size_px=16):
+        self.dom = dom
+        self.dpi = dpi
+        self.font_size_px = font_size_px
+        self.view_box = self._get_view_box()
+        self.preserve_aspect_ratio = self._get_preserve_aspect_ratio()
+
+        # If the root svg element has no width, height, or viewBox attributes,
+        # emulate browser behaviour and set width and height to 300 and 150
+        # respectively, and set the viewBox to match
+        # (https://svgwg.org/specs/integration/#svg-css-sizing). This means we
+        # can always crop and resize without needing to rasterise
+        self.width = self._get_width() or 300
+        self.height = self._get_height() or 150
+        if self.view_box is None:
+            self.view_box = ViewBox(0, 0, self.width, self.height)
+
+    @property
+    def root(self):
+        return self.dom.getroot()
+
+    def _get_preserve_aspect_ratio(self):
+        value = self.root.get("preserveAspectRatio", "").strip()
+        if value == "":
+            return "xMidYMid meet"
+        if not self.PRESERVE_ASPECT_RATIO_RE.match(value):
+            raise InvalidSvgAttribute(
+                f"Unable to parse preserveAspectRatio value '{value}'"
+            )
+        return value
+
+    def _get_width(self):
+        attr_value = self.root.get("width") or self.root.get("height")
+        if attr_value:
+            return self._parse_size(attr_value)
+        elif self.view_box is not None:
+            return self.view_box.width
+
+    def _get_height(self):
+        attr_value = self.root.get("height") or self.root.get("width")
+        if attr_value:
+            return self._parse_size(attr_value)
+        elif self.view_box is not None:
+            return self.view_box.height
+
+    def _parse_size(self, raw_value):
+        clean_value = raw_value.strip()
+        match = self.UNIT_RE.search(clean_value)
+        unit = clean_value[match.start() :] if match else None
+
+        if unit == "%":
+            raise InvalidSvgSizeAttribute(
+                f"Unable to handle relative size units ({raw_value})"
+            )
+
+        amount_raw = clean_value[: -len(unit)] if unit else clean_value
+        try:
+            amount = float(amount_raw)
+        except ValueError as err:
+            raise InvalidSvgSizeAttribute(
+                f"Unable to parse value from '{raw_value}'"
+            ) from err
+        if amount <= 0:
+            raise InvalidSvgSizeAttribute(f"Negative or 0 sizes are invalid ({amount})")
+
+        if unit is None or unit == "px":
+            return amount
+        elif unit == "em":
+            return amount * self.font_size_px
+        elif unit == "ex":
+            # This is not exactly correct, but it's the best we can do
+            return amount * self.font_size_px / 2
+        else:
+            return amount * self.dpi * self.COEFFICIENTS[unit]
+
+    def _get_view_box(self):
+        attr_value = self.root.get("viewBox")
+        if attr_value:
+            return self._parse_view_box(attr_value)
+
+    def _parse_view_box(self, raw_value):
+        match = self.VIEW_BOX_RE.match(raw_value.strip())
+        if match is None:
+            raise SvgViewBoxParseError(f"Unable to parse viewBox value '{raw_value}'")
+        return ViewBox(*map(float, match.groups()))
+
+    def set_root_attr(self, attr, value):
+        self.root.set(attr, str(value))
+
+    def set_width(self, width):
+        self.set_root_attr("width", width)
+        self.width = width
+
+    def set_height(self, height):
+        self.set_root_attr("height", height)
+        self.height = height
+
+    def set_view_box(self, view_box):
+        self.set_root_attr("viewBox", view_box_to_attr_str(view_box))
+        self.view_box = view_box
+
+    def write(self, f):
+        self.dom.write(f, encoding="utf-8")
 
 
 def transform_rect_to_user_space(svg: "SvgImage", rect):
