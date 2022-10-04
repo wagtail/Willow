@@ -1,5 +1,6 @@
 import unittest
 from io import BytesIO
+from itertools import product
 from string import Template
 
 from defusedxml import ElementTree
@@ -7,7 +8,8 @@ from defusedxml import ElementTree
 from willow.image import Image, SvgImageFile, BadImageOperationError
 from willow.svg import (
     SvgWrapper,
-    InvalidSizeAttribute,
+    InvalidSvgAttribute,
+    InvalidSvgSizeAttribute,
     SvgImage,
     ViewBox,
 )
@@ -27,7 +29,7 @@ class SvgWrapperTestCase(unittest.TestCase):
         width="",
         height="",
         view_box="",
-        preserve_aspect_ratio="xMidYMid meet"
+        preserve_aspect_ratio="xMidYMid meet",
     ):
         svg_raw = self.svg_template.substitute(
             {
@@ -99,7 +101,7 @@ class SvgWrapperSizeTestCase(SvgWrapperTestCase):
         self.assertEqual((svg.width, svg.height), (24, 8))
 
     def test_percent_fails(self):
-        with self.assertRaises(InvalidSizeAttribute):
+        with self.assertRaises(InvalidSvgSizeAttribute):
             self.get_svg_wrapper(width="75%")
 
     def test_size_with_extra_whitespace(self):
@@ -116,7 +118,7 @@ class SvgWrapperSizeTestCase(SvgWrapperTestCase):
         )
         for size in bad_sizes:
             with self.subTest(size=size):
-                with self.assertRaises(InvalidSizeAttribute):
+                with self.assertRaises(InvalidSvgSizeAttribute):
                     self.get_svg_wrapper(width=size)
 
     def test_size_from_view_box(self):
@@ -158,12 +160,50 @@ class SvgWrapperSizeTestCase(SvgWrapperTestCase):
                 self.assertEqual(svg.height, expected)
 
     def test_raises_negative_size(self):
-        with self.assertRaises(InvalidSizeAttribute):
+        with self.assertRaises(InvalidSvgSizeAttribute):
             self.get_svg_wrapper(width="-3")
 
     def test_raises_zero_size(self):
-        with self.assertRaises(InvalidSizeAttribute):
+        with self.assertRaises(InvalidSvgSizeAttribute):
             self.get_svg_wrapper(width="0")
+
+    def test_parse_preserve_aspect_ratio(self):
+        svg = SvgImage(self.get_svg_wrapper(preserve_aspect_ratio="none"))
+        self.assertEqual(svg.image.preserve_aspect_ratio, "none")
+
+        svg = SvgImage(self.get_svg_wrapper(preserve_aspect_ratio=""))
+        self.assertEqual(svg.image.preserve_aspect_ratio, "xMidYMid meet")
+
+        svg = SvgImage(self.get_svg_wrapper())
+        self.assertEqual(svg.image.preserve_aspect_ratio, "xMidYMid meet")
+
+        combos = list(
+            product(
+                ("Min", "Mid", "Max"),
+                ("Min", "Mid", "Max"),
+                ("", " meet", " slice"),
+            )
+        )
+        for x, y, meet_or_slice in combos:
+            preserve_aspect_ratio = f"x{x}Y{y}{meet_or_slice}"
+            with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio):
+                svg = SvgImage(
+                    self.get_svg_wrapper(preserve_aspect_ratio=preserve_aspect_ratio)
+                )
+                self.assertEqual(svg.image.preserve_aspect_ratio, preserve_aspect_ratio)
+
+    def test_parse_preserve_aspect_ratio_throws(self):
+        with self.assertRaises(InvalidSvgAttribute):
+            SvgImage(self.get_svg_wrapper(preserve_aspect_ratio="xMidYMin foo"))
+
+        with self.assertRaises(InvalidSvgAttribute):
+            SvgImage(self.get_svg_wrapper(preserve_aspect_ratio="non"))
+
+        with self.assertRaises(InvalidSvgAttribute):
+            SvgImage(self.get_svg_wrapper(preserve_aspect_ratio="xminYMin"))
+
+        with self.assertRaises(InvalidSvgAttribute):
+            SvgImage(self.get_svg_wrapper(preserve_aspect_ratio="xMinYMa"))
 
 
 class SvgImageTestCase(SvgWrapperTestCase):
