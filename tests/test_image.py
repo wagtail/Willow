@@ -6,7 +6,7 @@ from xml.etree.ElementTree import ParseError as XMLParseError
 
 from willow.image import (
     Image, ImageFile, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError,
-    BMPImageFile, TIFFImageFile, WebPImageFile, SVGImageFile
+    BMPImageFile, TIFFImageFile, WebPImageFile, SvgImageFile
 )
 
 
@@ -77,7 +77,7 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
     def test_opens_svg(self):
         f = io.BytesIO(b"<svg></svg>")
         image = Image.open(f)
-        self.assertIsInstance(image, SVGImageFile)
+        self.assertIsInstance(image, SvgImageFile)
         self.assertEqual(image.format_name, "svg")
         self.assertEqual(image.original_format, "svg")
 
