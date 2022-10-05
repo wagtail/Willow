@@ -126,6 +126,10 @@ class SvgWrapper:
         if self.view_box is None:
             self.view_box = ViewBox(0, 0, self.width, self.height)
 
+    @classmethod
+    def from_file(cls, f):
+        return cls(SvgImageFile(f).dom)
+
     @property
     def root(self):
         return self.dom.getroot()
