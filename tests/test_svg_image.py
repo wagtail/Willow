@@ -288,3 +288,7 @@ class SvgImageTestCase(SvgWrapperTestCase):
         self.assertIsInstance(written, SvgImageFile)
         self.assertEqual(written.dom.getroot().get("width"), "13")
         self.assertEqual(written.dom.getroot().get("height"), "13")
+
+    def test_get_frame_count(self):
+        svg = SvgImage(self.get_svg_wrapper())
+        self.assertEqual(svg.get_frame_count(), 1)

@@ -275,6 +275,10 @@ class SvgImage(Image):
     def has_animation(self):
         return False
 
+    @Image.operation
+    def get_frame_count(self):
+        return 1
+
     def write(self, f):
         self.image.write(f)
         f.seek(0)
