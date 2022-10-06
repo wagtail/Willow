@@ -1,3 +1,6 @@
+from willow.image import Image
+
+
 def setup():
     from xml.etree import ElementTree
     from willow.registry import registry
