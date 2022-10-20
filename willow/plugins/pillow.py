@@ -13,6 +13,7 @@ from willow.image import (
     BadImageOperationError,
 )
 
+
 class UnsupportedRotation(Exception): pass
 
 def _PIL_Image():
@@ -63,8 +64,8 @@ class PillowImage(Image):
                 image = self.image.convert('RGB')
         else:
             image = self.image
-
-        return PillowImage(image.resize(size, _PIL_Image().ANTIALIAS))
+        # use Lanczos filter to antialias the image on resize. 
+        return PillowImage(image.resize(size, _PIL_Image().Resampling.LANCZOS))
 
     @Image.operation
     def crop(self, rect):
@@ -97,9 +98,9 @@ class PillowImage(Image):
 
         Image = _PIL_Image()
         ORIENTATION_TO_TRANSPOSE = {
-            90: Image.ROTATE_90,
-            180: Image.ROTATE_180,
-            270: Image.ROTATE_270,
+            90: Image.Transpose.ROTATE_90,
+            180: Image.Transpose.ROTATE_180,
+            270: Image.Transpose.ROTATE_270,
         }
 
         modulo_angle = angle % 360
@@ -185,7 +186,7 @@ class PillowImage(Image):
         # to RGB/RGBA to improve the quality of resizing. We must make sure that
         # they are converted back before saving.
         if image.mode not in ['L', 'P']:
-            image = image.convert('P', palette=_PIL_Image().ADAPTIVE)
+            image = image.convert('P', palette=_PIL_Image().Palette.ADAPTIVE)
 
         if 'transparency' in image.info:
             image.save(f, 'GIF', transparency=image.info['transparency'])
@@ -219,13 +220,13 @@ class PillowImage(Image):
                     Image = _PIL_Image()
                     ORIENTATION_TO_TRANSPOSE = {
                         1: (),
-                        2: (Image.FLIP_LEFT_RIGHT,),
-                        3: (Image.ROTATE_180,),
-                        4: (Image.ROTATE_180, Image.FLIP_LEFT_RIGHT),
-                        5: (Image.ROTATE_270, Image.FLIP_LEFT_RIGHT),
-                        6: (Image.ROTATE_270,),
-                        7: (Image.ROTATE_90, Image.FLIP_LEFT_RIGHT),
-                        8: (Image.ROTATE_90,),
+                        2: (Image.Transpose.FLIP_LEFT_RIGHT,),
+                        3: (Image.Transpose.ROTATE_180,),
+                        4: (Image.Transpose.ROTATE_180, Image.Transpose.FLIP_LEFT_RIGHT),
+                        5: (Image.Transpose.ROTATE_270, Image.Transpose.FLIP_LEFT_RIGHT),
+                        6: (Image.Transpose.ROTATE_270,),
+                        7: (Image.Transpose.ROTATE_90, Image.Transpose.FLIP_LEFT_RIGHT),
+                        8: (Image.Transpose.ROTATE_90,),
                     }
 
                     for transpose in ORIENTATION_TO_TRANSPOSE[orientation]:
