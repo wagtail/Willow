@@ -4,12 +4,28 @@ import mock
 import filetype
 
 from willow.image import (
-    Image, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError,
-    BMPImageFile, TIFFImageFile
+    Image, ImageFile, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError,
+    BMPImageFile, TIFFImageFile, WebPImageFile
 )
 
 
-class TestOpenImage(unittest.TestCase):
+class BrokenImageFileImplementation(ImageFile):
+    pass
+
+class TestImageFile(unittest.TestCase):
+
+    def test_image_format_must_be_implemented(self):
+        broken = BrokenImageFileImplementation(None)
+        with self.assertRaises(NotImplementedError):
+            broken.format_name
+
+    def test_mime_type_must_be_implemented(self):        
+        broken = BrokenImageFileImplementation(None)
+        with self.assertRaises(NotImplementedError):
+            broken.mime_type
+
+
+class TestDetectImageFormatFromStream(unittest.TestCase):
     """
     Tests that Image.open responds correctly to different image headers.
 
@@ -25,6 +41,7 @@ class TestOpenImage(unittest.TestCase):
         self.assertIsInstance(image, JPEGImageFile)
         self.assertEqual(image.format_name, 'jpeg')
         self.assertEqual(image.original_format, 'jpeg')
+        self.assertEqual(image.mime_type, 'image/jpeg')
 
     def test_opens_png(self):
         f = io.BytesIO()
@@ -35,6 +52,7 @@ class TestOpenImage(unittest.TestCase):
         self.assertIsInstance(image, PNGImageFile)
         self.assertEqual(image.format_name, 'png')
         self.assertEqual(image.original_format, 'png')
+        self.assertEqual(image.mime_type, 'image/png')
 
     def test_opens_gif(self):
         f = io.BytesIO()
@@ -45,6 +63,7 @@ class TestOpenImage(unittest.TestCase):
         self.assertIsInstance(image, GIFImageFile)
         self.assertEqual(image.format_name, 'gif')
         self.assertEqual(image.original_format, 'gif')
+        self.assertEqual(image.mime_type, 'image/gif')
 
     def test_raises_error_on_invalid_header(self):
         f = io.BytesIO()
@@ -59,6 +78,35 @@ class TestImageFormats(unittest.TestCase):
     """
     Tests image formats that are not well covered by the remaining tests.
     """
+    def test_jpeg(self):
+        with open('tests/images/flower.jpg', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, JPEGImageFile)
+        self.assertEqual(width, 480)
+        self.assertEqual(height, 360)
+        self.assertEqual(image.mime_type, 'image/jpeg')
+
+    def test_png(self):
+        with open('tests/images/transparent.png', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, PNGImageFile)
+        self.assertEqual(width, 200)
+        self.assertEqual(height, 150)
+        self.assertEqual(image.mime_type, 'image/png')
+
+    def test_gif(self):
+        with open('tests/images/newtons_cradle.gif', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, GIFImageFile)
+        self.assertEqual(width, 480)
+        self.assertEqual(height, 360)
+        self.assertEqual(image.mime_type, 'image/gif')
 
     def test_bmp(self):
         with open('tests/images/sails.bmp', 'rb') as f:
@@ -68,6 +116,7 @@ class TestImageFormats(unittest.TestCase):
         self.assertIsInstance(image, BMPImageFile)
         self.assertEqual(width, 768)
         self.assertEqual(height, 512)
+        self.assertEqual(image.mime_type, 'image/bmp')
 
     def test_tiff(self):
         with open('tests/images/cameraman.tif', 'rb') as f:
@@ -77,6 +126,17 @@ class TestImageFormats(unittest.TestCase):
         self.assertIsInstance(image, TIFFImageFile)
         self.assertEqual(width, 256)
         self.assertEqual(height, 256)
+        self.assertEqual(image.mime_type, 'image/tiff')
+
+    def test_webp(self):
+        with open('tests/images/tree.webp', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, WebPImageFile)
+        self.assertEqual(width, 320)
+        self.assertEqual(height, 241)
+        self.assertEqual(image.mime_type, 'image/webp')
 
 
 class TestSaveImage(unittest.TestCase):

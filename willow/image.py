@@ -1,6 +1,6 @@
-import filetype
 import warnings
 
+import filetype
 from filetype.types import image as image_types
 
 from .registry import registry
@@ -134,7 +134,22 @@ class RGBAImageBuffer(ImageBuffer):
 
 
 class ImageFile(Image):
-    format_name = None
+
+    @property
+    def format_name(self):
+        """ 
+        Willow internal name for the image format 
+        ImageFile implementations MUST override this.
+        """
+        raise NotImplementedError
+
+    @property
+    def mime_type(self):
+        """
+        Returns the MIME type of the image file
+        ImageFile implementations MUST override this.
+        """
+        raise NotImplementedError
 
     @property
     def original_format(self):
@@ -149,27 +164,63 @@ class ImageFile(Image):
 
 
 class JPEGImageFile(ImageFile):
-    format_name = 'jpeg'
+    @property
+    def format_name(self):
+        return "jpeg"
+
+    @property
+    def mime_type(self):
+        return "image/jpeg"
 
 
 class PNGImageFile(ImageFile):
-    format_name = 'png'
+    @property
+    def format_name(self):
+        return "png"
+
+    @property
+    def mime_type(self):
+        return "image/png"
 
 
 class GIFImageFile(ImageFile):
-    format_name = 'gif'
+    @property
+    def format_name(self):
+        return "gif"
+
+    @property
+    def mime_type(self):
+        return "image/gif"
 
 
 class BMPImageFile(ImageFile):
-    format_name = 'bmp'
+    @property
+    def format_name(self):
+        return "bmp"
+
+    @property
+    def mime_type(self):
+        return "image/bmp"
 
 
 class TIFFImageFile(ImageFile):
-    format_name = 'tiff'
+    @property
+    def format_name(self):
+        return "tiff"
+
+    @property
+    def mime_type(self):
+        return "image/tiff"
 
 
 class WebPImageFile(ImageFile):
-    format_name = 'webp'
+    @property
+    def format_name(self):
+        return "webp"
+
+    @property
+    def mime_type(self):
+        return "image/webp"
 
 
 INITIAL_IMAGE_CLASSES = {
