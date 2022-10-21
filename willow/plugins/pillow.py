@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from PIL import ImageOps
 from willow.image import (
     Image,
     JPEGImageFile,
@@ -157,14 +158,31 @@ class PillowImage(Image):
         else:
             image = self.image
 
-        # Pillow only checks presence of optimize kwarg, not its value
+        # Pillow only checks presence of optimize kwarg, not its value.
         kwargs = {}
         if optimize:
             kwargs['optimize'] = True
         if progressive:
             kwargs['progressive'] = True
+        kwargs['icc_profile'] = image.info.get('icc_profile')
 
-        image.save(f, 'JPEG', quality=quality, **kwargs)
+        exif = image.info.get('exif')
+        if exif:
+            kwargs['exif'] = exif
+
+        # Try saving the image and catch potential Pillow errors caused by large
+        # EXIF data. See the issue below for details about how Pillow could
+        # crash:
+        # https://github.com/python-pillow/Pillow/issues/148#issuecomment-578787435
+        try:
+            image.save(f, 'JPEG', quality=quality, **kwargs)
+        except OSError as e:
+            if 'exif' in kwargs:
+                kwargs.pop('exif')
+                image.save(f, 'JPEG', quality=quality, **kwargs)
+            else:
+                raise e
+
         return JPEGImageFile(f)
 
     @Image.operation
@@ -173,6 +191,7 @@ class PillowImage(Image):
         kwargs = {}
         if optimize:
             kwargs['optimize'] = True
+        kwargs['icc_profile'] = self.image.info.get('icc_profile')
 
         self.image.save(f, 'PNG', **kwargs)
         return PNGImageFile(f)
@@ -202,35 +221,8 @@ class PillowImage(Image):
     @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
-        # Make sure this orientation is applied to the data
-        image = self.image
-
-        if hasattr(image, '_getexif'):
-            try:
-                exif = image._getexif()
-            except Exception:
-                # Blanket cover all the ways _getexif can fail in.
-                exif = None
-            if exif is not None:
-                # 0x0112 = Orientation
-                orientation = exif.get(0x0112, 1)
-
-                if 1 <= orientation <= 8:
-                    Image = _PIL_Image()
-                    ORIENTATION_TO_TRANSPOSE = {
-                        1: (),
-                        2: (Image.FLIP_LEFT_RIGHT,),
-                        3: (Image.ROTATE_180,),
-                        4: (Image.ROTATE_180, Image.FLIP_LEFT_RIGHT),
-                        5: (Image.ROTATE_270, Image.FLIP_LEFT_RIGHT),
-                        6: (Image.ROTATE_270,),
-                        7: (Image.ROTATE_90, Image.FLIP_LEFT_RIGHT),
-                        8: (Image.ROTATE_90,),
-                    }
-
-                    for transpose in ORIENTATION_TO_TRANSPOSE[orientation]:
-                        image = image.transpose(transpose)
-
+        # Make sure this orientation is applied to the data.
+        image = ImageOps.exif_transpose(self.image)
         return PillowImage(image)
 
     @Image.operation
