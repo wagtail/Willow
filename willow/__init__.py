@@ -15,6 +15,7 @@ def setup():
         TIFFImageFile,
         WebPImageFile,
         SvgImageFile,
+        HeicImageFile,
     )
     from willow.plugins import pillow, wand, opencv
     from willow.svg import SvgImage
@@ -25,6 +26,7 @@ def setup():
     registry.register_image_class(BMPImageFile)
     registry.register_image_class(TIFFImageFile)
     registry.register_image_class(WebPImageFile)
+    registry.register_image_class(HeicImageFile)
     registry.register_image_class(RGBImageBuffer)
     registry.register_image_class(RGBAImageBuffer)
     registry.register_image_class(SvgImageFile)

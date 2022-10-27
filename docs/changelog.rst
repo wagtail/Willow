@@ -8,6 +8,7 @@ Changelog
  - Drop support for Pillow versions below 9.1 and fix Pillow 10 deprecation warnings (Alex Tomkins)
  - Replace deprecated ``imghdr`` with ``filetype``. This allows detecting newer image formats such as HEIC (Herbert Poul)
  - Add SVG support (Joshua Munn)
+ - Add HEIF support via the ``pillow-heif`` library (Alexander Piskun)
 
 
 1.4.1 (25/02/2022)

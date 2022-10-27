@@ -277,6 +277,20 @@ Here's a full list of operations provided by Willow out of the box:
             image.save_as_webp(f)
 
 
+.. method:: save_as_heic(file, quality=80, lossless=False)
+
+    (Pillow only; requires the pillow-heif library)
+
+    Saves the image to the specified file-like object in HEIF format.
+
+    returns a ``HeicImageFile`` wrapping the file.
+
+    .. code-block:: python
+
+        with open('out.heic', 'wb') as f:
+            image.save_as_heic(f)
+
+
 .. method:: save_as_svg(file)
 
     (SVG images only)
