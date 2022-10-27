@@ -49,6 +49,7 @@ setup(
         "Pillow>=6.0.0,<10.0.0",
         "Wand>=0.6,<1.0",
         "mock>=3.0,<4.0",
+        "pillow-heif>=0.7.0,<0.8.0"
     ]},
     zip_safe=False,
 )

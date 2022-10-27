@@ -5,7 +5,7 @@ import filetype
 
 from willow.image import (
     Image, ImageFile, JPEGImageFile, PNGImageFile, GIFImageFile, UnrecognisedImageFormatError,
-    BMPImageFile, TIFFImageFile, WebPImageFile
+    BMPImageFile, TIFFImageFile, WebPImageFile, HeicImageFile
 )
 
 
@@ -138,6 +138,16 @@ class TestImageFormats(unittest.TestCase):
         self.assertEqual(height, 241)
         self.assertEqual(image.mime_type, 'image/webp')
 
+    def test_heic(self):
+        with open('tests/images/tree.heic', 'rb') as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, HeicImageFile)
+        self.assertEqual(width, 320)
+        self.assertEqual(height, 241)
+        self.assertEqual(image.mime_type, 'image/heiс')
+
 
 class TestSaveImage(unittest.TestCase):
     """
@@ -151,6 +161,16 @@ class TestSaveImage(unittest.TestCase):
 
         image.save("jpeg", "outfile")
         image.save_as_jpeg.assert_called_with("outfile")
+
+    def test_save_as_heic(self):
+        with open('tests/images/sails.bmp', 'rb') as f:
+            image = Image.open(f)
+            buf = io.BytesIO()
+            image.save("heic", buf)
+            buf.seek(0)
+            image = Image.open(buf)
+            self.assertIsInstance(image, HeicImageFile)
+            self.assertEqual(image.mime_type, 'image/heiс')
 
     def test_save_as_foo(self):
         image = Image()

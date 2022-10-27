@@ -92,7 +92,7 @@ class Image(object):
 
     def save(self, image_format, output):
         # Get operation name
-        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp']:
+        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'heic']:
             raise ValueError("Unknown image format: %s" % image_format)
 
         operation_name = 'save_as_' + image_format
@@ -223,6 +223,16 @@ class WebPImageFile(ImageFile):
         return "image/webp"
 
 
+class HeicImageFile(ImageFile):
+    @property
+    def format_name(self):
+        return "heic"
+
+    @property
+    def mime_type(self):
+        return "image/heiс"
+
+
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     image_types.Jpeg().extension: JPEGImageFile,
@@ -231,4 +241,5 @@ INITIAL_IMAGE_CLASSES = {
     image_types.Bmp().extension: BMPImageFile,
     image_types.Tiff().extension: TIFFImageFile,
     image_types.Webp().extension: WebPImageFile,
+    image_types.Heic().extension: HeicImageFile,
 }

@@ -12,6 +12,7 @@ def setup():
         RGBAImageBuffer,
         TIFFImageFile,
         WebPImageFile,
+        HeicImageFile,
     )
     from willow.plugins import pillow, wand, opencv
 
@@ -21,6 +22,7 @@ def setup():
     registry.register_image_class(BMPImageFile)
     registry.register_image_class(TIFFImageFile)
     registry.register_image_class(WebPImageFile)
+    registry.register_image_class(HeicImageFile)
     registry.register_image_class(RGBImageBuffer)
     registry.register_image_class(RGBAImageBuffer)
 
