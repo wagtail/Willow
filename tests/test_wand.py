@@ -177,6 +177,20 @@ class TestWandOperations(unittest.TestCase):
         self.assertIsInstance(return_value, GIFImageFile)
         self.assertEqual(return_value.f, output)
 
+    def test_save_mode_cmyk_as_png(self):
+        with open("tests/images/cmyk.jpg", "rb") as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        output = io.BytesIO()
+        return_value = image.save_as_png(output)
+        output.seek(0)
+
+        converted_image = _wand_image().Image(file=output)
+        self.assertEqual(converted_image.colorspace, "srgb")
+        self.assertEqual(filetype.guess_extension(output), "png")
+        self.assertIsInstance(return_value, PNGImageFile)
+        self.assertEqual(return_value.f, output)
+
     def test_has_alpha(self):
         has_alpha = self.image.has_alpha()
         self.assertTrue(has_alpha)
