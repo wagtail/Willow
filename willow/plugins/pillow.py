@@ -184,12 +184,17 @@ class PillowImage(Image):
 
     @Image.operation
     def save_as_png(self, f, optimize=False):
+        if self.image.mode == "CMYK":
+            image = self.image.convert("RGB")
+        else:
+            image = self.image
+
         # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {}
         if optimize:
             kwargs["optimize"] = True
 
-        self.image.save(f, "PNG", **kwargs)
+        image.save(f, "PNG", **kwargs)
         return PNGImageFile(f)
 
     @Image.operation
