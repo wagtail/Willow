@@ -158,6 +158,21 @@ class TestPillowOperations(unittest.TestCase):
         # Optimised image must be smaller than unoptimised image
         self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
 
+    def test_save_mode_cmyk_as_png(self):
+        output = io.BytesIO()
+
+        with open('tests/images/transparent_cmyk.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        return_value = image.save_as_png(output)
+        output.seek(0)
+
+        image = _PIL_Image().open(output)
+        self.assertEqual(image.mode, 'RGB')
+        self.assertEqual(filetype.guess_extension(output), 'png')
+        self.assertIsInstance(return_value, PNGImageFile)
+        self.assertEqual(return_value.f, output)
+
     def test_save_as_gif(self):
         output = io.BytesIO()
         return_value = self.image.save_as_gif(output)
