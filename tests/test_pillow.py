@@ -161,7 +161,7 @@ class TestPillowOperations(unittest.TestCase):
     def test_save_mode_cmyk_as_png(self):
         output = io.BytesIO()
 
-        with open('tests/images/transparent_cmyk.jpg', 'rb') as f:
+        with open('tests/images/cmyk.jpg', 'rb') as f:
             image = PillowImage.open(JPEGImageFile(f))
 
         return_value = image.save_as_png(output)
