@@ -1,6 +1,5 @@
 import re
 from collections import namedtuple
-from fractions import Fraction
 from xml.etree.ElementTree import ElementTree
 
 from .image import BadImageOperationError, Image, SvgImageFile
@@ -41,8 +40,8 @@ def get_user_space_to_viewport_transform(
     # cairosvg used as a reference
     view_box = svg.image.view_box
 
-    viewport_aspect_ratio = Fraction(round(svg.image.width), round(svg.image.height))
-    user_aspect_ratio = Fraction(round(view_box.width), round(view_box.height))
+    viewport_aspect_ratio = svg.image.width / svg.image.height
+    user_aspect_ratio = view_box.width / view_box.height
     if viewport_aspect_ratio == user_aspect_ratio:
         scale = svg.image.width / view_box.width
         translate = 0

@@ -23,6 +23,11 @@ class UserSpaceToViewportTransformTestCase(SvgWrapperTestCase):
         transform = get_user_space_to_viewport_transform(svg)
         self.assertEqual(transform, UserSpaceToViewportTransform(10, 10, 0, 0))
 
+    def test_get_transform_equivalent_ratios_floats(self):
+        svg = SvgImage(self.get_svg_wrapper(width=95, height=35, view_box="0 0 9.5 3.5"))
+        transform = get_user_space_to_viewport_transform(svg)
+        self.assertEqual(transform, UserSpaceToViewportTransform(10, 10, 0, 0))
+
     def test_preserve_aspect_ratio_none(self):
         svg = SvgImage(
             self.get_svg_wrapper(
