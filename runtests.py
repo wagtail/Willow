@@ -7,7 +7,6 @@ from tests.test_registry import *
 from tests.test_pillow import *
 from tests.test_wand import *
 from tests.test_image import *
-from tests.test_svglib import *
 from tests.test_svg_image import *
 from tests.test_svg_coordinate_transforms import *
 

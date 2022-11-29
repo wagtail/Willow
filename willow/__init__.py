@@ -16,7 +16,7 @@ def setup():
         WebPImageFile,
         SvgImageFile,
     )
-    from willow.plugins import pillow, wand, opencv, svglib
+    from willow.plugins import pillow, wand, opencv
     from willow.svg import SvgImage
 
     registry.register_image_class(JPEGImageFile)
@@ -33,7 +33,6 @@ def setup():
     registry.register_plugin(pillow)
     registry.register_plugin(wand)
     registry.register_plugin(opencv)
-    registry.register_plugin(svglib)
 
     # Prevents etree from prefixing XML tag names with anonymous
     # namespaces, e.g. "<ns0:svg ..."
