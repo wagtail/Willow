@@ -249,7 +249,7 @@ class SvgImageFile(ImageFile):
         if dom is None:
             f.seek(0)
             # Will raise xml.etree.ElementTree.ParseError if invalid
-            self.dom = ElementTree.parse(f, forbid_dtd=True)
+            self.dom = ElementTree.parse(f)
             f.seek(0)
         else:
             self.dom = dom
