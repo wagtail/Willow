@@ -86,13 +86,15 @@ class SvgWrapper:
     # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#length
     UNIT_RE = re.compile(r"(?:em|ex|px|in|cm|mm|pt|pc|%)$")
 
-    # https://developer.mozilla.org/en-US/docs/Web/SVG/Content_type#number
-    NUMBER_PATTERN = r"(\d+(?:[Ee]\d+)?|[+-]?\d*\.\d+(?:[Ee]\d+)?)"
+    # https://www.w3.org/TR/SVG11/types.html#DataTypeNumber
+    # This will exclude some inputs that Python will accept (e.g. "1.e9", "1."),
+    # but for integration with other tools, we should adhere to the spec
+    NUMBER_PATTERN = r"([+-]?(?:\d*\.)?\d+(?:[Ee]\d+)?)"
 
     # https://www.w3.org/Graphics/SVG/1.1/coords.html#ViewBoxAttribute
     VIEW_BOX_RE = re.compile(
-        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}[, ] *"
-        f"{NUMBER_PATTERN}[, ] *{NUMBER_PATTERN}$"
+        fr"^{NUMBER_PATTERN}(?:,\s*|\s+){NUMBER_PATTERN}(?:,\s*|\s+)"
+        fr"{NUMBER_PATTERN}(?:,\s*|\s+){NUMBER_PATTERN}$"
     )
 
     PRESERVE_ASPECT_RATIO_RE = re.compile(
@@ -192,8 +194,9 @@ class SvgWrapper:
         if attr_value:
             return self._parse_view_box(attr_value)
 
-    def _parse_view_box(self, raw_value):
-        match = self.VIEW_BOX_RE.match(raw_value.strip())
+    @classmethod
+    def _parse_view_box(cls, raw_value):
+        match = cls.VIEW_BOX_RE.match(raw_value.strip())
         if match is None:
             raise SvgViewBoxParseError(f"Unable to parse viewBox value '{raw_value}'")
         return ViewBox(*map(float, match.groups()))

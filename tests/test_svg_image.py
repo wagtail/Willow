@@ -292,3 +292,40 @@ class SvgImageTestCase(SvgWrapperTestCase):
     def test_get_frame_count(self):
         svg = SvgImage(self.get_svg_wrapper())
         self.assertEqual(svg.get_frame_count(), 1)
+
+
+class SvgViewBoxTestCase(unittest.TestCase):
+    def test_view_box_re(self):
+        params = [
+            ("0 0 1 1", ViewBox(0, 0, 1, 1)),
+            (" 0 0 1 1 ", ViewBox(0, 0, 1, 1)),
+            ("-0 +0 -1 +1", ViewBox(0, 0, -1, 1)),
+            ("+0 -0 +1 -1", ViewBox(0, 0, 1, -1)),
+            ("-0,+0,-1,+1", ViewBox(0, 0, -1, 1)),
+            ("+0,-0,+1,-1", ViewBox(0, 0, 1, -1)),
+            ("-0,   +0, -1   +1", ViewBox(0, 0, -1, 1)),
+            ("+0,   -0, +1     -1", ViewBox(0, 0, 1, -1)),
+            ("150 150 200 200", ViewBox(150, 150, 200, 200)),
+            (
+                "150.1 150.12 200.123 200.1234",
+                ViewBox(150.1, 150.12, 200.123, 200.1234),
+            ),
+            ("150.0,150.0,200.0,200.0", ViewBox(150, 150, 200, 200)),
+            ("150.0, 150.0, 200.0, 200.0", ViewBox(150, 150, 200, 200)),
+            ("150.0,  150.0,   200.0  200.0", ViewBox(150, 150, 200, 200)),
+            ("-350 360.1 464 81.9", ViewBox(-350, 360.1, 464, 81.9)),
+            ("0 0 1e2 12.13e3", ViewBox(0, 0, 100, 12130)),
+            ("-0 -0 -1e2 -12.13e3", ViewBox(0, 0, -100, -12130)),
+            ("0 0 .5 .5", ViewBox(0, 0, 0.5, 0.5)),
+            ("0 0 .5e1 .5e1", ViewBox(0, 0, 5, 5)),
+            ("0 0 .5e0 .5e0", ViewBox(0, 0, 0.5, 0.5)),
+            ("0 0 -.5e1 +.5e1", ViewBox(0, 0, -5, 5)),
+            ("0 0 -.0e1 +.0e1", ViewBox(0, 0, 0, 0)),
+            ("0 0,-.0e1,+.0e1", ViewBox(0, 0, 0, 0)),
+            (".1,0,0,0", ViewBox(0.1, 0, 0, 0)),
+            ("+.1,0,0,0", ViewBox(0.1, 0, 0, 0)),
+            ("-.1,0,0,0", ViewBox(-0.1, 0, 0, 0)),
+        ]
+        for value, expected in params:
+            with self.subTest(value=value, expected=expected):
+                self.assertEqual(SvgWrapper._parse_view_box(value), expected)
