@@ -29,15 +29,36 @@ def view_box_to_attr_str(view_box):
     return f"{view_box.min_x} {view_box.min_y} {view_box.width} {view_box.height}"
 
 
-UserSpaceToViewportTransform = namedtuple(
-    "UserSpaceToViewportTransform",
-    "scale_x scale_y translate_x translate_y",
-)
+class ViewportToUserSpaceTransform:
+    def __init__(self, scale_x, scale_y, translate_x, translate_y):
+        self.scale_x = scale_x
+        self.scale_y = scale_y
+        self.translate_x = translate_x
+        self.translate_y = translate_y
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return (
+            self.scale_x == other.scale_x
+            and self.scale_y == other.scale_y
+            and self.translate_x == other.translate_x
+            and self.translate_y == other.translate_y
+        )
+
+    def __call__(self, rect):
+        left, top, right, bottom = rect
+        return (
+            (left - self.translate_x) / self.scale_x,
+            (top - self.translate_y) / self.scale_y,
+            (right - self.translate_x) / self.scale_x,
+            (bottom - self.translate_y) / self.scale_y,
+        )
 
 
-def get_user_space_to_viewport_transform(
+def get_viewport_to_user_space_transform(
     svg: "SvgImage",
-) -> UserSpaceToViewportTransform:
+) -> ViewportToUserSpaceTransform:
     # cairosvg used as a reference
     view_box = svg.image.view_box
 
@@ -46,7 +67,7 @@ def get_user_space_to_viewport_transform(
     if viewport_aspect_ratio == user_aspect_ratio:
         scale = svg.image.width / view_box.width
         translate = 0
-        return UserSpaceToViewportTransform(scale, scale, translate, translate)
+        return ViewportToUserSpaceTransform(scale, scale, translate, translate)
 
     aspect_ratio = svg.image.preserve_aspect_ratio.split()
     try:
@@ -67,7 +88,7 @@ def get_user_space_to_viewport_transform(
         choose_coefficient = max if meet_or_slice == "slice" else min
         scale_x = scale_y = choose_coefficient(scale_x, scale_y)
 
-    # Translations to be applied after scaling user space to viewport space
+    # Translations to be applied after scaling
     translate_x = 0
     if x_position == "mid":
         translate_x = (svg.image.width - view_box.width * scale_x) / 2
@@ -80,7 +101,7 @@ def get_user_space_to_viewport_transform(
     elif y_position == "max":
         translate_y += svg.image.height - view_box.height * scale_y
 
-    return UserSpaceToViewportTransform(scale_x, scale_y, translate_x, translate_y)
+    return ViewportToUserSpaceTransform(scale_x, scale_y, translate_x, translate_y)
 
 
 class SvgWrapper:
@@ -230,14 +251,23 @@ class SvgWrapper:
 
 
 def transform_rect_to_user_space(svg: "SvgImage", rect):
-    transform = get_user_space_to_viewport_transform(svg)
+    # As well as scaling and translating the input rect to handle the
+    # preserveAspectRatio attribute, we need to account for the fact
+    # that the origin in the viewport coordinate space (i.e. as a
+    # viewer perceives the image) is not necessarily the same as
+    # the origin in the user coordinate space. For example, if we
+    # may have an SVG with a viewBox of (-8, -8, 10, 10), what the
+    # viewer perceives as (0, 0), is (-8, -8) in the user space.
     left, top, right, bottom = rect
-    return (
-        (left - transform.translate_x) / transform.scale_x,
-        (top - transform.translate_y) / transform.scale_y,
-        (right - transform.translate_x) / transform.scale_x,
-        (bottom - transform.translate_y) / transform.scale_y,
-    )
+    width = right - left
+    height = bottom - top
+    left += svg.image.view_box.min_x
+    top += svg.image.view_box.min_y
+    right = left + width
+    bottom = top + height
+
+    transform = get_viewport_to_user_space_transform(svg)
+    return transform((left, top, right, bottom))
 
 
 class SvgImage(Image):
