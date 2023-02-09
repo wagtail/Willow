@@ -1,5 +1,6 @@
 import re
 from collections import namedtuple
+from copy import copy
 from xml.etree.ElementTree import ElementTree
 
 from .image import BadImageOperationError, Image, SvgImageFile
@@ -127,6 +128,14 @@ class SvgWrapper:
         if self.view_box is None:
             self.view_box = ViewBox(0, 0, self.width, self.height)
 
+    def __copy__(self):
+        # copy() called on ElementTree.Element makes a shallow copy (child
+        # elements are shared with the original) so is efficient enough - we
+        # only need to copy the root SVG element, as that is the only element
+        # we will mutate
+        dom = ElementTree(copy(self.dom.getroot()))
+        return self.__class__(dom, dpi=self.dpi, font_size_px=self.font_size_px)
+
     @classmethod
     def from_file(cls, f):
         return cls(SvgImageFile(f).dom)
@@ -247,7 +256,7 @@ class SvgImage(Image):
         transformed_rect = transformer(self, rect) if callable(transformer) else rect
         left, top, right, bottom = transformed_rect
 
-        svg_wrapper = self.image
+        svg_wrapper = copy(self.image)
         view_box_width = right - left
         view_box_height = bottom - top
         svg_wrapper.set_view_box(ViewBox(left, top, view_box_width, view_box_height))
@@ -260,7 +269,8 @@ class SvgImage(Image):
         new_width, new_height = size
         if new_width < 1 or new_height < 1:
             raise BadImageOperationError(f"Invalid resize dimensions: {size}")
-        svg_wrapper = self.image
+
+        svg_wrapper = copy(self.image)
         svg_wrapper.set_width(new_width)
         svg_wrapper.set_height(new_height)
         return self.__class__(image=svg_wrapper)

@@ -293,6 +293,23 @@ class SvgImageTestCase(SvgWrapperTestCase):
         svg = SvgImage(self.get_svg_wrapper())
         self.assertEqual(svg.get_frame_count(), 1)
 
+    def test_crop_preserves_original_image(self):
+        """
+        Cropping should create a new image, leaving the original untouched.
+        """
+        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
+        svg_image_file = Image.open(f)
+        svg = SvgImage.open(svg_image_file)
+        svg.crop((0, 0, 10, 10))
+        self.assertEqual(svg.image.view_box, ViewBox(0, 0, 42, 42))
+
+    def test_resize_preserves_original_image(self):
+        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
+        svg_image_file = Image.open(f)
+        svg = SvgImage.open(svg_image_file)
+        svg.resize((21, 21))
+        self.assertEqual(svg.get_size(), (42, 42))
+
 
 class SvgViewBoxTestCase(unittest.TestCase):
     def test_view_box_re(self):
