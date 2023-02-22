@@ -115,8 +115,8 @@ class SvgWrapper:
 
     # https://www.w3.org/Graphics/SVG/1.1/coords.html#ViewBoxAttribute
     VIEW_BOX_RE = re.compile(
-        fr"^{NUMBER_PATTERN}(?:,\s*|\s+){NUMBER_PATTERN}(?:,\s*|\s+)"
-        fr"{NUMBER_PATTERN}(?:,\s*|\s+){NUMBER_PATTERN}$"
+        rf"^{NUMBER_PATTERN}(?:,\s*|\s+){NUMBER_PATTERN}(?:,\s*|\s+)"
+        rf"{NUMBER_PATTERN}(?:,\s*|\s+){NUMBER_PATTERN}$"
     )
 
     PRESERVE_ASPECT_RATIO_RE = re.compile(
@@ -139,13 +139,42 @@ class SvgWrapper:
         self.view_box = self._get_view_box()
         self.preserve_aspect_ratio = self._get_preserve_aspect_ratio()
 
+        width, width_unit = self._get_width()
+        height, height_unit = self._get_height()
+        # If one attr is missing or relative, we fall back to the other. After
+        # this either both will be valid, or neither will, which will be handled
+        # below. Relative width/height are treated as being undefined - so fall
+        # back first to the other attribute, then the viewBox, then the browser
+        # fallback. This gives us some flexibility for real world use cases, where
+        # SVGs may have a relative height, a relative width, or both
+        if width is None:
+            width = height
+            width_unit = height_unit
+        elif height is None:
+            height = width
+            height_unit = width_unit
+        elif width_unit == "%":
+            width = height
+            width_unit = height_unit
+        elif height_unit == "%":
+            height = width
+            height_unit = width_unit
+
         # If the root svg element has no width, height, or viewBox attributes,
         # emulate browser behaviour and set width and height to 300 and 150
         # respectively, and set the viewBox to match
         # (https://svgwg.org/specs/integration/#svg-css-sizing). This means we
         # can always crop and resize without needing to rasterise
-        self.width = self._get_width() or 300
-        self.height = self._get_height() or 150
+        if width is None and height is None or width_unit == "%" and height_unit == "%":
+            if self.view_box is not None:
+                self.width = self.view_box.width
+                self.height = self.view_box.height
+            else:
+                self.width = 300
+                self.height = 150
+        else:
+            self.width = self._convert_to_px(width, width_unit)
+            self.height = self._convert_to_px(height, height_unit)
         if self.view_box is None:
             self.view_box = ViewBox(0, 0, self.width, self.height)
 
@@ -176,29 +205,21 @@ class SvgWrapper:
         return value
 
     def _get_width(self):
-        attr_value = self.root.get("width") or self.root.get("height")
+        attr_value = self.root.get("width")
         if attr_value:
             return self._parse_size(attr_value)
-        elif self.view_box is not None:
-            return self.view_box.width
+        return None, None
 
     def _get_height(self):
-        attr_value = self.root.get("height") or self.root.get("width")
+        attr_value = self.root.get("height")
         if attr_value:
             return self._parse_size(attr_value)
-        elif self.view_box is not None:
-            return self.view_box.height
+        return None, None
 
     def _parse_size(self, raw_value):
         clean_value = raw_value.strip()
         match = self.UNIT_RE.search(clean_value)
         unit = clean_value[match.start() :] if match else None
-
-        if unit == "%":
-            raise InvalidSvgSizeAttribute(
-                f"Unable to handle relative size units ({raw_value})"
-            )
-
         amount_raw = clean_value[: -len(unit)] if unit else clean_value
         try:
             amount = float(amount_raw)
@@ -208,16 +229,18 @@ class SvgWrapper:
             ) from err
         if amount <= 0:
             raise InvalidSvgSizeAttribute(f"Negative or 0 sizes are invalid ({amount})")
+        return amount, unit
 
-        if unit is None or unit == "px":
-            return amount
+    def _convert_to_px(self, size, unit):
+        if unit in (None, "px"):
+            return size
         elif unit == "em":
-            return amount * self.font_size_px
+            return size * self.font_size_px
         elif unit == "ex":
             # This is not exactly correct, but it's the best we can do
-            return amount * self.font_size_px / 2
+            return size * self.font_size_px / 2
         else:
-            return amount * self.dpi * self.COEFFICIENTS[unit]
+            return size * self.dpi * self.COEFFICIENTS[unit]
 
     def _get_view_box(self):
         attr_value = self.root.get("viewBox")
