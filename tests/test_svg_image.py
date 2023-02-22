@@ -100,10 +100,6 @@ class SvgWrapperSizeTestCase(SvgWrapperTestCase):
         svg = self.get_svg_wrapper(width="0.25in", height="0.5pc")
         self.assertEqual((svg.width, svg.height), (24, 8))
 
-    def test_percent_fails(self):
-        with self.assertRaises(InvalidSvgSizeAttribute):
-            self.get_svg_wrapper(width="75%")
-
     def test_size_with_extra_whitespace(self):
         sizes = (" 1px", "  1px ", "1px  ")
         for size in sizes:
@@ -204,6 +200,48 @@ class SvgWrapperSizeTestCase(SvgWrapperTestCase):
 
         with self.assertRaises(InvalidSvgAttribute):
             SvgImage(self.get_svg_wrapper(preserve_aspect_ratio="xMinYMa"))
+
+    def test_relative_size_uses_view_box(self):
+        cases = [
+            ({"width": "100%", "height": "100%", "view_box": "0 0 42 42"}, (42, 42)),
+            ({"width": "200%", "height": "200%", "view_box": "0 0 42 42"}, (42, 42)),
+            ({"width": "1.5%", "height": "3.2%", "view_box": "0 0 42 42"}, (42, 42)),
+        ]
+        for attrs, expected in cases:
+            with self.subTest(attrs=attrs, expected=expected):
+                svg_wrapper = self.get_svg_wrapper(**attrs)
+                self.assertEqual((svg_wrapper.width, svg_wrapper.height), expected)
+
+    def test_relative_size_uses_other_absolute_size(self):
+        cases = [
+            ({"width": "100%", "height": "100", "view_box": "0 0 42 42"}, (100, 100)),
+            ({"width": "100", "height": "100%", "view_box": "0 0 42 42"}, (100, 100)),
+            ({"width": "300%", "height": "100", "view_box": "0 0 42 42"}, (100, 100)),
+            ({"width": "100", "height": "300%", "view_box": "0 0 42 42"}, (100, 100)),
+            (
+                {"width": "100%", "height": "200em", "view_box": "0 0 42 42"},
+                (3200, 3200),
+            ),
+            (
+                {"width": "200em", "height": "100%", "view_box": "0 0 42 42"},
+                (3200, 3200),
+            ),
+        ]
+        for attrs, expected in cases:
+            with self.subTest(attrs=attrs, expected=expected):
+                svg_wrapper = self.get_svg_wrapper(**attrs)
+                self.assertEqual((svg_wrapper.width, svg_wrapper.height), expected)
+
+    def test_relative_size_no_view_box_uses_defaults(self):
+        cases = [
+            {"width": "100%", "height": "", "view_box": ""},
+            {"width": "", "height": "100%", "view_box": ""},
+            {"width": "100%", "height": "100%", "view_box": ""},
+        ]
+        for attrs in cases:
+            with self.subTest(attrs=attrs):
+                svg_wrapper = self.get_svg_wrapper(**attrs)
+                self.assertEqual((svg_wrapper.width, svg_wrapper.height), (300, 150))
 
 
 class SvgImageTestCase(SvgWrapperTestCase):
