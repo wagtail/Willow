@@ -1,7 +1,7 @@
 Installation
 ============
 
-Willow supports Python 2.7+ and 3.4+. It's a pure-python library with no hard
+Willow supports Python 3.7+. It's a pure-python library with no hard
 dependencies so doesn't require a C compiler for a basic installation.
 
 Installation using ``pip``
