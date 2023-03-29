@@ -126,7 +126,7 @@ Here's a full list of operations provided by Willow out of the box:
 
 .. method:: resize(size)
 
-    (Pillow/Wand only)
+    (supported natively for SVG, Pillow/Wand required for others)
 
     Stretches the image to fit the specified size. Size must be a sequence of two integers:
 
@@ -137,7 +137,7 @@ Here's a full list of operations provided by Willow out of the box:
 
 .. method:: crop(region)
 
-    (Pillow/Wand only)
+    (supported natively for SVG, Pillow/Wand required for others)
 
     Cuts out the specified region of the image. The region must be a sequence of
     four integers (left, top, right, bottom):
@@ -275,6 +275,21 @@ Here's a full list of operations provided by Willow out of the box:
 
         with open('out.webp', 'wb') as f:
             image.save_as_webp(f)
+
+
+.. method:: save_as_svg(file)
+
+    (SVG images only)
+
+    Saves the image to the specified file-like object in SVG format.
+
+    returns a ``SvgImageFile`` wrapping the file.
+
+    .. code-block:: python
+
+        with open('out.svg', 'w') as f:
+            image.save_as_svg(f)
+
 
 .. method:: get_pillow_image()
 
