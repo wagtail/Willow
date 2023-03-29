@@ -1,10 +1,13 @@
 Changelog
 =========
 
-1.5.0 (xx/xx/2022) - IN DEVELOPMENT
+1.5.0 (xx/xx/2023) - IN DEVELOPMENT
 -----------------------------------
 
+ - Drop support for Python versions below 3.7
+ - Drop support for Pillow versions below 9.1 and fix Pillow 10 deprecation warnings (Alex Tomkins)
  - Replace deprecated ``imghdr`` with ``filetype``. This allows detecting newer image formats such as HEIC (Herbert Poul)
+ - Add SVG support (Joshua Munn)
 
 
 1.4.1 (25/02/2022)
