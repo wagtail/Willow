@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.5.0 (29/03/2023)
-------------------
+1.5 (29/03/2023)
+----------------
 
  - Drop support for Python versions below 3.7
  - Drop support for Pillow versions below 9.1 and fix Pillow 10 deprecation warnings (Alex Tomkins)
