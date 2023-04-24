@@ -16,7 +16,7 @@ try:
 except ImportError:
     pass
 
-from willow import __version__
+from willow.version import __version__
 
 
 setup(
