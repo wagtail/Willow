@@ -1,5 +1,4 @@
 from willow.image import Image
-from willow.version import __version__
 
 
 def setup():
@@ -43,3 +42,6 @@ def setup():
 
 
 setup()
+
+
+__version__ = "1.5"
