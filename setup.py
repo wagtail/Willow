@@ -16,12 +16,10 @@ try:
 except ImportError:
     pass
 
-from willow.version import __version__
-
 
 setup(
     name='Willow',
-    version=__version__,
+    version="1.5",  # Update willow/__init__.py too!
     description='A Python image library that sits on top of Pillow, Wand and OpenCV',
     author='Karl Hobley',
     author_email='karl@kaed.uk',
