@@ -348,24 +348,37 @@ class SvgCropTestCase(SvgWrapperTestCase):
                 # crop to the blue-bordered square in the center
                 lambda _: (150, 100, 450, 300),
             ),
+            (
+                # viewBox is translated in the positive direction
+                x_mid_y_mid_meet / "non_zero_origin" / "translated-y-no-scale.svg",
+                x_mid_y_mid_meet
+                / "non_zero_origin"
+                / "translated-y-no-scale-cropped-original.svg",
+                get_original_crop_rect,
+            ),
+            (
+                # viewBox is translated in the negative direction
+                x_mid_y_mid_meet / "non_zero_origin" / "translated-x-no-scale.svg",
+                x_mid_y_mid_meet
+                / "non_zero_origin"
+                / "translated-x-no-scale-cropped-original.svg",
+                get_original_crop_rect,
+            ),
         ]
         for original_file_path, expected_file_path, get_rect in files:
+            with open(original_file_path, "rb") as f:
+                original_file = Image.open(f)
+            original = SvgImage.open(original_file)
+            cropped = original.crop(get_rect(original))
+            with open(expected_file_path, "rb") as f:
+                expected_file = Image.open(f)
+            expected = SvgImage.open(expected_file)
             with self.subTest(
-                original_file_path=original_file_path,
-                expected_file_path=expected_file_path,
+                original=str(original_file_path), expected=str(expected_file_path)
             ):
-                with open(original_file_path, "rb") as f:
-                    original_file = Image.open(f)
-                original_file_path = SvgImage.open(original_file)
-                cropped = original_file_path.crop(get_rect(original_file_path))
-                with open(expected_file_path, "rb") as f:
-                    expected_file = Image.open(f)
-                expected_file_path = SvgImage.open(expected_file)
-                self.assertEqual(
-                    expected_file_path.image.view_box, cropped.image.view_box
-                )
-                self.assertEqual(expected_file_path.image.width, cropped.image.width)
-                self.assertEqual(expected_file_path.image.height, cropped.image.height)
+                self.assertEqual(expected.image.view_box, cropped.image.view_box)
+                self.assertEqual(expected.image.width, cropped.image.width)
+                self.assertEqual(expected.image.height, cropped.image.height)
 
     def test_crop_preserves_original_image(self):
         """

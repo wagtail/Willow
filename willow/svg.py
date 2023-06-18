@@ -93,13 +93,13 @@ def get_viewport_to_user_space_transform(
         # coefficient and use it for scaling both axes
         scale_x = scale_y = choose_coefficient(scale_x, scale_y)
 
-    translate_x = 0
+    translate_x = -view_box.min_x * scale_x
     if x_position == "mid":
-        translate_x = (svg.image.width - view_box.width * scale_x) / 2
+        translate_x += (svg.image.width - view_box.width * scale_x) / 2
     elif x_position == "max":
-        translate_x = svg.image.width - view_box.width * scale_x
+        translate_x += svg.image.width - view_box.width * scale_x
 
-    translate_y = 0
+    translate_y = -view_box.min_y * scale_y
     if y_position == "mid":
         translate_y += (svg.image.height - view_box.height * scale_y) / 2
     elif y_position == "max":
