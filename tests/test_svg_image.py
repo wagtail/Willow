@@ -1,3 +1,4 @@
+import glob
 import unittest
 from io import BytesIO
 from itertools import product
@@ -315,66 +316,31 @@ class SvgCropTestCase(SvgWrapperTestCase):
             return (0, 0, svg_image.image.width, svg_image.image.height)
 
         base_dir = Path("tests/images/svg")
-        x_mid_y_mid_meet = base_dir / "x_mid_y_mid_meet"
-        files = [
-            (
-                x_mid_y_mid_meet / "translated-y-no-scale.svg",
-                x_mid_y_mid_meet / "translated-y-no-scale-cropped-original.svg",
-                get_original_crop_rect,
-            ),
-            (
-                x_mid_y_mid_meet / "translated-y-2x-scale.svg",
-                x_mid_y_mid_meet / "translated-y-2x-scale-cropped-original.svg",
-                get_original_crop_rect,
-            ),
-            (
-                x_mid_y_mid_meet / "translated-x-no-scale.svg",
-                x_mid_y_mid_meet / "translated-x-no-scale-cropped-original.svg",
-                get_original_crop_rect,
-            ),
-            (
-                x_mid_y_mid_meet / "translated-x-2x-scale.svg",
-                x_mid_y_mid_meet / "translated-x-2x-scale-cropped-original.svg",
-                get_original_crop_rect,
-            ),
-            (
-                x_mid_y_mid_meet / "translated-y-no-scale.svg",
-                x_mid_y_mid_meet / "translated-y-no-scale-cropped-150-0-450-400.svg",
-                lambda _: (150, 0, 450, 400),  # vertical slice 0.5 width centered
-            ),
-            (
-                x_mid_y_mid_meet / "translated-y-no-scale.svg",
-                x_mid_y_mid_meet / "translated-y-no-scale-cropped-150-100-450-300.svg",
-                # crop to the blue-bordered square in the center
-                lambda _: (150, 100, 450, 300),
-            ),
-            (
-                # viewBox is translated in the positive direction
-                x_mid_y_mid_meet / "non_zero_origin" / "translated-y-no-scale.svg",
-                x_mid_y_mid_meet
-                / "non_zero_origin"
-                / "translated-y-no-scale-cropped-original.svg",
-                get_original_crop_rect,
-            ),
-            (
-                # viewBox is translated in the negative direction
-                x_mid_y_mid_meet / "non_zero_origin" / "translated-x-no-scale.svg",
-                x_mid_y_mid_meet
-                / "non_zero_origin"
-                / "translated-x-no-scale-cropped-original.svg",
-                get_original_crop_rect,
-            ),
-        ]
-        for original_file_path, expected_file_path, get_rect in files:
+        original_file_paths = (
+            Path(x)
+            for x in glob.iglob(
+                str(base_dir / "originals/**/*-crop-*.svg"), recursive=True
+            )
+        )
+
+        for original_file_path in original_file_paths:
             with open(original_file_path, "rb") as f:
                 original_file = Image.open(f)
             original = SvgImage.open(original_file)
-            cropped = original.crop(get_rect(original))
-            with open(expected_file_path, "rb") as f:
+            directive = original_file_path.stem.split("-")[-1]
+            if directive == "original":
+                rect = get_original_crop_rect(original)
+            else:
+                rect = tuple(int(x) for x in directive.split("_"))
+            cropped = original.crop(rect)
+
+            result_file_path = str(original_file_path).replace("originals", "results")
+            with open(result_file_path, "rb") as f:
                 expected_file = Image.open(f)
             expected = SvgImage.open(expected_file)
+
             with self.subTest(
-                original=str(original_file_path), expected=str(expected_file_path)
+                original=str(original_file_path), expected=str(result_file_path)
             ):
                 self.assertEqual(expected.image.view_box, cropped.image.view_box)
                 self.assertEqual(expected.image.width, cropped.image.width)
