@@ -1,16 +1,17 @@
 import unittest
 from io import BytesIO
 from itertools import product
+from pathlib import Path
 from string import Template
 
 from defusedxml import ElementTree
 
-from willow.image import Image, SvgImageFile, BadImageOperationError
+from willow.image import BadImageOperationError, Image, SvgImageFile
 from willow.svg import (
-    SvgWrapper,
     InvalidSvgAttribute,
     InvalidSvgSizeAttribute,
     SvgImage,
+    SvgWrapper,
     ViewBox,
 )
 
@@ -266,7 +267,29 @@ class SvgImageTestCase(SvgWrapperTestCase):
         with self.assertRaises(BadImageOperationError):
             svg_image_file.resize((10, 0))
 
-    def test_crop(self):
+    def test_save_as_svg(self):
+        f = BytesIO(b'<svg width="13" height="13" viewBox="0 0 13 13"></svg>')
+        svg_image_file = Image.open(f)
+        svg = SvgImage(image=SvgWrapper(svg_image_file.dom))
+        written = svg.save_as_svg(BytesIO())
+        self.assertIsInstance(written, SvgImageFile)
+        self.assertEqual(written.dom.getroot().get("width"), "13")
+        self.assertEqual(written.dom.getroot().get("height"), "13")
+
+    def test_get_frame_count(self):
+        svg = SvgImage(self.get_svg_wrapper())
+        self.assertEqual(svg.get_frame_count(), 1)
+
+    def test_resize_preserves_original_image(self):
+        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
+        svg_image_file = Image.open(f)
+        svg = SvgImage.open(svg_image_file)
+        svg.resize((21, 21))
+        self.assertEqual(svg.get_size(), (42, 42))
+
+
+class SvgCropTestCase(SvgWrapperTestCase):
+    def test_simple_crop(self):
         f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
         svg_image_file = Image.open(f)
         cropped = svg_image_file.crop((5, 5, 15, 15))
@@ -280,6 +303,79 @@ class SvgImageTestCase(SvgWrapperTestCase):
             [float(x) for x in cropped.image.root.get("viewBox").split()],
             [5, 5, 10, 10],
         )
+
+    def test_crop_with_aspect_ratio_mismatch(self):
+        """
+        Test cropping SVGs where the viewport aspect ratio does not match the viewBox aspect ratio.
+        """
+
+        def get_original_crop_rect(svg_image):
+            # left, top, right, bottom (not left, top, width, height,
+            # like viewBox but the same in this case)
+            return (0, 0, svg_image.image.width, svg_image.image.height)
+
+        base_dir = Path("tests/images/svg")
+        x_mid_y_mid_meet = base_dir / "x_mid_y_mid_meet"
+        files = [
+            (
+                x_mid_y_mid_meet / "translated-y-no-scale.svg",
+                x_mid_y_mid_meet / "translated-y-no-scale-cropped-original.svg",
+                get_original_crop_rect,
+            ),
+            (
+                x_mid_y_mid_meet / "translated-y-2x-scale.svg",
+                x_mid_y_mid_meet / "translated-y-2x-scale-cropped-original.svg",
+                get_original_crop_rect,
+            ),
+            (
+                x_mid_y_mid_meet / "translated-x-no-scale.svg",
+                x_mid_y_mid_meet / "translated-x-no-scale-cropped-original.svg",
+                get_original_crop_rect,
+            ),
+            (
+                x_mid_y_mid_meet / "translated-x-2x-scale.svg",
+                x_mid_y_mid_meet / "translated-x-2x-scale-cropped-original.svg",
+                get_original_crop_rect,
+            ),
+            (
+                x_mid_y_mid_meet / "translated-y-no-scale.svg",
+                x_mid_y_mid_meet / "translated-y-no-scale-cropped-150-0-450-400.svg",
+                lambda _: (150, 0, 450, 400),  # vertical slice 0.5 width centered
+            ),
+            (
+                x_mid_y_mid_meet / "translated-y-no-scale.svg",
+                x_mid_y_mid_meet / "translated-y-no-scale-cropped-150-100-450-300.svg",
+                # crop to the blue-bordered square in the center
+                lambda _: (150, 100, 450, 300),
+            ),
+        ]
+        for original_file_path, expected_file_path, get_rect in files:
+            with self.subTest(
+                original_file_path=original_file_path,
+                expected_file_path=expected_file_path,
+            ):
+                with open(original_file_path, "rb") as f:
+                    original_file = Image.open(f)
+                original_file_path = SvgImage.open(original_file)
+                cropped = original_file_path.crop(get_rect(original_file_path))
+                with open(expected_file_path, "rb") as f:
+                    expected_file = Image.open(f)
+                expected_file_path = SvgImage.open(expected_file)
+                self.assertEqual(
+                    expected_file_path.image.view_box, cropped.image.view_box
+                )
+                self.assertEqual(expected_file_path.image.width, cropped.image.width)
+                self.assertEqual(expected_file_path.image.height, cropped.image.height)
+
+    def test_crop_preserves_original_image(self):
+        """
+        Cropping should create a new image, leaving the original untouched.
+        """
+        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
+        svg_image_file = Image.open(f)
+        svg = SvgImage.open(svg_image_file)
+        svg.crop((0, 0, 10, 10))
+        self.assertEqual(svg.image.view_box, ViewBox(0, 0, 42, 42))
 
     def test_crop_with_transform(self):
         # user coordinates scaled by 2 and translated 50 units south
@@ -317,36 +413,6 @@ class SvgImageTestCase(SvgWrapperTestCase):
         with self.assertRaises(BadImageOperationError):
             # top == bottom
             svg_image_file.crop((0, 10, 10, 10))
-
-    def test_save_as_svg(self):
-        f = BytesIO(b'<svg width="13" height="13" viewBox="0 0 13 13"></svg>')
-        svg_image_file = Image.open(f)
-        svg = SvgImage(image=SvgWrapper(svg_image_file.dom))
-        written = svg.save_as_svg(BytesIO())
-        self.assertIsInstance(written, SvgImageFile)
-        self.assertEqual(written.dom.getroot().get("width"), "13")
-        self.assertEqual(written.dom.getroot().get("height"), "13")
-
-    def test_get_frame_count(self):
-        svg = SvgImage(self.get_svg_wrapper())
-        self.assertEqual(svg.get_frame_count(), 1)
-
-    def test_crop_preserves_original_image(self):
-        """
-        Cropping should create a new image, leaving the original untouched.
-        """
-        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
-        svg_image_file = Image.open(f)
-        svg = SvgImage.open(svg_image_file)
-        svg.crop((0, 0, 10, 10))
-        self.assertEqual(svg.image.view_box, ViewBox(0, 0, 42, 42))
-
-    def test_resize_preserves_original_image(self):
-        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
-        svg_image_file = Image.open(f)
-        svg = SvgImage.open(svg_image_file)
-        svg.resize((21, 21))
-        self.assertEqual(svg.get_size(), (42, 42))
 
 
 class SvgViewBoxTestCase(unittest.TestCase):
