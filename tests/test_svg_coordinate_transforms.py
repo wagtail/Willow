@@ -1,10 +1,9 @@
 from functools import partial
 
 from willow.svg import (
-    get_viewport_to_user_space_transform,
-    transform_rect_to_user_space,
     SvgImage,
     ViewportToUserSpaceTransform,
+    get_viewport_to_user_space_transform,
 )
 
 from .test_svg_image import SvgWrapperTestCase
@@ -41,71 +40,6 @@ class ViewportToUserSpaceTransformTestCase(SvgWrapperTestCase):
         )
         transform = get_viewport_to_user_space_transform(svg)
         self.assertEqual(transform, ViewportToUserSpaceTransform(2, 1.25, 0, 0))
-
-    def test_transform_rect_to_user_space_translate_x(self):
-        svg_wrapper = partial(
-            self.get_svg_wrapper, width=100, height=50, view_box="0 0 25 25"
-        )
-        params = [
-            # transform = (2, 2, 0, 0)
-            ("xMinYMid meet", (10, 10, 20, 20), (5, 5, 10, 10)),
-            # transform = (2, 2, 25, 0)
-            ("xMidYMid meet", (10, 10, 20, 20), (-7.5, 5, -2.5, 10)),
-            # transform = (2, 2, 50, 0)
-            ("xMaxYMid meet", (10, 10, 20, 20), (-20, 5, -15, 10)),
-        ]
-        for preserve_aspect_ratio, rect, expected_result in params:
-            with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio, rect=rect):
-                svg = SvgImage(svg_wrapper(preserve_aspect_ratio=preserve_aspect_ratio))
-                self.assertEqual(
-                    transform_rect_to_user_space(svg, rect), expected_result
-                )
-
-    def test_transform_rect_to_user_space_translate_y(self):
-        svg_wrapper = partial(
-            self.get_svg_wrapper, width=50, height=100, view_box="0 0 25 25"
-        )
-        params = [
-            # transform = (2, 2, 0, 0)
-            ("xMidYMin meet", (10, 10, 20, 20), (5, 5, 10, 10)),
-            # transform = (2, 2, 0, 25)
-            ("xMidYMid meet", (10, 10, 20, 20), (5, -7.5, 10, -2.5)),
-            # transform = (2, 2, 0, 50)
-            ("xMidYMax meet", (10, 10, 20, 20), (5, -20, 10, -15)),
-        ]
-        for preserve_aspect_ratio, rect, expected_result in params:
-            with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio, rect=rect):
-                svg = SvgImage(svg_wrapper(preserve_aspect_ratio=preserve_aspect_ratio))
-                self.assertEqual(
-                    transform_rect_to_user_space(svg, rect), expected_result
-                )
-
-    def test_complex_user_space_origin_transform(self):
-        svg = SvgImage(
-            self.get_svg_wrapper(
-                width=100,
-                height=100,
-                view_box="-50 -50 100 100",
-                preserve_aspect_ratio="none",
-            )
-        )
-        self.assertEqual(
-            transform_rect_to_user_space(svg, (0, 0, 50, 50)),
-            (-50, -50, 0, 0),
-        )
-
-        svg = SvgImage(
-            self.get_svg_wrapper(
-                width=200,
-                height=200,
-                view_box="-50 -50 100 100",
-                preserve_aspect_ratio="none",
-            )
-        )
-        self.assertEqual(
-            transform_rect_to_user_space(svg, (0, 0, 50, 50)),
-            (-25, -25, 0, 0),
-        )
 
 
 class PreserveAspectRatioMeetTestCase(SvgWrapperTestCase):

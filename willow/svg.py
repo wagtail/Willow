@@ -69,26 +69,30 @@ def get_viewport_to_user_space_transform(
         translate = 0
         return ViewportToUserSpaceTransform(scale, scale, translate, translate)
 
-    aspect_ratio = svg.image.preserve_aspect_ratio.split()
+    preserve_aspect_ratio = svg.image.preserve_aspect_ratio.split()
     try:
-        align, meet_or_slice = aspect_ratio
+        align, meet_or_slice = preserve_aspect_ratio
     except ValueError:
-        align = aspect_ratio[0]
+        align = preserve_aspect_ratio[0]
         meet_or_slice = None
 
     scale_x = svg.image.width / view_box.width
     scale_y = svg.image.height / view_box.height
 
     if align == "none":
+        # if align is "none", the viewBox will be scaled non-uniformly,
+        # so we keep and use both scale_x and scale_y
         x_position = "min"
         y_position = "min"
     else:
         x_position = align[1:4].lower()
         y_position = align[5:].lower()
         choose_coefficient = max if meet_or_slice == "slice" else min
+        # all values of preserveAspectRatio's `align', other than
+        # "none", force uniform scaling, so choose the appropriate
+        # coefficient and use it for scaling both axes
         scale_x = scale_y = choose_coefficient(scale_x, scale_y)
 
-    # Translations to be applied after scaling
     translate_x = 0
     if x_position == "mid":
         translate_x = (svg.image.width - view_box.width * scale_x) / 2
@@ -273,32 +277,12 @@ class SvgWrapper:
         self.dom.write(f, encoding="utf-8")
 
 
-def transform_rect_to_user_space(svg: "SvgImage", rect):
-    # As well as scaling and translating the input rect to handle the
-    # preserveAspectRatio attribute, we need to account for the fact
-    # that the origin in the viewport coordinate space (i.e. as a
-    # viewer perceives the image) is not necessarily the same as
-    # the origin in the user coordinate space. For example, if we
-    # may have an SVG with a viewBox of (-8, -8, 10, 10), what the
-    # viewer perceives as (0, 0), is (-8, -8) in the user space.
-    left, top, right, bottom = rect
-    width = right - left
-    height = bottom - top
-    left += svg.image.view_box.min_x
-    top += svg.image.view_box.min_y
-    right = left + width
-    bottom = top + height
-
-    transform = get_viewport_to_user_space_transform(svg)
-    return transform((left, top, right, bottom))
-
-
 class SvgImage(Image):
     def __init__(self, image):
         self.image: SvgWrapper = image
 
     @Image.operation
-    def crop(self, rect, transformer=transform_rect_to_user_space):
+    def crop(self, rect, get_transformer=get_viewport_to_user_space_transform):
         left, top, right, bottom = rect
         if left >= right or top >= bottom:
             raise BadImageOperationError(f"Invalid crop dimensions: {rect}")
@@ -306,7 +290,7 @@ class SvgImage(Image):
         viewport_width = right - left
         viewport_height = bottom - top
 
-        transformed_rect = transformer(self, rect) if callable(transformer) else rect
+        transformed_rect = get_transformer(self)(rect)
         left, top, right, bottom = transformed_rect
 
         svg_wrapper = copy(self.image)
