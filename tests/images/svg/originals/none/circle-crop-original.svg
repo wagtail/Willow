@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="250" height="300" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <circle cx="100" cy="100" r="100" fill="yellow" stroke="red"></circle>
+    <rect x="100" y="100" width="100" height="100" stroke="blue" fill-opacity="0"></rect>
+</svg>
