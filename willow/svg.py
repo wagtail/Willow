@@ -62,13 +62,6 @@ def get_viewport_to_user_space_transform(
     # cairosvg used as a reference
     view_box = svg.image.view_box
 
-    viewport_aspect_ratio = svg.image.width / svg.image.height
-    user_aspect_ratio = view_box.width / view_box.height
-    if viewport_aspect_ratio == user_aspect_ratio:
-        scale = svg.image.width / view_box.width
-        translate = 0
-        return ViewportToUserSpaceTransform(scale, scale, translate, translate)
-
     preserve_aspect_ratio = svg.image.preserve_aspect_ratio.split()
     try:
         align, meet_or_slice = preserve_aspect_ratio
