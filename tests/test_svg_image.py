@@ -290,24 +290,33 @@ class SvgImageTestCase(SvgWrapperTestCase):
 
 
 class SvgCropTestCase(SvgWrapperTestCase):
-    def test_simple_crop(self):
-        f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
-        svg_image_file = Image.open(f)
-        cropped = svg_image_file.crop((5, 5, 15, 15))
-        self.assertEqual(cropped.get_size(), (10, 10))
-        self.assertEqual(cropped.image.view_box, ViewBox(5, 5, 10, 10))
-
-        # Check the underlying etree has been updated
-        self.assertEqual(float(cropped.image.root.get("width")), 10)
-        self.assertEqual(float(cropped.image.root.get("height")), 10)
-        self.assertEqual(
-            [float(x) for x in cropped.image.root.get("viewBox").split()],
-            [5, 5, 10, 10],
-        )
-
-    def test_crop_with_aspect_ratio_mismatch(self):
+    def test_crop(self):
         """
-        Test cropping SVGs where the viewport aspect ratio does not match the viewBox aspect ratio.
+        Test cropping SVGs.
+
+        This finds, recursively, all of the relevant SVG files in the
+        tests/images/svg/originals directory. For each file it finds, it:
+        - opens the file;
+        - performs a crop based on the filename; and
+        - compares the attributes on the cropped SVG in memory to the expected
+          cropped version stored in the corresponding tests/images/svg/results
+          subdirectory.
+
+        An SVG named `some-name-crop-original.svg' will be cropped to the
+        dimensions of its original viewport.
+
+        A specific bounding rect for a crop can be specified in the file name
+        like this:
+
+            <some descriptive prefix>-crop-<left>_<top>_<right>_<bottom>.svg
+
+        For example, the file `my-svg-crop-0_10_20_30.svg' will be cropped to
+        the rect (left=0, top=10, right=20, bottom=30).
+
+        The cropping test files are organised into subdirectories by their
+        `preserveAspectRatio' value. To save duplication, files with specific
+        crop directives are symlinks to their corresponding 'original' crop
+        file.
         """
 
         def get_original_crop_rect(svg_image):
@@ -355,23 +364,6 @@ class SvgCropTestCase(SvgWrapperTestCase):
         svg = SvgImage.open(svg_image_file)
         svg.crop((0, 0, 10, 10))
         self.assertEqual(svg.image.view_box, ViewBox(0, 0, 42, 42))
-
-    def test_crop_with_transform(self):
-        # user coordinates scaled by 2 and translated 50 units south
-        svg = SvgImage(
-            self.get_svg_wrapper(
-                width=50,
-                height=100,
-                view_box="0 0 25 25",
-                preserve_aspect_ratio="xMidYMax meet",
-            )
-        )
-
-        cropped = svg.crop((10, 10, 20, 20))
-        self.assertEqual(cropped.get_size(), (10, 10))
-        self.assertEqual(cropped.image.view_box, ViewBox(5, -20, 5, 5))
-        self.assertEqual(float(cropped.image.root.get("width")), 10)
-        self.assertEqual(float(cropped.image.root.get("height")), 10)
 
     def test_crop_throws(self):
         f = BytesIO(b'<svg width="42" height="42" viewBox="0 0 42 42"></svg>')
