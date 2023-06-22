@@ -36,6 +36,13 @@ class ViewportToUserSpaceTransform:
         self.translate_x = translate_x
         self.translate_y = translate_y
 
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}(scale_x={self.scale_x}, scale_y="
+            f"{self.scale_y}, translate_x={self.translate_x}, "
+            f"translate_y={self.translate_y})"
+        )
+
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
@@ -49,10 +56,10 @@ class ViewportToUserSpaceTransform:
     def __call__(self, rect):
         left, top, right, bottom = rect
         return (
-            (left - self.translate_x) / self.scale_x,
-            (top - self.translate_y) / self.scale_y,
-            (right - self.translate_x) / self.scale_x,
-            (bottom - self.translate_y) / self.scale_y,
+            (left + self.translate_x) / self.scale_x,
+            (top + self.translate_y) / self.scale_y,
+            (right + self.translate_x) / self.scale_x,
+            (bottom + self.translate_y) / self.scale_y,
         )
 
 
@@ -86,17 +93,21 @@ def get_viewport_to_user_space_transform(
         # coefficient and use it for scaling both axes
         scale_x = scale_y = choose_coefficient(scale_x, scale_y)
 
-    translate_x = -view_box.min_x * scale_x
-    if x_position == "mid":
-        translate_x += (svg.image.width - view_box.width * scale_x) / 2
-    elif x_position == "max":
-        translate_x += svg.image.width - view_box.width * scale_x
+    # initial offsets to account for non-zero viewBox min-x and min-y
+    translate_x = view_box.min_x * scale_x
+    translate_y = view_box.min_y * scale_y
 
-    translate_y = -view_box.min_y * scale_y
+    # adjust the offsets by the amount the viewBox has been translated
+    # to fit into the viewport (if any)
+    if x_position == "mid":
+        translate_x -= (svg.image.width - view_box.width * scale_x) / 2
+    elif x_position == "max":
+        translate_x -= svg.image.width - view_box.width * scale_x
+
     if y_position == "mid":
-        translate_y += (svg.image.height - view_box.height * scale_y) / 2
+        translate_y -= (svg.image.height - view_box.height * scale_y) / 2
     elif y_position == "max":
-        translate_y += svg.image.height - view_box.height * scale_y
+        translate_y -= svg.image.height - view_box.height * scale_y
 
     return ViewportToUserSpaceTransform(scale_x, scale_y, translate_x, translate_y)
 

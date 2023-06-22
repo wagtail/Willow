@@ -54,12 +54,12 @@ class PreserveAspectRatioMeetTestCase(SvgWrapperTestCase):
             ("xMinYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 0)),
             ("xMinYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 0)),
             ("xMinYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 0)),
-            ("xMidYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, 18.75, 0)),
-            ("xMidYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 18.75, 0)),
-            ("xMidYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 18.75, 0)),
-            ("xMaxYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, 37.5, 0)),
-            ("xMaxYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 37.5, 0)),
-            ("xMaxYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 37.5, 0)),
+            ("xMidYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, -18.75, 0)),
+            ("xMidYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, -18.75, 0)),
+            ("xMidYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, -18.75, 0)),
+            ("xMaxYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, -37.5, 0)),
+            ("xMaxYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, -37.5, 0)),
+            ("xMaxYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, -37.5, 0)),
         ]
         for preserve_aspect_ratio, expected_result in params:
             with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio):
@@ -78,12 +78,12 @@ class PreserveAspectRatioMeetTestCase(SvgWrapperTestCase):
             ("xMinYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 0)),
             ("xMidYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 0)),
             ("xMaxYMin meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 0)),
-            ("xMinYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 18.75)),
-            ("xMidYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 18.75)),
-            ("xMaxYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 18.75)),
-            ("xMinYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 37.5)),
-            ("xMidYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 37.5)),
-            ("xMaxYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, 37.5)),
+            ("xMinYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, -18.75)),
+            ("xMidYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, -18.75)),
+            ("xMaxYMid meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, -18.75)),
+            ("xMinYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, -37.5)),
+            ("xMidYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, -37.5)),
+            ("xMaxYMax meet", ViewportToUserSpaceTransform(1.25, 1.25, 0, -37.5)),
         ]
         for preserve_aspect_ratio, expected_result in params:
             with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio):
@@ -105,12 +105,12 @@ class PreserveAspectRatioSliceTestCase(SvgWrapperTestCase):
             ("xMinYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 0)),
             ("xMidYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 0)),
             ("xMaxYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 0)),
-            ("xMinYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, -50)),
-            ("xMidYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, -50)),
-            ("xMaxYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, -50)),
-            ("xMinYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, -100)),
-            ("xMidYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, -100)),
-            ("xMaxYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, -100)),
+            ("xMinYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 50)),
+            ("xMidYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 50)),
+            ("xMaxYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 50)),
+            ("xMinYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 100)),
+            ("xMidYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 100)),
+            ("xMaxYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 100)),
         ]
         for preserve_aspect_ratio, expected_result in params:
             with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio):
@@ -129,12 +129,12 @@ class PreserveAspectRatioSliceTestCase(SvgWrapperTestCase):
             ("xMinYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 0)),
             ("xMinYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 0)),
             ("xMinYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 0, 0)),
-            ("xMidYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, -50, 0)),
-            ("xMidYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, -50, 0)),
-            ("xMidYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, -50, 0)),
-            ("xMaxYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, -100, 0)),
-            ("xMaxYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, -100, 0)),
-            ("xMaxYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, -100, 0)),
+            ("xMidYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, 50, 0)),
+            ("xMidYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 50, 0)),
+            ("xMidYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 50, 0)),
+            ("xMaxYMin slice", ViewportToUserSpaceTransform(2.5, 2.5, 100, 0)),
+            ("xMaxYMid slice", ViewportToUserSpaceTransform(2.5, 2.5, 100, 0)),
+            ("xMaxYMax slice", ViewportToUserSpaceTransform(2.5, 2.5, 100, 0)),
         ]
         for preserve_aspect_ratio, expected_result in params:
             with self.subTest(preserve_aspect_ratio=preserve_aspect_ratio):
