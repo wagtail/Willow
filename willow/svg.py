@@ -88,9 +88,9 @@ def get_viewport_to_user_space_transform(
         x_position = align[1:4].lower()
         y_position = align[5:].lower()
         choose_coefficient = max if meet_or_slice == "slice" else min
-        # all other values of preserveAspectRatio's `align' force
-        # uniform scaling, so choose the appropriate coefficient and
-        # use it for scaling both axes
+        # all values of preserveAspectRatio's `align', other than
+        # "none", force uniform scaling, so choose the appropriate
+        # coefficient and use it for scaling both axes
         scale_x = scale_y = choose_coefficient(scale_x, scale_y)
 
     # initial offsets to account for non-zero viewBox min-x and min-y
