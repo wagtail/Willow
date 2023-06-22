@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="50" viewBox="-50.0 350.0 800.0 100.0" preserveAspectRatio="xMinYMin meet">
+    <rect x="-50" y="-50" width="600" height="800" fill="yellow" stroke="red" />
+    <rect x="-50" y="-50" width="600" height="800" fill-opacity="0" stroke="blue" />
+    <rect x="-50" y="350" width="800" height="100" fill-opacity="0" stroke="blue" />
+</svg>
