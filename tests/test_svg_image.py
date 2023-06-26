@@ -5,12 +5,12 @@ from string import Template
 
 from defusedxml import ElementTree
 
-from willow.image import Image, SvgImageFile, BadImageOperationError
+from willow.image import BadImageOperationError, Image, SvgImageFile
 from willow.svg import (
-    SvgWrapper,
     InvalidSvgAttribute,
     InvalidSvgSizeAttribute,
     SvgImage,
+    SvgWrapper,
     ViewBox,
 )
 

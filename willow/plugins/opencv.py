@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 
 from willow.image import Image, RGBImageBuffer
@@ -15,6 +13,7 @@ def _cv2():
 
 def _numpy():
     import numpy
+
     return numpy
 
 
@@ -50,7 +49,7 @@ class BaseOpenCVImage(Image):
 class OpenCVColorImage(BaseOpenCVImage):
     @classmethod
     def check(cls):
-        super(OpenCVColorImage, cls).check()
+        super().check()
         _numpy()
 
     @classmethod
@@ -85,11 +84,13 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         if points is None:
             return []
         else:
-            points = numpy.reshape(points, (-1, 2))  # Numpy returns it with an extra third dimension
+            points = numpy.reshape(
+                points, (-1, 2)
+            )  # Numpy returns it with an extra third dimension
             return points.tolist()
 
     @Image.operation
-    def detect_faces(self, cascade_filename='haarcascade_frontalface_alt2.xml'):
+    def detect_faces(self, cascade_filename="haarcascade_frontalface_alt2.xml"):
         """
         Run OpenCV face detection on the image. Returns a list of coordinates representing a box around each face.
         """
@@ -97,16 +98,22 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         cascade_filename = self._find_cascade(cascade_filename)
         cascade = cv2.CascadeClassifier(cascade_filename)
         equalised_image = cv2.equalizeHist(self.image)
-        faces = cascade.detectMultiScale(equalised_image,
-                                         self.face_haar_scale,
-                                         self.face_min_neighbors,
-                                         self.face_haar_flags,
-                                         self.face_min_size)
-        return [(face[0],
-                 face[1],
-                 face[0] + face[2],
-                 face[1] + face[3],
-                 ) for face in faces]
+        faces = cascade.detectMultiScale(
+            equalised_image,
+            self.face_haar_scale,
+            self.face_min_neighbors,
+            self.face_haar_flags,
+            self.face_min_size,
+        )
+        return [
+            (
+                face[0],
+                face[1],
+                face[0] + face[2],
+                face[1] + face[3],
+            )
+            for face in faces
+        ]
 
     def _find_cascade(self, cascade_filename):
         """
@@ -115,7 +122,7 @@ class OpenCVGrayscaleImage(BaseOpenCVImage):
         if not os.path.isabs(cascade_filename):
             cascade_filename = os.path.join(
                 os.path.dirname(os.path.dirname(__file__)),
-                'data/cascades',
+                "data/cascades",
                 cascade_filename,
             )
         return cascade_filename

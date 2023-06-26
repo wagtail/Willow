@@ -1,28 +1,30 @@
-from __future__ import absolute_import
-
 try:
-    from pillow_heif import HeifImagePlugin
+    from pillow_heif import HeifImagePlugin  # noqa: F401
 except ImportError:
     pass
 
 from willow.image import (
+    BadImageOperationError,
+    BMPImageFile,
+    GIFImageFile,
+    HeicImageFile,
     Image,
     JPEGImageFile,
     PNGImageFile,
-    GIFImageFile,
-    BMPImageFile,
+    RGBAImageBuffer,
+    RGBImageBuffer,
     TIFFImageFile,
     WebPImageFile,
-    HeicImageFile,
-    RGBImageBuffer,
-    RGBAImageBuffer,
-    BadImageOperationError,
 )
 
-class UnsupportedRotation(Exception): pass
+
+class UnsupportedRotation(Exception):
+    pass
+
 
 def _PIL_Image():
     import PIL.Image
+
     return PIL.Image
 
 
@@ -51,7 +53,9 @@ class PillowImage(Image):
     @Image.operation
     def has_alpha(self):
         img = self.image
-        return img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)
+        return img.mode in ("RGBA", "LA") or (
+            img.mode == "P" and "transparency" in img.info
+        )
 
     @Image.operation
     def has_animation(self):
@@ -62,11 +66,11 @@ class PillowImage(Image):
     def resize(self, size):
         # Convert 1 and P images to RGB to improve resize quality
         # (palleted images don't get antialiased or filtered when minified)
-        if self.image.mode in ['1', 'P']:
+        if self.image.mode in ["1", "P"]:
             if self.has_alpha():
-                image = self.image.convert('RGBA')
+                image = self.image.convert("RGBA")
             else:
-                image = self.image.convert('RGB')
+                image = self.image.convert("RGB")
         else:
             image = self.image
 
@@ -78,12 +82,14 @@ class PillowImage(Image):
         left, top, right, bottom = rect
         width, height = self.image.size
         if (
-            left >= right or left >= width
+            left >= right
+            or left >= width
             or right <= 0
-            or top >= bottom or top >= height
+            or top >= bottom
+            or top >= height
             or bottom <= 0
         ):
-            raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
+            raise BadImageOperationError(f"Invalid crop dimensions: {rect!r}")
 
         # clamp to image boundaries
         clamped_rect = (
@@ -142,36 +148,38 @@ class PillowImage(Image):
         # Convert non-RGB colour formats to RGB
         # As we only allow the background color to be passed in as RGB, we
         # convert the format of the original image to match.
-        image = self.image.convert('RGBA')
+        image = self.image.convert("RGBA")
 
         # Generate a new image with background colour and draw existing image on top of it
         # The new image must temporarily be RGBA in order for alpha_composite to work
-        new_image = _PIL_Image().new('RGBA', self.image.size, (color[0], color[1], color[2], 255))
+        new_image = _PIL_Image().new(
+            "RGBA", self.image.size, (color[0], color[1], color[2], 255)
+        )
 
-        if hasattr(new_image, 'alpha_composite'):
+        if hasattr(new_image, "alpha_composite"):
             new_image.alpha_composite(image)
         else:
             # Pillow < 4.2.0 fallback
             # This method may be slower as the operation generates a new image
             new_image = _PIL_Image().alpha_composite(new_image, image)
 
-        return PillowImage(new_image.convert('RGB'))
+        return PillowImage(new_image.convert("RGB"))
 
     @Image.operation
     def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
-        if self.image.mode in ['1', 'P']:
-            image = self.image.convert('RGB')
+        if self.image.mode in ["1", "P"]:
+            image = self.image.convert("RGB")
         else:
             image = self.image
 
         # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {}
         if optimize:
-            kwargs['optimize'] = True
+            kwargs["optimize"] = True
         if progressive:
-            kwargs['progressive'] = True
+            kwargs["progressive"] = True
 
-        image.save(f, 'JPEG', quality=quality, **kwargs)
+        image.save(f, "JPEG", quality=quality, **kwargs)
         return JPEGImageFile(f)
 
     @Image.operation
@@ -179,9 +187,9 @@ class PillowImage(Image):
         # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {}
         if optimize:
-            kwargs['optimize'] = True
+            kwargs["optimize"] = True
 
-        self.image.save(f, 'PNG', **kwargs)
+        self.image.save(f, "PNG", **kwargs)
         return PNGImageFile(f)
 
     @Image.operation
@@ -191,27 +199,27 @@ class PillowImage(Image):
         # All gif files use either the L or P mode but we sometimes convert them
         # to RGB/RGBA to improve the quality of resizing. We must make sure that
         # they are converted back before saving.
-        if image.mode not in ['L', 'P']:
-            image = image.convert('P', palette=_PIL_Image().Palette.ADAPTIVE)
+        if image.mode not in ["L", "P"]:
+            image = image.convert("P", palette=_PIL_Image().Palette.ADAPTIVE)
 
-        if 'transparency' in image.info:
-            image.save(f, 'GIF', transparency=image.info['transparency'])
+        if "transparency" in image.info:
+            image.save(f, "GIF", transparency=image.info["transparency"])
         else:
-            image.save(f, 'GIF')
+            image.save(f, "GIF")
 
         return GIFImageFile(f)
 
     @Image.operation
     def save_as_webp(self, f, quality=80, lossless=False):
-        self.image.save(f, 'WEBP', quality=quality, lossless=lossless)
+        self.image.save(f, "WEBP", quality=quality, lossless=lossless)
         return WebPImageFile(f)
 
     @Image.operation
     def save_as_heic(self, f, quality=80, lossless=False):
         if lossless:
-            self.image.save(f, 'HEIF', quality=-1, chroma=444)
+            self.image.save(f, "HEIF", quality=-1, chroma=444)
         else:
-            self.image.save(f, 'HEIF', quality=quality)
+            self.image.save(f, "HEIF", quality=quality)
         return HeicImageFile(f)
 
     @Image.operation
@@ -220,10 +228,10 @@ class PillowImage(Image):
         # Make sure this orientation is applied to the data
         image = self.image
 
-        if hasattr(image, '_getexif'):
+        if hasattr(image, "_getexif"):
             try:
                 exif = image._getexif()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 # Blanket cover all the ways _getexif can fail in.
                 exif = None
             if exif is not None:
@@ -236,8 +244,14 @@ class PillowImage(Image):
                         1: (),
                         2: (Image.Transpose.FLIP_LEFT_RIGHT,),
                         3: (Image.Transpose.ROTATE_180,),
-                        4: (Image.Transpose.ROTATE_180, Image.Transpose.FLIP_LEFT_RIGHT),
-                        5: (Image.Transpose.ROTATE_270, Image.Transpose.FLIP_LEFT_RIGHT),
+                        4: (
+                            Image.Transpose.ROTATE_180,
+                            Image.Transpose.FLIP_LEFT_RIGHT,
+                        ),
+                        5: (
+                            Image.Transpose.ROTATE_270,
+                            Image.Transpose.FLIP_LEFT_RIGHT,
+                        ),
                         6: (Image.Transpose.ROTATE_270,),
                         7: (Image.Transpose.ROTATE_90, Image.Transpose.FLIP_LEFT_RIGHT),
                         8: (Image.Transpose.ROTATE_90,),
@@ -271,8 +285,8 @@ class PillowImage(Image):
     def to_buffer_rgb(self):
         image = self.image
 
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
+        if image.mode != "RGB":
+            image = image.convert("RGB")
 
         return RGBImageBuffer(image.size, image.tobytes())
 
@@ -280,8 +294,8 @@ class PillowImage(Image):
     def to_buffer_rgba(self):
         image = self.image
 
-        if image.mode != 'RGBA':
-            image = image.convert('RGBA')
+        if image.mode != "RGBA":
+            image = image.convert("RGBA")
 
         return RGBAImageBuffer(image.size, image.tobytes())
 

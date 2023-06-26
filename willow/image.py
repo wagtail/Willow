@@ -1,8 +1,7 @@
 import re
-
-import filetype
 import warnings
 
+import filetype
 from defusedxml import ElementTree
 from filetype.types import image as image_types
 
@@ -19,10 +18,11 @@ class BadImageOperationError(ValueError):
     Raised when the arguments to an image operation are invalid,
     e.g. a crop where the left coordinate is greater than the right coordinate
     """
+
     pass
 
 
-class Image(object):
+class Image:
     @classmethod
     def check(cls):
         pass
@@ -43,13 +43,11 @@ class Image(object):
     @staticmethod
     def converter_from(from_class, cost=None):
         def wrapper(func):
-            if not hasattr(func, '_willow_converter_from'):
+            if not hasattr(func, "_willow_converter_from"):
                 func._willow_converter_from = []
 
             if isinstance(from_class, list):
-                func._willow_converter_from.extend([
-                    (sc, cost) for sc in from_class]
-                )
+                func._willow_converter_from.extend([(sc, cost) for sc in from_class])
             else:
                 func._willow_converter_from.append((from_class, cost))
 
@@ -62,9 +60,9 @@ class Image(object):
             operation, _, conversion_path, _ = registry.find_operation(type(self), attr)
         except LookupError:
             # Operation doesn't exist
-            raise AttributeError("%r object has no attribute %r" % (
-                self.__class__.__name__, attr
-            ))
+            raise AttributeError(
+                f"{self.__class__.__name__!r} object has no attribute {attr!r}"
+            )
 
         def wrapper(*args, **kwargs):
             image = self
@@ -90,7 +88,9 @@ class Image(object):
         initial_class = INITIAL_IMAGE_CLASSES.get(image_format)
         if not initial_class:
             if image_format:
-                raise UnrecognisedImageFormatError("Cannot load %s images (%r)" % (image_format, INITIAL_IMAGE_CLASSES))
+                raise UnrecognisedImageFormatError(
+                    f"Cannot load {image_format} images ({INITIAL_IMAGE_CLASSES!r})"
+                )
             else:
                 raise UnrecognisedImageFormatError("Unknown image format")
 
@@ -111,10 +111,19 @@ class Image(object):
 
     def save(self, image_format, output):
         # Get operation name
-        if image_format not in ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg', 'heic']:
+        if image_format not in [
+            "jpeg",
+            "png",
+            "gif",
+            "bmp",
+            "tiff",
+            "webp",
+            "svg",
+            "heic",
+        ]:
             raise ValueError("Unknown image format: %s" % image_format)
 
-        operation_name = 'save_as_' + image_format
+        operation_name = "save_as_" + image_format
         return getattr(self, operation_name)(output)
 
 
@@ -129,7 +138,7 @@ class ImageBuffer(Image):
 
 
 class RGBImageBuffer(ImageBuffer):
-    mode = 'RGB'
+    mode = "RGB"
 
     @Image.operation
     def has_alpha(self):
@@ -141,7 +150,7 @@ class RGBImageBuffer(ImageBuffer):
 
 
 class RGBAImageBuffer(ImageBuffer):
-    mode = 'RGBA'
+    mode = "RGBA"
 
     @Image.operation
     def has_alpha(self):
@@ -153,11 +162,10 @@ class RGBAImageBuffer(ImageBuffer):
 
 
 class ImageFile(Image):
-
     @property
     def format_name(self):
-        """ 
-        Willow internal name for the image format 
+        """
+        Willow internal name for the image format
         ImageFile implementations MUST override this.
         """
         raise NotImplementedError
@@ -174,7 +182,8 @@ class ImageFile(Image):
     def original_format(self):
         warnings.warn(
             "Image.original_format has been renamed to Image.format_name.",
-            RemovedInWillow05Warning)
+            RemovedInWillow05Warning,
+        )
 
         return self.format_name
 
