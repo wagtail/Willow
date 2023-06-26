@@ -1,0 +1,38 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: "pip"
+          cache-dependency-path: "**/pyproject.toml"
+
+      - name: ⬇️ Install build dependencies
+        run: |
+          python -m pip install flit
+          flit install --symlink
+
+      - name: 🏗️ Build
+        run: flit build
+
+      - name: 🚀 Publish to live PyPI
+        env:
+          FLIT_USERNAME: '__token__'
+          FLIT_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+          FLIT_INDEX_URL: https://upload.pypi.org/legacy/
+        run: flit publish
