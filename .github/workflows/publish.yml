@@ -8,15 +8,14 @@ permissions:
   contents: read # to fetch code (actions/checkout)
 
 jobs:
-  build_and_publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           cache: "pip"
@@ -25,14 +24,30 @@ jobs:
       - name: ⬇️ Install build dependencies
         run: |
           python -m pip install flit
-          flit install --symlink
+          python -m flit install --symlink
 
       - name: 🏗️ Build
-        run: flit build
+        run: python -m flit build
 
-      - name: 🚀 Publish to live PyPI
-        env:
-          FLIT_USERNAME: '__token__'
-          FLIT_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-          FLIT_INDEX_URL: https://upload.pypi.org/legacy/
-        run: flit publish
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./dist
+
+  # https://docs.pypi.org/trusted-publishers/using-a-publisher/
+  pypi-publish:
+    needs: build
+    environment: 'publish'
+
+    name: ⬆️ Upload release to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      # Mandatory for trusted publishing
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v3
+
+      - name: 🚀 Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: artifact/
+          print-hash: true
