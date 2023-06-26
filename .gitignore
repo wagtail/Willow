@@ -4,4 +4,6 @@
 /Willow.egg-info
 /dist
 /venv
+.venv
 .vscode
+.ruff_cache
