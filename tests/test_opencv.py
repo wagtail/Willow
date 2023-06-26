@@ -1,15 +1,15 @@
 import unittest
-import io
+
 from numpy.testing import assert_allclose
 
 from willow.image import JPEGImageFile
-from willow.plugins.pillow import PillowImage
 from willow.plugins.opencv import OpenCVColorImage, OpenCVGrayscaleImage
+from willow.plugins.pillow import PillowImage
 
 
 class TestOpenCVOperations(unittest.TestCase):
     def setUp(self):
-        with open('tests/images/people.jpg', 'rb') as f:
+        with open("tests/images/people.jpg", "rb") as f:
             # Open the image via Pillow
             pillow_image = PillowImage.open(JPEGImageFile(f))
             buffer_rgb = pillow_image.to_buffer_rgb()
@@ -17,9 +17,26 @@ class TestOpenCVOperations(unittest.TestCase):
             self.image = OpenCVGrayscaleImage.from_color(colour_image)
 
         self.expected_features = [
-            [41.0, 206.0], [16.0, 201.0], [243.0, 208.0], [79.0, 130.0], [120.0, 24.0], [43.0, 119.0], [40.0, 165.0],
-            [37.0, 14.0], [250.0, 59.0], [98.0, 6.0], [78.0, 61.0], [201.0, 93.0], [8.0, 114.0], [189.0, 142.0],
-            [292.0, 188.0], [201.0, 199.0], [7.0, 154.0], [198.0, 247.0], [235.0, 55.0], [22.0, 36.0]
+            [41.0, 206.0],
+            [16.0, 201.0],
+            [243.0, 208.0],
+            [79.0, 130.0],
+            [120.0, 24.0],
+            [43.0, 119.0],
+            [40.0, 165.0],
+            [37.0, 14.0],
+            [250.0, 59.0],
+            [98.0, 6.0],
+            [78.0, 61.0],
+            [201.0, 93.0],
+            [8.0, 114.0],
+            [189.0, 142.0],
+            [292.0, 188.0],
+            [201.0, 199.0],
+            [7.0, 154.0],
+            [198.0, 247.0],
+            [235.0, 55.0],
+            [22.0, 36.0],
         ]
         self.expected_faces = [(272, 89, 364, 181), (91, 165, 187, 261)]
 

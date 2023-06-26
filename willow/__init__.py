@@ -1,23 +1,20 @@
-from willow.image import Image
-
-
 def setup():
     from xml.etree import ElementTree
-    from willow.registry import registry
 
     from willow.image import (
+        BMPImageFile,
+        GIFImageFile,
+        HeicImageFile,
         JPEGImageFile,
         PNGImageFile,
-        GIFImageFile,
-        BMPImageFile,
-        RGBImageBuffer,
         RGBAImageBuffer,
+        RGBImageBuffer,
+        SvgImageFile,
         TIFFImageFile,
         WebPImageFile,
-        SvgImageFile,
-        HeicImageFile,
     )
-    from willow.plugins import pillow, wand, opencv
+    from willow.plugins import opencv, pillow, wand
+    from willow.registry import registry
     from willow.svg import SvgImage
 
     registry.register_image_class(JPEGImageFile)

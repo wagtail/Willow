@@ -1,10 +1,10 @@
 from functools import partial
 
 from willow.svg import (
-    get_viewport_to_user_space_transform,
-    transform_rect_to_user_space,
     SvgImage,
     ViewportToUserSpaceTransform,
+    get_viewport_to_user_space_transform,
+    transform_rect_to_user_space,
 )
 
 from .test_svg_image import SvgWrapperTestCase

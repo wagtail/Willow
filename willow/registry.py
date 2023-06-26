@@ -5,6 +5,7 @@ class UnrecognisedOperationError(LookupError):
     """
     Raised when the operation isn't in any of the known image classes.
     """
+
     pass
 
 
@@ -13,6 +14,7 @@ class UnavailableOperationError(LookupError):
     Raised when all the image classes the operation exists in are not available.
     (most likely due to a missing image library.)
     """
+
     pass
 
 
@@ -21,16 +23,17 @@ class UnroutableOperationError(LookupError):
     Raised when there is no way to convert the image into an image class that
     supports the operation.
     """
+
     pass
 
 
-class WillowRegistry(object):
+class WillowRegistry:
     def __init__(self):
         self._registered_image_classes = set()
-        self._unavailable_image_classes = dict()
+        self._unavailable_image_classes = {}
         self._registered_operations = defaultdict(dict)
-        self._registered_converters = dict()
-        self._registered_converter_costs = dict()
+        self._registered_converters = {}
+        self._registered_converter_costs = {}
 
     def register_operation(self, image_class, operation_name, func):
         self._registered_operations[image_class][operation_name] = func
@@ -47,24 +50,29 @@ class WillowRegistry(object):
         # Check the image class
         try:
             image_class.check()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self._unavailable_image_classes[image_class] = e
 
         # Find and register operations/converters
         for attr in dir(image_class):
             val = getattr(image_class, attr)
-            if hasattr(val, '_willow_operation'):
+            if hasattr(val, "_willow_operation"):
                 self.register_operation(image_class, val.__name__, val)
-            elif hasattr(val, '_willow_converter_to'):
-                self.register_converter(image_class, val._willow_converter_to[0], val, cost=val._willow_converter_to[1])
-            elif hasattr(val, '_willow_converter_from'):
+            elif hasattr(val, "_willow_converter_to"):
+                self.register_converter(
+                    image_class,
+                    val._willow_converter_to[0],
+                    val,
+                    cost=val._willow_converter_to[1],
+                )
+            elif hasattr(val, "_willow_converter_from"):
                 for converter_from, cost in val._willow_converter_from:
                     self.register_converter(converter_from, image_class, val, cost=cost)
 
     def register_plugin(self, plugin):
-        image_classes = getattr(plugin, 'willow_image_classes', [])
-        operations = getattr(plugin, 'willow_operations', [])
-        converters = getattr(plugin, 'willow_converters', [])
+        image_classes = getattr(plugin, "willow_image_classes", [])
+        operations = getattr(plugin, "willow_operations", [])
+        converters = getattr(plugin, "willow_converters", [])
 
         for image_class in image_classes:
             self.register_image_class(image_class)
@@ -89,32 +97,57 @@ class WillowRegistry(object):
         return self._registered_converters[from_image_class, to_image_class]
 
     def get_converter_cost(self, from_image_class, to_image_class):
-        return self._registered_converter_costs.get((from_image_class, to_image_class), 100)
+        return self._registered_converter_costs.get(
+            (from_image_class, to_image_class), 100
+        )
 
     def get_image_classes(self, with_operation=None, available=None):
         image_classes = self._registered_image_classes.copy()
 
         if with_operation:
-            image_classes = set(filter(lambda image_class: image_class in self._registered_operations and with_operation in self._registered_operations[image_class], image_classes))
+            image_classes = set(
+                filter(
+                    lambda image_class: image_class in self._registered_operations
+                    and with_operation in self._registered_operations[image_class],
+                    image_classes,
+                )
+            )
 
             if not image_classes:
-                raise UnrecognisedOperationError("Could not find image class with the '{0}' operation".format(with_operation))
+                raise UnrecognisedOperationError(
+                    "Could not find image class with the '{}' operation".format(
+                        with_operation
+                    )
+                )
 
         if available:
             # Remove unavailable image classes
-            available_image_classes = image_classes - set(self._unavailable_image_classes.keys())
+            available_image_classes = image_classes - set(
+                self._unavailable_image_classes.keys()
+            )
 
             # Raise error if all image classes failed the check
             if not available_image_classes:
-                raise UnavailableOperationError('\n'.join([
-                    "The operation '{0}' is available in the following image classes but they all raised errors:".format(with_operation)
-                ] + [
-                    "{image_class_name}: {error_message}".format(
-                        image_class_name=image_class.__name__,
-                        error_message=str(self._unavailable_image_classes.get(image_class, "Unknown error"))
+                raise UnavailableOperationError(
+                    "\n".join(
+                        [
+                            "The operation '{}' is available in the following image classes but they all raised errors:".format(
+                                with_operation
+                            )
+                        ]
+                        + [
+                            "{image_class_name}: {error_message}".format(
+                                image_class_name=image_class.__name__,
+                                error_message=str(
+                                    self._unavailable_image_classes.get(
+                                        image_class, "Unknown error"
+                                    )
+                                ),
+                            )
+                            for image_class in image_classes
+                        ]
                     )
-                    for image_class in image_classes
-                ]))
+                )
 
             return available_image_classes
         else:
@@ -182,16 +215,21 @@ class WillowRegistry(object):
         if start in seen_classes:
             return []
 
-        if not start in self._registered_image_classes or start in self._unavailable_image_classes:
+        if (
+            start not in self._registered_image_classes
+            or start in self._unavailable_image_classes
+        ):
             return []
 
         paths = []
         for converter, next_class in self.get_converters_from(start):
             if next_class not in path:
                 newpaths = self.find_all_paths(
-                    next_class, end,
+                    next_class,
+                    end,
                     path + [(converter, next_class)],
-                    seen_classes.union({start}))
+                    seen_classes.union({start}),
+                )
 
                 paths.extend(newpaths)
 
@@ -315,8 +353,8 @@ class WillowRegistry(object):
             # Not implemented on the current class. Find the closest, available,
             # routable class that has it instead
             image_classes = self.get_image_classes(
-                with_operation=operation_name,
-                available=True)
+                with_operation=operation_name, available=True
+            )
 
             # Choose an image class
             # image_classes will always have a value here as get_image_classes raises
@@ -325,12 +363,15 @@ class WillowRegistry(object):
 
             if path is None:
                 raise UnroutableOperationError(
-                    "The operation '{0}' is available in the image class '{1}'"
-                    " but it can't be converted to from '{2}'".format(
+                    "The operation '{}' is available in the image class '{}'"
+                    " but it can't be converted to from '{}'".format(
                         operation_name,
-                        ', '.join(image_class.__name__ for image_class in image_classes),
-                        from_class.__name__
-                    ))
+                        ", ".join(
+                            image_class.__name__ for image_class in image_classes
+                        ),
+                        from_class.__name__,
+                    )
+                )
 
             # Get the operation function
             func = self.get_operation(cls, operation_name)

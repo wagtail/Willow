@@ -1,21 +1,18 @@
-from __future__ import absolute_import
-
-from ctypes import c_void_p, c_char_p
-
 import functools
+from ctypes import c_char_p, c_void_p
 
 from willow.image import (
+    BadImageOperationError,
+    BMPImageFile,
+    GIFImageFile,
+    HeicImageFile,
     Image,
     JPEGImageFile,
     PNGImageFile,
-    GIFImageFile,
-    BMPImageFile,
-    RGBImageBuffer,
     RGBAImageBuffer,
+    RGBImageBuffer,
     TIFFImageFile,
     WebPImageFile,
-    HeicImageFile,
-    BadImageOperationError,
 )
 
 
@@ -25,21 +22,25 @@ class UnsupportedRotation(Exception):
 
 def _wand_image():
     import wand.image
+
     return wand.image
 
 
 def _wand_color():
     import wand.color
+
     return wand.color
 
 
 def _wand_api():
     import wand.api
+
     return wand.api
 
 
 def _wand_version():
     import wand.version
+
     return wand.version
 
 
@@ -88,12 +89,14 @@ class WandImage(Image):
         left, top, right, bottom = rect
         width, height = self.image.size
         if (
-            left >= right or left >= width
+            left >= right
+            or left >= width
             or right <= 0
-            or top >= bottom or top >= height
+            or top >= bottom
+            or top >= height
             or bottom <= 0
         ):
-            raise BadImageOperationError("Invalid crop dimensions: %r" % (rect,))
+            raise BadImageOperationError(f"Invalid crop dimensions: {rect!r}")
 
         clone = self._clone()
         clone.image.crop(
@@ -101,7 +104,7 @@ class WandImage(Image):
             left=max(0, left),
             top=max(0, top),
             right=min(right, width),
-            bottom=min(bottom, height)
+            bottom=min(bottom, height),
         )
         return clone
 
@@ -131,8 +134,10 @@ class WandImage(Image):
         clone = self._clone()
 
         # Wand will perform the compositing at the point of setting alpha_channel to 'remove'
-        clone.image.background_color = _wand_color().Color('rgb({}, {}, {})'.format(*color))
-        clone.image.alpha_channel = 'remove'
+        clone.image.background_color = _wand_color().Color(
+            "rgb({}, {}, {})".format(*color)
+        )
+        clone.image.alpha_channel = "remove"
 
         if clone.image.alpha_channel:
             # ImageMagick <=6 fails to set alpha_channel to False, so do it manually
@@ -142,7 +147,7 @@ class WandImage(Image):
 
     @Image.operation
     def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
-        with self.image.convert('pjpeg' if progressive else 'jpeg') as converted:
+        with self.image.convert("pjpeg" if progressive else "jpeg") as converted:
             converted.compression_quality = quality
             converted.save(file=f)
 
@@ -150,30 +155,30 @@ class WandImage(Image):
 
     @Image.operation
     def save_as_png(self, f, optimize=False):
-        with self.image.convert('png') as converted:
+        with self.image.convert("png") as converted:
             converted.save(file=f)
 
         return PNGImageFile(f)
 
     @Image.operation
     def save_as_gif(self, f):
-        with self.image.convert('gif') as converted:
+        with self.image.convert("gif") as converted:
             converted.save(file=f)
 
         return GIFImageFile(f)
 
     @Image.operation
     def save_as_webp(self, f, quality=80, lossless=False):
-        with self.image.convert('webp') as converted:
+        with self.image.convert("webp") as converted:
             converted.compression_quality = quality
             if lossless:
                 library = _wand_api().library
-                library.MagickSetOption.argtypes = [c_void_p,
-                                                    c_char_p,
-                                                    c_char_p]
-                library.MagickSetOption(converted.wand,
-                                        "webp:lossless".encode('utf-8'),
-                                        "true".encode('utf-8'))
+                library.MagickSetOption.argtypes = [c_void_p, c_char_p, c_char_p]
+                library.MagickSetOption(
+                    converted.wand,
+                    b"webp:lossless",
+                    b"true",
+                )
             converted.save(file=f)
 
         return WebPImageFile(f)
@@ -182,20 +187,26 @@ class WandImage(Image):
     def auto_orient(self):
         image = self.image
 
-        if image.orientation not in ['top_left', 'undefined']:
+        if image.orientation not in ["top_left", "undefined"]:
             image = image.clone()
-            if hasattr(image, 'auto_orient'):
+            if hasattr(image, "auto_orient"):
                 # Wand 0.4.1 +
                 image.auto_orient()
             else:
                 orientation_ops = {
-                    'top_right': [image.flop],
-                    'bottom_right': [functools.partial(image.rotate, degree=180.0)],
-                    'bottom_left': [image.flip],
-                    'left_top': [image.flip, functools.partial(image.rotate, degree=90.0)],
-                    'right_top': [functools.partial(image.rotate, degree=90.0)],
-                    'right_bottom': [image.flop, functools.partial(image.rotate, degree=90.0)],
-                    'left_bottom': [functools.partial(image.rotate, degree=270.0)]
+                    "top_right": [image.flop],
+                    "bottom_right": [functools.partial(image.rotate, degree=180.0)],
+                    "bottom_left": [image.flip],
+                    "left_top": [
+                        image.flip,
+                        functools.partial(image.rotate, degree=90.0),
+                    ],
+                    "right_top": [functools.partial(image.rotate, degree=90.0)],
+                    "right_bottom": [
+                        image.flop,
+                        functools.partial(image.rotate, degree=90.0),
+                    ],
+                    "left_bottom": [functools.partial(image.rotate, degree=270.0)],
                 }
                 fns = orientation_ops.get(image.orientation)
 
@@ -203,7 +214,7 @@ class WandImage(Image):
                     for fn in fns:
                         fn()
 
-                    image.orientation = 'top_left'
+                    image.orientation = "top_left"
 
         return WandImage(image)
 
@@ -228,11 +239,11 @@ class WandImage(Image):
 
     @Image.converter_to(RGBImageBuffer)
     def to_buffer_rgb(self):
-        return RGBImageBuffer(self.image.size, self.image.make_blob('RGB'))
+        return RGBImageBuffer(self.image.size, self.image.make_blob("RGB"))
 
     @Image.converter_to(RGBAImageBuffer)
     def to_buffer_rgba(self):
-        return RGBImageBuffer(self.image.size, self.image.make_blob('RGBA'))
+        return RGBImageBuffer(self.image.size, self.image.make_blob("RGBA"))
 
 
 willow_image_classes = [WandImage]
