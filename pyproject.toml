@@ -39,6 +39,7 @@ testing = [
 ]
 docs = [
     "Sphinx>=7.0",
+    "sphinx-wagtail-theme==6.0.0",
     "sphinxcontrib-spelling>=8.0,<9.0",
     "sphinx_copybutton>=0.5"
 ]
