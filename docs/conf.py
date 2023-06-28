@@ -46,7 +46,7 @@ html_static_path = ["_static"]
 
 pygments_style = None  # covered by sphinx_wagtail_theme
 
-spelling_lang = "en_GB"
+spelling_lang = "en_US"
 spelling_word_list_filename = "spelling_wordlist.txt"
 
 # -- Misc --------------------------------------------------------------------

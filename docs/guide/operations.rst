@@ -83,11 +83,11 @@ original image is not modified.
     isinstance(i, Image)
     i.get_size() == (200, 200)
 
-Setting a background colour
----------------------------
+Setting a background color
+--------------------------
 
 If the image has transparency, you can replace the transparency with a solid
-background colour using the :meth:`~Image.set_background_color_rgb` method.
+background color using the :meth:`~Image.set_background_color_rgb` method.
 
 It takes the background color as a three element tuple of integers between
 0 - 255 (representing the red, green and blue channels respectively).

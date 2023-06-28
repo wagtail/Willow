@@ -57,7 +57,7 @@ You can encode the image to WebP without any loss by setting the
     with open('lossless.webp', 'wb') as f:
         i.save_as_webp(f, lossless=True)
 
-Image optimisation
+Image optimization
 ------------------
 
 :meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_png` both take an

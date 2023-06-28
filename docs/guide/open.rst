@@ -31,7 +31,7 @@ detected by inspecting the file header). In this case, it used
 
 Using different image classes for different formats allows Willow to decide
 which plugin to use for performing operations on the image. For example, Willow
-will always favour Wand for resizing GIF images but will always favour Pillow
+will always favor Wand for resizing GIF images but will always favor Pillow
 for resizing JPEG and PNG images.
 
 From an existing Pillow object
