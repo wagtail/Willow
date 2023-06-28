@@ -2,6 +2,7 @@
 name = "Willow"
 description = "A Python image library that sits on top of Pillow, Wand and OpenCV"
 authors = [{name = "Karl Hobley", email = "karl@kaed.uk"}]
+maintainers = [{name = "Wagtail Core team", email = "hello@wagtail.org"}]
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["Imaging"]
