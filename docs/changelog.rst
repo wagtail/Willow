@@ -22,7 +22,7 @@ Unreleased
 
  - Drop support for Python 3.4
  - Imagemagick 7 compatibility fixes (Matt Westcott)
- - Fix: Implemented consistent behaviour between Pillow and Wand for out-of-bounds crop rectangles (Matt Westcott)
+ - Fix: Implemented consistent behavior between Pillow and Wand for out-of-bounds crop rectangles (Matt Westcott)
 
 1.4 (26/05/2020)
 ----------------
@@ -33,13 +33,13 @@ Unreleased
 1.3 (16/10/2019)
 ----------------
 
- - Added ``.get_frame_count()`` operaton (@kaedroho)
+ - Added ``.get_frame_count()`` operation (@kaedroho)
 
 1.2 (11/10/2019)
 ----------------
 
  - Added WebP support (@frmdstryr)
- - Added ``.rotate()`` operaton (@mrchrisadams & @simo97)
+ - Added ``.rotate()`` operation (@mrchrisadams & @simo97)
 
 1.1 (04/12/2017)
 ----------------
@@ -59,7 +59,7 @@ Unreleased
 0.4 (05/10/2016)
 ----------------
 
- - Support for image optimisation and saving progressive JPEG files
+ - Support for image optimization and saving progressive JPEG files
  - Added documentation
 
 0.3.1 (16/05/2016)
@@ -75,7 +75,7 @@ Unreleased
 A major internals refactor has taken place in this release, there are a number of breaking changes:
 
  - The Image class is now immutable. Previously, "resize" and "crop" operations altered the image in-place but now they now always return a new image leaving the original untouched.
- - There are now multiple Image classes. Each one represents possible state the image can be in (eg, in a file, loaded in Pillow, etc). Operations can return an image in a different class to what the operation was performed on.
+ - There are now multiple Image classes. Each one represents possible state the image can be in (for example in a file, loaded in Pillow, etc). Operations can return an image in a different class to what the operation was performed on.
  - The "backends" have been renamed to "plugins".
  - A new registry module has been added which can be used for registering new plugins and operations.
  - The "original_format" attribute has been deprecated.

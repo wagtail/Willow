@@ -14,7 +14,7 @@ The ``Image`` class
 
     Returns a subclass of :class:`ImageFile`
 
-    If the image format is unrecognised, this throws a :class:`willow.image.UnrecognisedImageFormatError`
+    If the image format is unrecognized, this throws a :class:`willow.image.UnrecognisedImageFormatError`
     (a subclass of :class:`IOError`)
 
 .. classmethod:: operation
@@ -157,11 +157,11 @@ Here's a full list of operations provided by Willow out of the box:
 
     (Pillow/Wand only)
 
-    If the image has an alpha channel, this will add a background colour using
+    If the image has an alpha channel, this will add a background color using
     the alpha channel as a mask. The alpha channel will be removed from the
     resulting image.
 
-    The background colour must be specified as a tuple of three integers with
+    The background color must be specified as a tuple of three integers with
     values between 0 - 255.
 
     This operation will convert the image to RGB format, but will not do
@@ -169,7 +169,7 @@ Here's a full list of operations provided by Willow out of the box:
 
     .. code-block:: python
 
-        # Set the background colour of the image to white
+        # Set the background color of the image to white
         image = source_image.set_background_color_rgb((255, 255, 255))
 
 .. method:: auto_orient()
@@ -209,7 +209,7 @@ Here's a full list of operations provided by Willow out of the box:
     to detect faces in the image.
 
     By default the ``haarcascade_frontalface_alt2.xml`` (provided by OpenCV)
-    cascade file is used. You can specifiy the filename to a different cascade
+    cascade file is used. You can specify the filename to a different cascade
     file in the first parameter.
 
     Returns a list of four integer tuples containing the left, top, right, bottom
