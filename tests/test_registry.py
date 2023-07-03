@@ -1,6 +1,9 @@
+import os
 import unittest
+from unittest import mock
 
 from willow.image import Image
+from willow.optimizers.base import OptimizerBase
 from willow.registry import (
     UnavailableOperationError,
     UnrecognisedOperationError,
@@ -498,3 +501,59 @@ class TestFindOperation(PathfindingTestCase):
                 "The operation 'unreachable' is available in the image class 'ImageF' but it can't be converted to from 'ImageA'",
             ),
         )
+
+
+class TestRegisterOptimizer(RegistryTestCase):
+    class DummyOptimizer(OptimizerBase):
+        binary = "dummy"
+
+        @classmethod
+        def check_binary(cls) -> bool:
+            return True
+
+    class UnusedOptimizer(OptimizerBase):
+        binary = "unused"
+
+        @classmethod
+        def check_binary(cls) -> bool:
+            return True
+
+    def test_register_optimizer_with_no_configuration(self):
+        self.registry.register_optimizer(self.DummyOptimizer)
+
+        self.assertNotIn(self.DummyOptimizer, self.registry._registered_optimizers)
+
+    def test_register_optimizer_with_willow_optimizers_set_to_a_falsey_value(self):
+        with mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": ""}):
+            self.registry.register_optimizer(self.DummyOptimizer)
+
+            self.assertNotIn(self.DummyOptimizer, self.registry._registered_optimizers)
+
+        with mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "false"}):
+            self.registry.register_optimizer(self.DummyOptimizer)
+            self.assertNotIn(self.DummyOptimizer, self.registry._registered_optimizers)
+
+    @mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "true"})
+    def test_register_optimizer_with_optimizers_enabled(self):
+        self.registry.register_optimizer(self.DummyOptimizer)
+
+        self.assertIn(self.DummyOptimizer, self.registry._registered_optimizers)
+
+    @mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "true"})
+    def test_register_optimizer_without_binary(self):
+        class BadBinaryOptimizer(OptimizerBase):
+            @classmethod
+            def check_binary(cls) -> bool:
+                return False
+
+        self.registry.register_optimizer(BadBinaryOptimizer)
+
+        self.assertNotIn(BadBinaryOptimizer, self.registry._registered_optimizers)
+
+    @mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "dummy"})
+    def test_register_optimizer_with_specific_willow_optimizers_set(self):
+        self.registry.register_optimizer(self.DummyOptimizer)
+        self.registry.register_optimizer(self.UnusedOptimizer)
+
+        self.assertIn(self.DummyOptimizer, self.registry._registered_optimizers)
+        self.assertNotIn(self.UnusedOptimizer, self.registry._registered_optimizers)
