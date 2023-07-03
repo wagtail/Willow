@@ -38,7 +38,7 @@ class WillowRegistry:
         self._registered_operations = defaultdict(dict)
         self._registered_converters = {}
         self._registered_converter_costs = {}
-        self._registered_optimizers = set()
+        self._registered_optimizers: Set["OptimizerBase"] = set()
 
     def register_operation(self, image_class, operation_name, func):
         self._registered_operations[image_class][operation_name] = func
@@ -88,9 +88,37 @@ class WillowRegistry:
         for converter in converters:
             self.register_converter(converter[0], converter[1], converter[2])
 
-    def register_optimizer(self, optimizer_class):
+    def register_optimizer(self, optimizer_class: "OptimizerBase"):
         """Registers an optimizer class."""
-        if optimizer_class.check_binary():
+        try:
+            # try to check Django settings, if used in that context
+            from django.conf import settings
+
+            enabled_optimisers = getattr(settings, "WILLOW_OPTIMIZERS", False)
+        except ImportError:
+            # fall back to env vars.
+            import os
+
+            enabled_optimisers = os.environ.get("WILLOW_OPTIMIZERS", False)
+
+        if not enabled_optimisers:
+            # WILLOW_OPTIMIZERS is either not set, or is set to a false-y value, so skip registration
+            return
+
+        if isinstance(enabled_optimisers, str):
+            if enabled_optimisers.lower() == "false":
+                return
+            elif enabled_optimisers.lower() == "true":
+                enabled_optimisers = True
+            else:
+                enabled_optimisers = enabled_optimisers.split(",")
+
+        if enabled_optimisers is True:
+            add_optimizer = True
+        else:
+            add_optimizer = optimizer_class.binary in enabled_optimisers
+
+        if add_optimizer and optimizer_class.check_binary():
             self._registered_optimizers.add(optimizer_class)
 
     def get_operation(self, image_class, operation_name):
