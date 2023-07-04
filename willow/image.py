@@ -111,7 +111,9 @@ class Image:
         f.seek(0)
         return False
 
-    def save(self, image_format, output) -> Optional["ImageFile"]:
+    def save(
+        self, image_format, output, apply_optimizers=True
+    ) -> Optional["ImageFile"]:
         # Get operation name
         if image_format not in [
             "jpeg",
@@ -126,7 +128,7 @@ class Image:
             raise ValueError("Unknown image format: %s" % image_format)
 
         operation_name = "save_as_" + image_format
-        return getattr(self, operation_name)(output)
+        return getattr(self, operation_name)(output, apply_optimizers=apply_optimizers)
 
     def optimize(self, image_file, image_format: str):
         """

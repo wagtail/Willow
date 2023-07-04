@@ -345,6 +345,14 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
         return_value = image.save_as_jpeg(io.BytesIO())
         self.assertTrue(original_size > return_value.f.seek(0, io.SEEK_END))
 
+        with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
+            image.save_as_jpeg(io.BytesIO(), apply_optimizers=False)
+            mock_optimize.assert_not_called()
+
+    @unittest.skipIf(
+        not (Pngquant.check_binary() and Optipng.check_binary()),
+        "optipng or pngquant not installed",
+    )
     def test_save_as_png(self):
         with open("tests/images/transparent.png", "rb") as f:
             original_size = os.fstat(f.fileno()).st_size
@@ -353,6 +361,11 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
         return_value = image.save_as_png(io.BytesIO())
         self.assertTrue(original_size > return_value.f.seek(0, io.SEEK_END))
 
+        with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
+            image.save_as_png(io.BytesIO(), apply_optimizers=False)
+            mock_optimize.assert_not_called()
+
+    @unittest.skipIf(not Gifsicle.check_binary(), "gifsicle not installed")
     def test_save_as_gif(self):
         with open("tests/images/transparent.gif", "rb") as f:
             original_size = f.tell()
@@ -360,6 +373,10 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
 
         return_value = image.save_as_gif(io.BytesIO())
         self.assertTrue(original_size < return_value.f.tell())
+
+        with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
+            image.save_as_gif(io.BytesIO(), apply_optimizers=False)
+            mock_optimize.assert_not_called()
 
 
 class TestPillowImageOrientation(unittest.TestCase):

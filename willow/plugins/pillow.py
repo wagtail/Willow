@@ -166,7 +166,9 @@ class PillowImage(Image):
         return PillowImage(new_image.convert("RGB"))
 
     @Image.operation
-    def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
+    def save_as_jpeg(
+        self, f, quality=85, optimize=False, progressive=False, apply_optimizers=True
+    ):
         if self.image.mode in ["1", "P"]:
             image = self.image.convert("RGB")
         else:
@@ -180,11 +182,12 @@ class PillowImage(Image):
             kwargs["progressive"] = True
 
         image.save(f, "JPEG", **kwargs)
-        self.optimize(f, "jpeg")
+        if apply_optimizers:
+            self.optimize(f, "jpeg")
         return JPEGImageFile(f)
 
     @Image.operation
-    def save_as_png(self, f, optimize=False):
+    def save_as_png(self, f, optimize=False, apply_optimizers=True):
         if self.image.mode == "CMYK":
             image = self.image.convert("RGB")
         else:
@@ -196,11 +199,12 @@ class PillowImage(Image):
             kwargs["optimize"] = True
 
         image.save(f, "PNG", **kwargs)
-        self.optimize(f, "png")
+        if apply_optimizers:
+            self.optimize(f, "png")
         return PNGImageFile(f)
 
     @Image.operation
-    def save_as_gif(self, f):
+    def save_as_gif(self, f, apply_optimizers=True):
         image = self.image
 
         # All gif files use either the L or P mode but we sometimes convert them
@@ -214,23 +218,24 @@ class PillowImage(Image):
             kwargs["transparency"] = image.info["transparency"]
 
         image.save(f, "GIF", **kwargs)
-        self.optimize(f, "gif")
+        if apply_optimizers:
+            self.optimize(f, "gif")
         return GIFImageFile(f)
 
     @Image.operation
-    def save_as_webp(self, f, quality=80, lossless=False):
+    def save_as_webp(self, f, quality=80, lossless=False, apply_optimizers=True):
         self.image.save(f, "WEBP", quality=quality, lossless=lossless)
-        if not lossless:
+        if apply_optimizers and not lossless:
             self.optimize(f, "webp")
         return WebPImageFile(f)
 
     @Image.operation
-    def save_as_heic(self, f, quality=80, lossless=False):
+    def save_as_heic(self, f, quality=80, lossless=False, apply_optimizers=True):
         if lossless:
             self.image.save(f, "HEIF", quality=-1, chroma=444)
         else:
             self.image.save(f, "HEIF", quality=quality)
-        if not lossless:
+        if apply_optimizers and not lossless:
             self.optimize(f, "heic")
         return HeicImageFile(f)
 
