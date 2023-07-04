@@ -1,5 +1,7 @@
 import io
+import os
 import unittest
+from unittest import mock
 
 import filetype
 from PIL import Image as PILImage
@@ -11,7 +13,9 @@ from willow.image import (
     PNGImageFile,
     WebPImageFile,
 )
+from willow.optimizers import Gifsicle, Jpegoptim, Optipng, Pngquant
 from willow.plugins.pillow import PillowImage, UnsupportedRotation, _PIL_Image
+from willow.registry import registry
 
 no_webp_support = not PillowImage.is_format_supported("WEBP")
 
@@ -319,6 +323,43 @@ class TestPillowOperations(unittest.TestCase):
                     identically = False
                     break
         self.assertTrue(identically)
+
+
+class TestPillowImageWithOptimizers(unittest.TestCase):
+    def setUp(self):
+        with mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "true"}):
+            registry.register_optimizer(Gifsicle)
+            registry.register_optimizer(Jpegoptim)
+            registry.register_optimizer(Optipng)
+            registry.register_optimizer(Pngquant)
+
+    def tearDown(self):
+        # reset the registry as we get the global state
+        registry._registered_optimizers = set()
+
+    def test_save_as_jpeg(self):
+        with open("tests/images/flower.jpg", "rb") as f:
+            original_size = os.fstat(f.fileno()).st_size
+            image = PillowImage.open(JPEGImageFile(f))
+
+        return_value = image.save_as_jpeg(io.BytesIO())
+        self.assertTrue(original_size > return_value.f.seek(0, io.SEEK_END))
+
+    def test_save_as_png(self):
+        with open("tests/images/transparent.png", "rb") as f:
+            original_size = os.fstat(f.fileno()).st_size
+            image = PillowImage.open(PNGImageFile(f))
+
+        return_value = image.save_as_png(io.BytesIO())
+        self.assertTrue(original_size > return_value.f.seek(0, io.SEEK_END))
+
+    def test_save_as_gif(self):
+        with open("tests/images/transparent.gif", "rb") as f:
+            original_size = f.tell()
+            image = PillowImage.open(GIFImageFile(f))
+
+        return_value = image.save_as_gif(io.BytesIO())
+        self.assertTrue(original_size < return_value.f.tell())
 
 
 class TestPillowImageOrientation(unittest.TestCase):
