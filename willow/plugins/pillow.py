@@ -174,13 +174,14 @@ class PillowImage(Image):
             image = self.image
 
         # Pillow only checks presence of optimize kwarg, not its value
-        kwargs = {}
+        kwargs = {"quality": quality}
         if optimize:
             kwargs["optimize"] = True
         if progressive:
             kwargs["progressive"] = True
 
-        image.save(f, "JPEG", quality=quality, **kwargs)
+        image.save(f, "JPEG", **kwargs)
+        self.optimize(f, "jpeg")
         return JPEGImageFile(f)
 
     @Image.operation
@@ -196,6 +197,7 @@ class PillowImage(Image):
             kwargs["optimize"] = True
 
         image.save(f, "PNG", **kwargs)
+        self.optimize(f, "png")
         return PNGImageFile(f)
 
     @Image.operation
@@ -208,16 +210,19 @@ class PillowImage(Image):
         if image.mode not in ["L", "P"]:
             image = image.convert("P", palette=_PIL_Image().Palette.ADAPTIVE)
 
+        kwargs = {}
         if "transparency" in image.info:
-            image.save(f, "GIF", transparency=image.info["transparency"])
-        else:
-            image.save(f, "GIF")
+            kwargs["transparency"] = image.info["transparency"]
 
+        image.save(f, "GIF", **kwargs)
+        self.optimize(f, "gif")
         return GIFImageFile(f)
 
     @Image.operation
     def save_as_webp(self, f, quality=80, lossless=False):
         self.image.save(f, "WEBP", quality=quality, lossless=lossless)
+        if not lossless:
+            self.optimize(f, "webp")
         return WebPImageFile(f)
 
     @Image.operation
@@ -226,6 +231,8 @@ class PillowImage(Image):
             self.image.save(f, "HEIF", quality=-1, chroma=444)
         else:
             self.image.save(f, "HEIF", quality=quality)
+        if not lossless:
+            self.optimize(f, "heic")
         return HeicImageFile(f)
 
     @Image.operation
