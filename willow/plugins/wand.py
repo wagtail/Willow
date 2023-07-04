@@ -152,6 +152,7 @@ class WandImage(Image):
             converted.compression_quality = quality
             converted.save(file=f)
 
+        self.optimize(f, "jpeg")
         return JPEGImageFile(f)
 
     @Image.operation
@@ -159,6 +160,7 @@ class WandImage(Image):
         with self.image.convert("png") as converted:
             converted.save(file=f)
 
+        self.optimize(f, "png")
         return PNGImageFile(f)
 
     @Image.operation
@@ -166,6 +168,7 @@ class WandImage(Image):
         with self.image.convert("gif") as converted:
             converted.save(file=f)
 
+        self.optimize(f, "gif")
         return GIFImageFile(f)
 
     @Image.operation
@@ -182,7 +185,8 @@ class WandImage(Image):
             else:
                 converted.compression_quality = quality
             converted.save(file=f)
-
+        if not lossless:
+            self.optimize(f, "webp")
         return WebPImageFile(f)
 
     @Image.operation
