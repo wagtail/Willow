@@ -1,5 +1,7 @@
 import io
+import os
 import unittest
+from tempfile import NamedTemporaryFile, SpooledTemporaryFile
 from unittest import mock
 from xml.etree.ElementTree import ParseError as XMLParseError
 
@@ -18,6 +20,8 @@ from willow.image import (
     UnrecognisedImageFormatError,
     WebPImageFile,
 )
+from willow.optimizers.base import OptimizerBase
+from willow.registry import registry
 
 
 class BrokenImageFileImplementation(ImageFile):
@@ -202,6 +206,75 @@ class TestSaveImage(unittest.TestCase):
             image.save("foo", "outfile")
 
         self.assertFalse(image.save_as_jpeg.mock_calls)
+
+
+@mock.patch("willow.optimizers.base.OptimizerBase.process")
+class TestOptimizeImage(unittest.TestCase):
+    class DummyOptimizer(OptimizerBase):
+        binary = "dummy"
+        image_format = "jpeg"
+
+        @classmethod
+        def check_binary(cls) -> bool:
+            return True
+
+    def setUp(self):
+        with mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "true"}):
+            registry.register_optimizer(self.DummyOptimizer)
+
+        self.image = Image()
+
+    def tearDown(self):
+        # reset the registry as we get the global state
+        registry._registered_optimizers = set()
+
+    def test_optimize_with_file_path(self, mock_process):
+        self.image.optimize("outfile", "jpeg")
+        mock_process.assert_called_with("outfile")
+
+    @mock.patch("willow.image.NamedTemporaryFile")
+    @mock.patch("willow.image.os.unlink")
+    def test_optimize_with_bytes(
+        self, mock_unlink, mock_named_temporary_file, mock_process
+    ):
+        mock_named_temporary_file.return_value.__enter__.return_value.name = "tempfile"
+        self.image.optimize(b"outfile", "jpeg")
+        mock_process.assert_called_with("tempfile")
+        mock_unlink.assert_called_with("tempfile")
+
+    @mock.patch("willow.image.NamedTemporaryFile")
+    @mock.patch("willow.image.os.unlink")
+    @mock.patch("builtins.open", mock.mock_open(read_data=b"test"))
+    def test_optimize_with_spooled_temporary_file(
+        self, mock_unlink, mock_named_temporary_file, mock_process
+    ):
+        mock_named_temporary_file.return_value.__enter__.return_value.name = "tempfile"
+        with SpooledTemporaryFile() as spooled:
+            self.image.optimize(spooled, "jpeg")
+        mock_process.assert_called_with("tempfile")
+        mock_unlink.assert_called_with("tempfile")
+
+    @mock.patch("builtins.open", mock.mock_open(read_data=b"test"))
+    def test_optimize_with_named_temporary_file(self, mock_process):
+        with NamedTemporaryFile() as named_temporary_file:
+            self.image.optimize(named_temporary_file, "jpeg")
+            mock_process.assert_called_with(named_temporary_file.name)
+
+    @mock.patch("willow.image.NamedTemporaryFile")
+    @mock.patch("willow.image.os.unlink")
+    def test_optimize_with_an_actual_file(
+        self, mock_unlink, mock_named_temporary_file, mock_process
+    ):
+        # We are only interested in opening the actual file, and since optimize will write in place
+        # let's preserve the original file by mocking the open call with it so we don't end up changing it.
+        with open("tests/images/people.jpg", "rb") as f:
+            original_value = f.read()
+        with open("tests/images/people.jpg", "wb") as f, mock.patch(
+            "builtins.open", mock.mock_open(read_data=original_value)
+        ):
+            self.image.optimize(f, "jpeg")
+        mock_process.assert_called_with("tests/images/people.jpg")
+        mock_unlink.assert_not_called()
 
 
 class TestImghdrJPEGPatch(unittest.TestCase):

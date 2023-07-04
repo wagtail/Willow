@@ -1,4 +1,8 @@
+import os
 import re
+from io import BytesIO
+from tempfile import NamedTemporaryFile, SpooledTemporaryFile
+from typing import Optional
 
 import filetype
 from defusedxml import ElementTree
@@ -107,7 +111,7 @@ class Image:
         f.seek(0)
         return False
 
-    def save(self, image_format, output):
+    def save(self, image_format, output) -> Optional["ImageFile"]:
         # Get operation name
         if image_format not in [
             "jpeg",
@@ -123,6 +127,59 @@ class Image:
 
         operation_name = "save_as_" + image_format
         return getattr(self, operation_name)(output)
+
+    def optimize(self, image_file, image_format: str):
+        """
+        Runs all available optimizers for the given image format on the given image file.
+
+        If the passed image file is a SpooledTemporaryFile or just bytes, we are converting it to a
+        NamedTemporaryFile to guarantee we can access the file so the optimizers to work on it.
+        If we get a string, we assume it's a path to a file, and will tyr use it directly.
+        """
+        optimizers = registry.get_optimizers_for_format(image_format)
+        if not optimizers:
+            return
+
+        has_named_file = False
+        if isinstance(image_file, SpooledTemporaryFile):
+            file = image_file._file
+            with NamedTemporaryFile(delete=False) as named_file:
+                if hasattr(file, "getvalue"):  # e.g. BytesIO
+                    named_file.write(file.getvalue())
+                else:  # e.g. BufferedRandom
+                    file.seek(0)
+                    named_file.write(file.read())
+                file_path = named_file.name
+            has_named_file = True
+        elif isinstance(image_file, BytesIO):
+            with NamedTemporaryFile(delete=False) as named_file:
+                named_file.write(image_file.getvalue())
+                file_path = named_file.name
+            has_named_file = True
+        elif hasattr(image_file, "name"):
+            file_path = image_file.name
+        elif isinstance(image_file, str):
+            file_path = image_file
+        elif isinstance(image_file, bytes):
+            with NamedTemporaryFile(delete=False) as named_file:
+                named_file.write(image_file)
+                file_path = named_file.name
+                has_named_file = True
+
+        for optimizer in optimizers:
+            optimizer.process(file_path)
+
+        if hasattr(image_file, "seek"):
+            # rewind and replace the image file with the optimized version
+            image_file.seek(0)
+            with open(file_path, "rb") as f:
+                image_file.write(f.read())
+
+            if hasattr(image_file, "truncate"):
+                image_file.truncate()  # bring the file size down to the actual image size
+
+        if has_named_file:
+            os.unlink(file_path)
 
 
 class ImageBuffer(Image):
