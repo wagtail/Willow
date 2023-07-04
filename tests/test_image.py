@@ -197,7 +197,7 @@ class TestSaveImage(unittest.TestCase):
         image.save_as_jpeg = mock.MagicMock()
 
         image.save("jpeg", "outfile")
-        image.save_as_jpeg.assert_called_with("outfile")
+        image.save_as_jpeg.assert_called_with("outfile", apply_optimizers=True)
 
     def test_save_as_heic(self):
         with open("tests/images/sails.bmp", "rb") as f:

@@ -147,32 +147,37 @@ class WandImage(Image):
         return clone
 
     @Image.operation
-    def save_as_jpeg(self, f, quality=85, optimize=False, progressive=False):
+    def save_as_jpeg(
+        self, f, quality=85, optimize=False, progressive=False, apply_optimizers=True
+    ):
         with self.image.convert("pjpeg" if progressive else "jpeg") as converted:
             converted.compression_quality = quality
             converted.save(file=f)
 
-        self.optimize(f, "jpeg")
+        if apply_optimizers:
+            self.optimize(f, "jpeg")
         return JPEGImageFile(f)
 
     @Image.operation
-    def save_as_png(self, f, optimize=False):
+    def save_as_png(self, f, optimize=False, apply_optimizers=True):
         with self.image.convert("png") as converted:
             converted.save(file=f)
 
-        self.optimize(f, "png")
+        if apply_optimizers:
+            self.optimize(f, "png")
         return PNGImageFile(f)
 
     @Image.operation
-    def save_as_gif(self, f):
+    def save_as_gif(self, f, apply_optimizers=True):
         with self.image.convert("gif") as converted:
             converted.save(file=f)
 
-        self.optimize(f, "gif")
+        if apply_optimizers:
+            self.optimize(f, "gif")
         return GIFImageFile(f)
 
     @Image.operation
-    def save_as_webp(self, f, quality=80, lossless=False):
+    def save_as_webp(self, f, quality=80, lossless=False, apply_optimizers=True):
         with self.image.convert("webp") as converted:
             if lossless:
                 library = _wand_api().library
@@ -185,7 +190,7 @@ class WandImage(Image):
             else:
                 converted.compression_quality = quality
             converted.save(file=f)
-        if not lossless:
+        if not lossless and apply_optimizers:
             self.optimize(f, "webp")
         return WebPImageFile(f)
 
