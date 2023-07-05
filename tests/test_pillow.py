@@ -15,7 +15,7 @@ from willow.image import (
     PNGImageFile,
     WebPImageFile,
 )
-from willow.optimizers import Gifsicle, Jpegoptim, Optipng, Pngquant
+from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
 from willow.plugins.pillow import PillowImage, UnsupportedRotation, _PIL_Image
 from willow.registry import registry
 
@@ -358,6 +358,7 @@ class TestPillowOperations(unittest.TestCase):
 class TestPillowImageWithOptimizers(unittest.TestCase):
     def setUp(self):
         with mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "true"}):
+            registry.register_optimizer(Cwebp)
             registry.register_optimizer(Gifsicle)
             registry.register_optimizer(Jpegoptim)
             registry.register_optimizer(Optipng)
@@ -407,6 +408,22 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
 
         with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
             image.save_as_gif(io.BytesIO(), apply_optimizers=False)
+            mock_optimize.assert_not_called()
+
+    @unittest.skipIf(
+        no_webp_support or not Cwebp.check_binary(),
+        "webp not supported or cwebp not installed",
+    )
+    def test_save_as_webp(self):
+        with open("tests/images/tree.webp", "rb") as f:
+            original_size = os.fstat(f.fileno()).st_size
+            image = PillowImage.open(WebPImageFile(f))
+
+        return_value = image.save_as_gif(io.BytesIO())
+        self.assertTrue(original_size < return_value.f.tell())
+
+        with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
+            image.save_as_webp(io.BytesIO(), apply_optimizers=False)
             mock_optimize.assert_not_called()
 
 
