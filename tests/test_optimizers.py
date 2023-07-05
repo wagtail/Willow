@@ -1,7 +1,7 @@
 from subprocess import STDOUT, CalledProcessError
 from unittest import TestCase, mock
 
-from willow.optimizers import Gifsicle, Jpegoptim, Optipng, Pngquant
+from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
 from willow.optimizers.base import OptimizerBase
 from willow.registry import WillowRegistry
 
@@ -36,6 +36,8 @@ class OptimizerTest(TestCase):
         self.assertFalse(self.DummyOptimizer.applies_to("JPEG"))
 
     def test_applies_to_for_default_optimizers(self):
+        self.assertTrue(Cwebp.applies_to("webp"))
+        self.assertFalse(Cwebp.applies_to("gif"))
         self.assertTrue(Gifsicle.applies_to("gif"))
         self.assertFalse(Gifsicle.applies_to("png"))
         self.assertFalse(Gifsicle.applies_to("txt"))
@@ -50,6 +52,10 @@ class OptimizerTest(TestCase):
         self.assertEqual(self.DummyOptimizer.get_command_arguments("file.png"), [])
 
     def test_get_command_arguments_for_default_optimizers(self):
+        self.assertListEqual(
+            Cwebp.get_command_arguments("file.webp"),
+            ["-q 80", "-m 6", "-pass 10", "-mt", "file.webp", "-o file.webp"],
+        )
         self.assertListEqual(
             Gifsicle.get_command_arguments("file.gif"), ["-b", "-O3", "file.gif"]
         )
@@ -73,6 +79,11 @@ class OptimizerTest(TestCase):
 
     @mock.patch("willow.optimizers.base.subprocess.check_output")
     def test_process_for_default_optimizers(self, mock_check_output):
+        Cwebp.process("file.webp")
+        mock_check_output.called_with(
+            ["cwebp", "-q 80", "-m 6", "-pass 10", "-mt", "file.webp", "-o file.webp"]
+        )
+
         Gifsicle.process("file.gif")
         mock_check_output.called_with(["gifsicle", "-b", "-O3", "file.gif"])
 
