@@ -367,6 +367,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
         # reset the registry as we get the global state
         registry._registered_optimizers = set()
 
+    @unittest.skipIf(not Jpegoptim.check_binary(), "jpegoptim not installed")
     def test_save_as_jpeg(self):
         with open("tests/images/flower.jpg", "rb") as f:
             original_size = os.fstat(f.fileno()).st_size
