@@ -1,3 +1,6 @@
+from willow.image import Image  # noqa: F401
+
+
 def setup():
     from xml.etree import ElementTree
 
