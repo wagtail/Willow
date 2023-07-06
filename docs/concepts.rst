@@ -65,3 +65,17 @@ library. The default ones are "pillow", "wand" and "opencv".
 Plugins can be registered even if the underlying library is not installed. This
 allows Willow to generate a useful error message if an operation is requested
 that only exists in a plugin without an underlying library.
+
+Optimizers
+----------
+
+
+:ref:`Optimizers <custom-optimizers>` are classes that wrap image optimization libraries
+such as pngquant or jpegtran and apply to certain image types. They are used to optimize
+images after they have been saved.
+
+All optimizers are registered in a central registry and can be called from the
+``optimize`` method on an image.
+
+Optimizers will be registered only if the corresponding library is installed and Willow
+:doc:`is configured </guide/optimize>` to use them.

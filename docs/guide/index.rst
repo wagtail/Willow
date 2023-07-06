@@ -17,4 +17,5 @@ Index
    open
    operations
    save
+   optimize
    extend
