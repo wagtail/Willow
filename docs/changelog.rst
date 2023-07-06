@@ -7,6 +7,13 @@ Unreleased
  - Switch to flit for packaging, and PyPI trusted publishing (@zerolab)
  - Drop support for Python 3.7
 
+
+1.5.1 (2023-07-06)
+------------------
+
+ - Fix SVG cropping (Joshua Munn)
+
+
 1.5 (29/03/2023)
 ----------------
 
