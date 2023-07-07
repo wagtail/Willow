@@ -161,7 +161,6 @@ It can now be registered using the :meth:`Registry.register_plugin` method:
     registry.register_plugin(newpillow)
 
 
-
 .. _custom-optimizers:
 
 Image optimizers

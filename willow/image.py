@@ -136,52 +136,54 @@ class Image:
 
         If the passed image file is a SpooledTemporaryFile or just bytes, we are converting it to a
         NamedTemporaryFile to guarantee we can access the file so the optimizers to work on it.
-        If we get a string, we assume it's a path to a file, and will tyr use it directly.
+        If we get a string, we assume it's a path to a file, and will attempt to load it from
+        the file system.
         """
         optimizers = registry.get_optimizers_for_format(image_format)
         if not optimizers:
             return
 
-        has_named_file = False
-        if isinstance(image_file, SpooledTemporaryFile):
-            file = image_file._file
-            with NamedTemporaryFile(delete=False) as named_file:
-                if hasattr(file, "getvalue"):  # e.g. BytesIO
-                    named_file.write(file.getvalue())
-                else:  # e.g. BufferedRandom
-                    file.seek(0)
-                    named_file.write(file.read())
-                file_path = named_file.name
-            has_named_file = True
-        elif isinstance(image_file, BytesIO):
-            with NamedTemporaryFile(delete=False) as named_file:
-                named_file.write(image_file.getvalue())
-                file_path = named_file.name
-            has_named_file = True
-        elif hasattr(image_file, "name"):
-            file_path = image_file.name
-        elif isinstance(image_file, str):
-            file_path = image_file
-        elif isinstance(image_file, bytes):
-            with NamedTemporaryFile(delete=False) as named_file:
-                named_file.write(image_file)
-                file_path = named_file.name
-                has_named_file = True
+        named_file_created = False
+        try:
+            if isinstance(image_file, SpooledTemporaryFile):
+                file = image_file._file
+                with NamedTemporaryFile(delete=False) as named_file:
+                    if hasattr(file, "getvalue"):  # e.g. BytesIO
+                        named_file.write(file.getvalue())
+                    else:  # e.g. BufferedRandom
+                        file.seek(0)
+                        named_file.write(file.read())
+                    file_path = named_file.name
+                named_file_created = True
+            elif isinstance(image_file, BytesIO):
+                with NamedTemporaryFile(delete=False) as named_file:
+                    named_file.write(image_file.getvalue())
+                    file_path = named_file.name
+                named_file_created = True
+            elif hasattr(image_file, "name"):
+                file_path = image_file.name
+            elif isinstance(image_file, str):
+                file_path = image_file
+            elif isinstance(image_file, bytes):
+                with NamedTemporaryFile(delete=False) as named_file:
+                    named_file.write(image_file)
+                    file_path = named_file.name
+                    named_file_created = True
 
-        for optimizer in optimizers:
-            optimizer.process(file_path)
+            for optimizer in optimizers:
+                optimizer.process(file_path)
 
-        if hasattr(image_file, "seek"):
-            # rewind and replace the image file with the optimized version
-            image_file.seek(0)
-            with open(file_path, "rb") as f:
-                image_file.write(f.read())
+            if hasattr(image_file, "seek"):
+                # rewind and replace the image file with the optimized version
+                image_file.seek(0)
+                with open(file_path, "rb") as f:
+                    image_file.write(f.read())
 
-            if hasattr(image_file, "truncate"):
-                image_file.truncate()  # bring the file size down to the actual image size
-
-        if has_named_file:
-            os.unlink(file_path)
+                if hasattr(image_file, "truncate"):
+                    image_file.truncate()  # bring the file size down to the actual image size
+        finally:
+            if named_file_created:
+                os.unlink(file_path)
 
 
 class ImageBuffer(Image):

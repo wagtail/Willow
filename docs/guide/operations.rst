@@ -125,7 +125,7 @@ feature that was detected in the image.
 Under the hood, this uses OpenCV's GoodFeaturesToTrack_ function that finds the
 prominent corners in the image.
 
-.. _GoodFeaturesToTrack: http://docs.opencv.org/3.0-beta/modules/imgproc/doc/feature_detection.html#goodfeaturestotrack
+.. _GoodFeaturesToTrack: https://docs.opencv.org/3.0-beta/modules/imgproc/doc/feature_detection.html#goodfeaturestotrack
 
 Detecting faces
 ---------------
@@ -164,4 +164,4 @@ pointing to the file:
         ...
     ]
 
-.. _HaarDetectObjects: http://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html#CvSeq*%20cvHaarDetectObjects%28const%20CvArr*%20image,%20CvHaarClassifierCascade*%20cascade,%20CvMemStorage*%20storage,%20double%20scale_factor,%20int%20min_neighbors,%20int%20flags,%20CvSize%20min_size,%20CvSize%20max_size%29
+.. _HaarDetectObjects: https://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html#CvSeq*%20cvHaarDetectObjects%28const%20CvArr*%20image,%20CvHaarClassifierCascade*%20cascade,%20CvMemStorage*%20storage,%20double%20scale_factor,%20int%20min_neighbors,%20int%20flags,%20CvSize%20min_size,%20CvSize%20max_size%29

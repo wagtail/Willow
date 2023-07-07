@@ -205,7 +205,7 @@ Here's a full list of operations provided by Willow out of the box:
     (OpenCV only)
 
     Uses OpenCV's `cascade classification
-    <http://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html>`_
+    <https://docs.opencv.org/2.4/modules/objdetect/doc/cascade_classification.html>`_
     to detect faces in the image.
 
     By default the ``haarcascade_frontalface_alt2.xml`` (provided by OpenCV)
