@@ -247,7 +247,7 @@ class TestOptimizeImage(unittest.TestCase):
 
     def tearDown(self):
         # reset the registry as we get the global state
-        registry._registered_optimizers = set()
+        registry._registered_optimizers = []
 
     def test_optimize_with_file_path(self, mock_process):
         self.image.optimize("outfile", "jpeg")

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from .optimizers import OptimizerBase
@@ -38,7 +38,7 @@ class WillowRegistry:
         self._registered_operations = defaultdict(dict)
         self._registered_converters = {}
         self._registered_converter_costs = {}
-        self._registered_optimizers: Set["OptimizerBase"] = set()
+        self._registered_optimizers: List["OptimizerBase"] = []
 
     def register_operation(self, image_class, operation_name, func):
         self._registered_operations[image_class][operation_name] = func
@@ -118,8 +118,12 @@ class WillowRegistry:
         else:
             add_optimizer = optimizer_class.library_name in enabled_optimisers
 
-        if add_optimizer and optimizer_class.check_library():
-            self._registered_optimizers.add(optimizer_class)
+        if (
+            add_optimizer
+            and optimizer_class.check_library()
+            and optimizer_class not in self._registered_optimizers
+        ):
+            self._registered_optimizers.append(optimizer_class)
 
     def get_operation(self, image_class, operation_name):
         return self._registered_operations[image_class][operation_name]
@@ -191,11 +195,11 @@ class WillowRegistry:
         else:
             return image_classes
 
-    def get_optimizers_for_format(self, image_format: str) -> Set["OptimizerBase"]:
-        optimizers = set()
+    def get_optimizers_for_format(self, image_format: str) -> List["OptimizerBase"]:
+        optimizers = []
         for optimizer in self._registered_optimizers:
             if optimizer.applies_to(image_format):
-                optimizers.add(optimizer)
+                optimizers.append(optimizer)
 
         return optimizers
 
