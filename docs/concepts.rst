@@ -69,7 +69,6 @@ that only exists in a plugin without an underlying library.
 Optimizers
 ----------
 
-
 :ref:`Optimizers <custom-optimizers>` are classes that wrap image optimization libraries
 such as pngquant or jpegtran and apply to certain image types. They are used to optimize
 images after they have been saved.

@@ -168,14 +168,29 @@ class PillowImage(Image):
 
     @Image.operation
     def save_as_jpeg(
-        self, f, quality=85, optimize=False, progressive=False, apply_optimizers=True
+        self,
+        f,
+        quality: int = 85,
+        optimize: bool = False,
+        progressive: bool = False,
+        apply_optimizers: bool = True,
     ):
+        """
+        Save the image as a JPEG file.
+
+        :param f: the file or file-like object to save to
+        :param quality: the image quality
+        :param optimize: Whether Pillow should optimize the file. When True, Pillow will
+            attempt to compress the palette by eliminating unused colors.
+        :param progressive: whether to save as progressive JPEG file.
+        :param apply_optimizers: controls whether to run any configured optimizer libraries
+        :return: JPEGImageFile
+        """
         if self.image.mode in ["1", "P"]:
             image = self.image.convert("RGB")
         else:
             image = self.image
 
-        # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {"quality": quality}
         if optimize:
             kwargs["optimize"] = True
@@ -188,12 +203,20 @@ class PillowImage(Image):
         return JPEGImageFile(f)
 
     @Image.operation
-    def save_as_png(self, f, optimize=False, apply_optimizers=True):
+    def save_as_png(self, f, optimize: bool = False, apply_optimizers: bool = True):
+        """
+        Save the image as a PNG file.
+
+        :param f: the file or file-like object to save to
+        :param optimize: Whether Pillow should optimize the file. When True, Pillow will
+            attempt to compress the palette by eliminating unused colors.
+        :param apply_optimizers: controls whether to run any configured optimizer libraries
+        :return: PNGImageFile
+        """
         if self.image.mode == "CMYK":
             image = self.image.convert("RGB")
         else:
             image = self.image
-
         # Pillow only checks presence of optimize kwarg, not its value
         kwargs = {}
         if optimize:
@@ -205,7 +228,7 @@ class PillowImage(Image):
         return PNGImageFile(f)
 
     @Image.operation
-    def save_as_gif(self, f, apply_optimizers=True):
+    def save_as_gif(self, f, apply_optimizers: bool = True):
         image = self.image
 
         # All gif files use either the L or P mode but we sometimes convert them
@@ -224,14 +247,46 @@ class PillowImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
-    def save_as_webp(self, f, quality=80, lossless=False, apply_optimizers=True):
+    def save_as_webp(
+        self,
+        f,
+        quality: int = 80,
+        lossless: bool = False,
+        apply_optimizers: bool = True,
+    ):
+        """
+        Save the image as a WEBP file.
+
+        :param f: the file or file-like object to save to
+        :param quality: the image quality
+        :param lossless: whether to save as lossless WEBP file.
+        :param apply_optimizers: controls whether to run any configured optimizer libraries.
+            Note that when lossless=True, this will be ignored.
+        :return: WebPImageFile
+        """
         self.image.save(f, "WEBP", quality=quality, lossless=lossless)
         if apply_optimizers and not lossless:
             self.optimize(f, "webp")
         return WebPImageFile(f)
 
     @Image.operation
-    def save_as_heic(self, f, quality=80, lossless=False, apply_optimizers=True):
+    def save_as_heic(
+        self,
+        f,
+        quality: int = 80,
+        lossless: bool = False,
+        apply_optimizers: bool = True,
+    ):
+        """
+        Save the image as a HEIC file.
+
+        :param f: the file or file-like object to save to
+        :param quality: the image quality
+        :param lossless: whether to save as lossless HEIC/HEIF file.
+        :param apply_optimizers: controls whether to run any configured optimizer libraries.
+            Note that when lossless=True, this will be ignored.
+        :return: HeicImageFile
+        """
         if lossless:
             self.image.save(f, "HEIF", quality=-1, chroma=444)
         else:

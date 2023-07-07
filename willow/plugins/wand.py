@@ -148,8 +148,22 @@ class WandImage(Image):
 
     @Image.operation
     def save_as_jpeg(
-        self, f, quality=85, optimize=False, progressive=False, apply_optimizers=True
+        self,
+        f,
+        quality: int = 85,
+        progressive: bool = False,
+        apply_optimizers: bool = True,
+        **kwargs,
     ):
+        """
+        Save the image as a JPEG file.
+
+        :param f: the file or file-like object to save to
+        :param quality: the image quality
+        :param progressive: whether to save as progressive JPEG file.
+        :param apply_optimizers: controls whether to run any configured optimizer libraries
+        :return: JPEGImageFile
+        """
         with self.image.convert("pjpeg" if progressive else "jpeg") as converted:
             converted.compression_quality = quality
             converted.save(file=f)
@@ -159,7 +173,14 @@ class WandImage(Image):
         return JPEGImageFile(f)
 
     @Image.operation
-    def save_as_png(self, f, optimize=False, apply_optimizers=True):
+    def save_as_png(self, f, apply_optimizers: bool = True, **kwargs):
+        """
+        Save the image as a PNG file.
+
+        :param f: the file or file-like object to save to
+        :param apply_optimizers: controls whether to run any configured optimizer libraries
+        :return: PNGImageFile
+        """
         with self.image.convert("png") as converted:
             converted.save(file=f)
 
@@ -168,7 +189,7 @@ class WandImage(Image):
         return PNGImageFile(f)
 
     @Image.operation
-    def save_as_gif(self, f, apply_optimizers=True):
+    def save_as_gif(self, f, apply_optimizers: bool = True):
         with self.image.convert("gif") as converted:
             converted.save(file=f)
 
@@ -177,7 +198,23 @@ class WandImage(Image):
         return GIFImageFile(f)
 
     @Image.operation
-    def save_as_webp(self, f, quality=80, lossless=False, apply_optimizers=True):
+    def save_as_webp(
+        self,
+        f,
+        quality: int = 80,
+        lossless: bool = False,
+        apply_optimizers: bool = True,
+    ):
+        """
+        Save the image as a WEBP file.
+
+        :param f: the file or file-like object to save to
+        :param quality: the image quality
+        :param lossless: whether to save as lossless WEBP file.
+        :param apply_optimizers: controls whether to run any configured optimizer libraries.
+            Note that when lossless=True, this will be ignored.
+        :return: WebPImageFile
+        """
         with self.image.convert("webp") as converted:
             if lossless:
                 library = _wand_api().library
