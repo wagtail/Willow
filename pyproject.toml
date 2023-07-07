@@ -37,6 +37,7 @@ testing = [
     "pillow-heif>=0.7.0,<1.0.0",
     "black==22.3.0",
     "ruff==0.0.275",
+    "coverage[toml]>=7.2.7,<8.0",
 ]
 docs = [
     "Sphinx>=7.0",
@@ -71,4 +72,41 @@ exclude = [
     "Dockerfile.py3",
     "ruff.toml",
     "runtests.py",
+]
+
+[tool.coverage.run]
+branch = true
+source_pkgs = ["willow"]
+
+omit = ["tests/*", "willow/utils/deprecation.py"]
+
+[tool.coverage.paths]
+source = ["willow"]
+
+[tool.coverage.report]
+show_missing = true
+ignore_errors = true
+skip_empty = true
+skip_covered = true
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc.)?abstractmethod",
+
+    # Nor complain about type checking
+    "if TYPE_CHECKING:",
 ]
