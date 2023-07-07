@@ -232,11 +232,11 @@ class TestSaveImage(unittest.TestCase):
 @mock.patch("willow.optimizers.base.OptimizerBase.process")
 class TestOptimizeImage(unittest.TestCase):
     class DummyOptimizer(OptimizerBase):
-        binary = "dummy"
+        library_name = "dummy"
         image_format = "jpeg"
 
         @classmethod
-        def check_binary(cls) -> bool:
+        def check_library(cls) -> bool:
             return True
 
     def setUp(self):

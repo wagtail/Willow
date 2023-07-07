@@ -8,7 +8,7 @@ __all__ = ["Pngquant"]
 class Pngquant(OptimizerBase):
     """https://pngquant.org/"""
 
-    binary: ClassVar[str] = "pngquant"
+    library_name: ClassVar[str] = "pngquant"
     image_format: ClassVar[str] = "png"
 
     @classmethod

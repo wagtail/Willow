@@ -8,7 +8,7 @@ __all__ = ["Jpegoptim"]
 class Jpegoptim(OptimizerBase):
     """https://github.com/tjko/jpegoptim"""
 
-    binary: ClassVar[str] = "jpegoptim"
+    library_name: ClassVar[str] = "jpegoptim"
     image_format: ClassVar[str] = "jpeg"
 
     @classmethod

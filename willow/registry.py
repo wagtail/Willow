@@ -116,9 +116,9 @@ class WillowRegistry:
         if enabled_optimisers is True:
             add_optimizer = True
         else:
-            add_optimizer = optimizer_class.binary in enabled_optimisers
+            add_optimizer = optimizer_class.library_name in enabled_optimisers
 
-        if add_optimizer and optimizer_class.check_binary():
+        if add_optimizer and optimizer_class.check_library():
             self._registered_optimizers.add(optimizer_class)
 
     def get_operation(self, image_class, operation_name):
