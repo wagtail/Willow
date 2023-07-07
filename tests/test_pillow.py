@@ -338,7 +338,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
         # reset the registry as we get the global state
         registry._registered_optimizers = set()
 
-    @unittest.skipIf(not Jpegoptim.check_binary(), "jpegoptim not installed")
+    @unittest.skipIf(not Jpegoptim.check_library(), "jpegoptim not installed")
     def test_save_as_jpeg(self):
         with open("tests/images/flower.jpg", "rb") as f:
             original_size = os.fstat(f.fileno()).st_size
@@ -352,7 +352,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
             mock_optimize.assert_not_called()
 
     @unittest.skipIf(
-        not (Pngquant.check_binary() and Optipng.check_binary()),
+        not (Pngquant.check_library() and Optipng.check_library()),
         "optipng or pngquant not installed",
     )
     def test_save_as_png(self):
@@ -367,7 +367,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
             image.save_as_png(io.BytesIO(), apply_optimizers=False)
             mock_optimize.assert_not_called()
 
-    @unittest.skipIf(not Gifsicle.check_binary(), "gifsicle not installed")
+    @unittest.skipIf(not Gifsicle.check_library(), "gifsicle not installed")
     def test_save_as_gif(self):
         with open("tests/images/transparent.gif", "rb") as f:
             original_size = f.tell()
@@ -381,7 +381,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
             mock_optimize.assert_not_called()
 
     @unittest.skipIf(
-        no_webp_support or not Cwebp.check_binary(),
+        no_webp_support or not Cwebp.check_library(),
         "webp not supported or cwebp not installed",
     )
     def test_save_as_webp(self):

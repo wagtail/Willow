@@ -8,7 +8,7 @@ optimize images. Out of the box, Willow they are `gifsicle <http://www.lcdf.org/
 
 They can be enabled by setting the ``WILLOW_OPTIMIZERS`` environment variable to ``true``. To enable a specific
 subset of optimizers, set the ``WILLOW_OPTIMIZERS`` environment variable to a comma-separated list of their
-library / library binary names. For example, to enable only ``jpegoptim`` and ``optipng``:
+library names. For example, to enable only ``jpegoptim`` and ``optipng``:
 
 .. code-block:: ini
 

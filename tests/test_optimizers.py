@@ -10,7 +10,7 @@ class OptimizerTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         class DummyOptimizer(OptimizerBase):
-            binary = "dummy"
+            library_name = "dummy"
             image_format = "FOO"
 
         cls.DummyOptimizer = DummyOptimizer
@@ -19,16 +19,16 @@ class OptimizerTest(TestCase):
         self.registry = WillowRegistry()
 
     @mock.patch("willow.optimizers.base.subprocess.check_output")
-    def test_check_binary(self, mock_check_output):
-        self.assertTrue(self.DummyOptimizer.check_binary())
+    def test_check_library(self, mock_check_output):
+        self.assertTrue(self.DummyOptimizer.check_library())
 
     @mock.patch("willow.optimizers.base.subprocess.check_output")
-    def test_check_binary_fail(self, mock_check_output):
+    def test_check_library_fail(self, mock_check_output):
         mock_check_output.side_effect = CalledProcessError(-1, "dummy")
-        self.assertFalse(self.DummyOptimizer.check_binary())
+        self.assertFalse(self.DummyOptimizer.check_library())
 
         mock_check_output.side_effect = FileNotFoundError
-        self.assertFalse(self.DummyOptimizer.check_binary())
+        self.assertFalse(self.DummyOptimizer.check_library())
 
     def test_applies_to(self):
         self.assertTrue(self.DummyOptimizer.applies_to("foo"))
@@ -113,5 +113,5 @@ class OptimizerTest(TestCase):
             self.DummyOptimizer.process("file.png")
 
         self.assertIn(
-            "Error optimizing file.png with the 'dummy' binary", log_output.output[0]
+            "Error optimizing file.png with the 'dummy' library", log_output.output[0]
         )

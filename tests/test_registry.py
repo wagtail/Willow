@@ -505,17 +505,17 @@ class TestFindOperation(PathfindingTestCase):
 
 class TestRegisterOptimizer(RegistryTestCase):
     class DummyOptimizer(OptimizerBase):
-        binary = "dummy"
+        library_name = "dummy"
 
         @classmethod
-        def check_binary(cls) -> bool:
+        def check_library(cls) -> bool:
             return True
 
     class UnusedOptimizer(OptimizerBase):
-        binary = "unused"
+        library_name = "unused"
 
         @classmethod
-        def check_binary(cls) -> bool:
+        def check_library(cls) -> bool:
             return True
 
     def test_register_optimizer_with_no_configuration(self):
@@ -540,15 +540,15 @@ class TestRegisterOptimizer(RegistryTestCase):
         self.assertIn(self.DummyOptimizer, self.registry._registered_optimizers)
 
     @mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "true"})
-    def test_register_optimizer_without_binary(self):
-        class BadBinaryOptimizer(OptimizerBase):
+    def test_register_optimizer_without_library(self):
+        class OptimizerWithBadLibrary(OptimizerBase):
             @classmethod
-            def check_binary(cls) -> bool:
+            def check_library(cls) -> bool:
                 return False
 
-        self.registry.register_optimizer(BadBinaryOptimizer)
+        self.registry.register_optimizer(OptimizerWithBadLibrary)
 
-        self.assertNotIn(BadBinaryOptimizer, self.registry._registered_optimizers)
+        self.assertNotIn(OptimizerWithBadLibrary, self.registry._registered_optimizers)
 
     @mock.patch.dict(os.environ, {"WILLOW_OPTIMIZERS": "dummy"})
     def test_register_optimizer_with_specific_willow_optimizers_set(self):

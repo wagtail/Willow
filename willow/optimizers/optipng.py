@@ -8,7 +8,7 @@ __all__ = ["Optipng"]
 class Optipng(OptimizerBase):
     """https://optipng.sourceforge.net/"""
 
-    binary: ClassVar[str] = "optipng"
+    library_name: ClassVar[str] = "optipng"
     image_format: ClassVar[str] = "png"
 
     @classmethod

@@ -8,7 +8,7 @@ __all__ = ["Gifsicle"]
 class Gifsicle(OptimizerBase):
     """http://www.lcdf.org/gifsicle/"""
 
-    binary: ClassVar[str] = "gifsicle"
+    library_name: ClassVar[str] = "gifsicle"
     image_format: ClassVar[str] = "gif"
 
     @classmethod

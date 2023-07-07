@@ -168,14 +168,14 @@ Image optimizers
 ================
 
 You can define new image optimizers by subclassing :class:`willow.optimizers.base.ImageOptimizer` and defining the
-``binary`` and ``image_format`` attributes.
+``library_name`` and ``image_format`` attributes.
 
 .. code-block:: python
 
     from willow.optimizers.base import OptimizerBase
 
     class SvgoOptimizer(OptimizerBase):
-        binary = "svgo"
+        library_name = "svgo"
         image_format = "svg"
 
 It can now be registered by calling the :meth:`Registry.register_optimizer()` method passing in the optimizer class name
@@ -187,14 +187,14 @@ It can now be registered by calling the :meth:`Registry.register_optimizer()` me
     from willow.registry import registry
 
     class SvgoOptimizer(ImageOptimizer):
-        binary = "svgo"
+        library_name = "svgo"
         image_format = "svg"
 
     registry.register_optimizer(SvgoOptimizer)
 
 Note that the registry will only register the optimizer if the library is available on the system. It does so by
-calling :meth:`OptimizerBase.check_binary()` which will call the optimizer library with the ``--help`` attribute
+calling :meth:`OptimizerBase.check_library()` which will call the optimizer library with the ``--help`` attribute
 and return false if the library is not found or calling the library returns a non-zero exit code.
 
-To ensure the registry can check your library, you can override the :meth:`OptimizerBase.get_check_binary_arguments()`
+To ensure the registry can check your library, you can override the :meth:`OptimizerBase.get_check_library_arguments()`
 method to use different arguments that will return a zero exit code.

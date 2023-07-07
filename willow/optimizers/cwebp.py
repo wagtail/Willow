@@ -8,11 +8,11 @@ __all__ = ["Cwebp"]
 class Cwebp(OptimizerBase):
     """https://developers.google.com/speed/webp/docs/cwebp"""
 
-    binary: ClassVar[str] = "cwebp"
+    library_name: ClassVar[str] = "cwebp"
     image_format: ClassVar[str] = "webp"
 
     @classmethod
-    def get_check_binary_arguments(cls) -> List[str]:
+    def get_check_library_arguments(cls) -> List[str]:
         # running just cwebp gives basic infor and returns a zero exit code
         return []
 
