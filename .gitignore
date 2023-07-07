@@ -7,3 +7,4 @@
 .venv
 .vscode
 .ruff_cache
+.coverage*
