@@ -336,7 +336,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
 
     def tearDown(self):
         # reset the registry as we get the global state
-        registry._registered_optimizers = set()
+        registry._registered_optimizers = []
 
     @unittest.skipIf(not Jpegoptim.check_library(), "jpegoptim not installed")
     def test_save_as_jpeg(self):
