@@ -1,2 +1,2 @@
-class RemovedInWillow05Warning(DeprecationWarning):
+class RemovedInWillow17Warning(DeprecationWarning):
     pass
