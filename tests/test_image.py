@@ -52,7 +52,6 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
         image = Image.open(f)
         self.assertIsInstance(image, JPEGImageFile)
         self.assertEqual(image.format_name, "jpeg")
-        self.assertEqual(image.original_format, "jpeg")
         self.assertEqual(image.mime_type, "image/jpeg")
 
     def test_opens_png(self):
@@ -63,7 +62,6 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
         image = Image.open(f)
         self.assertIsInstance(image, PNGImageFile)
         self.assertEqual(image.format_name, "png")
-        self.assertEqual(image.original_format, "png")
         self.assertEqual(image.mime_type, "image/png")
 
     def test_opens_gif(self):
@@ -74,7 +72,6 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
         image = Image.open(f)
         self.assertIsInstance(image, GIFImageFile)
         self.assertEqual(image.format_name, "gif")
-        self.assertEqual(image.original_format, "gif")
         self.assertEqual(image.mime_type, "image/gif")
 
     def test_raises_error_on_invalid_header(self):
@@ -90,7 +87,6 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
         image = Image.open(f)
         self.assertIsInstance(image, SvgImageFile)
         self.assertEqual(image.format_name, "svg")
-        self.assertEqual(image.original_format, "svg")
 
     def test_invalid_svg_raises(self):
         f = io.BytesIO(b"<svg><")

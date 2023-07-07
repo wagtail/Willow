@@ -1,12 +1,10 @@
 import re
-import warnings
 
 import filetype
 from defusedxml import ElementTree
 from filetype.types import image as image_types
 
 from .registry import registry
-from .utils.deprecation import RemovedInWillow05Warning
 
 
 class UnrecognisedImageFormatError(IOError):
@@ -177,15 +175,6 @@ class ImageFile(Image):
         ImageFile implementations MUST override this.
         """
         raise NotImplementedError
-
-    @property
-    def original_format(self):
-        warnings.warn(
-            "Image.original_format has been renamed to Image.format_name.",
-            RemovedInWillow05Warning,
-        )
-
-        return self.format_name
 
     def __init__(self, f):
         self.f = f
