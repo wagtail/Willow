@@ -21,10 +21,14 @@ class Cwebp(OptimizerBase):
         cls, file_path: str, progressive: bool = False
     ) -> List[str]:
         return [
-            "-q 80",  # compression factor. 100 produces the highest quality.
-            "-m 6",  # inspect all encoding possibilities for best file size
-            "-pass 10",  # max number of passes
+            "-m",
+            "6",  # inspect all encoding possibilities for best file size
             "-mt",  # use multithreading if possible
+            "-pass",
+            "10",  # max number of passes
+            "-q",
+            "75",  # compression factor. 100 produces the highest quality.
             file_path,
-            f"-o {file_path}",
+            "-o",
+            file_path,
         ]

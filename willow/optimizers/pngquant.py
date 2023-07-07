@@ -17,6 +17,7 @@ class Pngquant(OptimizerBase):
     ) -> List[str]:
         return [
             "--force",  # allow overwriting existing files
+            "--strip",  # remove optional metadata
             "--skip-if-larger",
             file_path,  # the file as input
             "--output",
