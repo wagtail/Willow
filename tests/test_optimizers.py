@@ -1,7 +1,11 @@
+import io
+import os
+import unittest
 from subprocess import STDOUT, CalledProcessError
+from tempfile import NamedTemporaryFile
 from unittest import TestCase, mock
 
-from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
+from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Pngquant
 from willow.optimizers.base import OptimizerBase
 from willow.registry import WillowRegistry
 
@@ -35,75 +39,16 @@ class OptimizerTest(TestCase):
         self.assertTrue(self.DummyOptimizer.applies_to("FOO"))
         self.assertFalse(self.DummyOptimizer.applies_to("JPEG"))
 
-    def test_applies_to_for_default_optimizers(self):
-        self.assertTrue(Cwebp.applies_to("webp"))
-        self.assertFalse(Cwebp.applies_to("gif"))
-        self.assertTrue(Gifsicle.applies_to("gif"))
-        self.assertFalse(Gifsicle.applies_to("png"))
-        self.assertFalse(Gifsicle.applies_to("txt"))
-        self.assertTrue(Jpegoptim.applies_to("jpeg"))
-        self.assertFalse(Jpegoptim.applies_to("png"))
-        self.assertTrue(Optipng.applies_to("png"))
-        self.assertFalse(Optipng.applies_to("gif"))
-        self.assertTrue(Pngquant.applies_to("png"))
-        self.assertFalse(Pngquant.applies_to("jpeg"))
+    def test_get_check_library_arguments(self):
+        self.assertEqual(self.DummyOptimizer.get_check_library_arguments(), ["--help"])
 
     def test_get_command_arguments(self):
         self.assertEqual(self.DummyOptimizer.get_command_arguments("file.png"), [])
-
-    def test_get_command_arguments_for_default_optimizers(self):
-        self.assertListEqual(
-            Cwebp.get_command_arguments("file.webp"),
-            ["-q 80", "-m 6", "-pass 10", "-mt", "file.webp", "-o file.webp"],
-        )
-        self.assertListEqual(
-            Gifsicle.get_command_arguments("file.gif"), ["-b", "-O3", "file.gif"]
-        )
-        self.assertListEqual(
-            Jpegoptim.get_command_arguments("file.jpg"),
-            ["--strip-all", "--max=85", "--all-progressive", "file.jpg"],
-        )
-        self.assertListEqual(
-            Optipng.get_command_arguments("file.png"),
-            ["-quiet", "-o2", "-i0", "file.png"],
-        )
-        self.assertListEqual(
-            Pngquant.get_command_arguments("file.png"),
-            ["--force", "--skip-if-larger", "file.png", "--output", "file.png"],
-        )
 
     @mock.patch("willow.optimizers.base.subprocess.check_output")
     def test_process(self, mock_check_output):
         self.DummyOptimizer.process("file.png")
         mock_check_output.assert_called_once_with(["dummy"], stderr=STDOUT)
-
-    @mock.patch("willow.optimizers.base.subprocess.check_output")
-    def test_process_for_default_optimizers(self, mock_check_output):
-        Cwebp.process("file.webp")
-        mock_check_output.called_with(
-            ["cwebp", "-q 80", "-m 6", "-pass 10", "-mt", "file.webp", "-o file.webp"]
-        )
-
-        Gifsicle.process("file.gif")
-        mock_check_output.called_with(["gifsicle", "-b", "-O3", "file.gif"])
-
-        Jpegoptim.process("file.jpg")
-        mock_check_output.called_with("jpegoptim", "--strip-all", "file.jpg")
-
-        Optipng.process("file.png")
-        mock_check_output.called_with(["optipng", "-quiet", "-o2", "-i0", "file.png"])
-
-        Pngquant.process("file.png")
-        mock_check_output.called_with(
-            [
-                "pngquant",
-                "--force",
-                "--skip-if-larger",
-                "file.png",
-                "--output",
-                "file.png",
-            ]
-        )
 
     @mock.patch("willow.optimizers.base.subprocess.check_output")
     def test_process_logs_any_issue(self, mock_check_output):
@@ -114,4 +59,132 @@ class OptimizerTest(TestCase):
 
         self.assertIn(
             "Error optimizing file.png with the 'dummy' library", log_output.output[0]
+        )
+
+
+class DefaultOptimizerTestBase:
+    @classmethod
+    def setUpClass(cls) -> None:
+        with open(f"tests/images/optimizers/original.{cls.extension}", "rb") as f:
+            cls.original_size = os.fstat(f.fileno()).st_size
+            cls.original_image = f.read()
+
+        with open(f"tests/images/optimizers/optimized.{cls.extension}", "rb") as f:
+            f.seek(0, io.SEEK_END)
+            cls.optimized_size = os.fstat(f.fileno()).st_size
+            cls.optimized_image = f.read()
+
+    def _fairly_equal(self, a, b, tolerance=0.001):
+        """
+        Checks that two number are within a certain tolerance of each other.
+        We want to account for slight variations in how the libraries optimize the images under different OSes.
+        """
+        return abs(a - b) <= tolerance * a
+
+    def test_process_optimizes_image(self):
+        try:
+            with NamedTemporaryFile(delete=False) as named_temporary_file:
+                named_temporary_file.write(self.original_image)
+                image_file = named_temporary_file.name
+
+            self.optimizer.process(image_file)
+
+            with open(image_file, "rb") as f:
+                self.assertTrue(
+                    self._fairly_equal(
+                        self.optimized_size, os.fstat(f.fileno()).st_size
+                    )
+                )
+        finally:
+            os.unlink(image_file)
+
+
+@unittest.skipUnless(Gifsicle.check_library(), "gifsicle not installed")
+class GifsicleOptimizer(DefaultOptimizerTestBase, TestCase):
+    extension = "gif"
+    optimizer = Gifsicle
+
+    def test_applies_to(self):
+        self.assertTrue(Gifsicle.applies_to("gif"))
+        for ext in ("png", "jpeg", "webp", "tiff", "bmp"):
+            self.assertFalse(Gifsicle.applies_to(ext))
+
+    def test_get_command_arguments(self):
+        self.assertListEqual(
+            Gifsicle.get_command_arguments("file.gif"), ["-b", "-O3", "file.gif"]
+        )
+
+
+@unittest.skipUnless(Jpegoptim.check_library(), "jpegoptim not installed")
+class JpegoptimOptimizer(DefaultOptimizerTestBase, TestCase):
+    extension = "jpg"
+    optimizer = Jpegoptim
+
+    def test_applies_to(self):
+        self.assertTrue(Jpegoptim.applies_to("jpeg"))
+        for ext in ("png", "gif", "webp", "tiff", "bmp"):
+            self.assertFalse(Jpegoptim.applies_to(ext))
+
+    def test_get_command_arguments(self):
+        self.assertListEqual(
+            Jpegoptim.get_command_arguments("file.jpg"),
+            ["--strip-all", "--max=85", "--all-progressive", "file.jpg"],
+        )
+
+
+@unittest.skipUnless(Pngquant.check_library(), "pngquant not installed")
+class PngquantOptimizer(DefaultOptimizerTestBase, TestCase):
+    extension = "png"
+    optimizer = Pngquant
+
+    def test_applies_to(self):
+        self.assertTrue(Pngquant.applies_to("png"))
+        for ext in ("gif", "jpeg", "webp", "tiff", "bmp"):
+            self.assertFalse(Pngquant.applies_to(ext))
+
+    def test_get_command_arguments(self):
+        self.assertListEqual(
+            Pngquant.get_command_arguments("file.png"),
+            [
+                "--force",
+                "--strip",
+                "--skip-if-larger",
+                "file.png",
+                "--output",
+                "file.png",
+            ],
+        )
+
+
+@unittest.skipUnless(Cwebp.check_library(), "cwebp not installed")
+class CwebpOptimizer(DefaultOptimizerTestBase, TestCase):
+    extension = "webp"
+    optimizer = Cwebp
+
+    def test_applies_to(self):
+        self.assertTrue(Cwebp.applies_to("webp"))
+        for ext in ("png", "jpeg", "gif", "tiff", "bmp"):
+            self.assertFalse(Cwebp.applies_to(ext))
+
+    def test_get_command_arguments(self):
+        self.assertListEqual(
+            Cwebp.get_command_arguments("file.webp"),
+            [
+                "-m",
+                "6",
+                "-mt",
+                "-pass",
+                "10",
+                "-q",
+                "75",
+                "file.webp",
+                "-o",
+                "file.webp",
+            ],
+        )
+
+    def get_check_library_command_arguments(self):
+        self.assertListEqual(
+            Cwebp.get_check_library_arguments(),
+            [],
         )
