@@ -5,6 +5,7 @@ def setup():
     from xml.etree import ElementTree
 
     from willow.image import (
+        AvifImageFile,
         BMPImageFile,
         GIFImageFile,
         HeicImageFile,
@@ -31,6 +32,7 @@ def setup():
     registry.register_image_class(RGBAImageBuffer)
     registry.register_image_class(SvgImageFile)
     registry.register_image_class(SvgImage)
+    registry.register_image_class(AvifImageFile)
 
     registry.register_plugin(pillow)
     registry.register_plugin(wand)

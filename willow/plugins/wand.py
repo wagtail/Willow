@@ -2,6 +2,7 @@ import functools
 from ctypes import c_char_p, c_void_p
 
 from willow.image import (
+    AvifImageFile,
     BadImageOperationError,
     BMPImageFile,
     GIFImageFile,
@@ -170,7 +171,6 @@ class WandImage(Image):
     @Image.operation
     def save_as_webp(self, f, quality=80, lossless=False):
         with self.image.convert("webp") as converted:
-            converted.compression_quality = quality
             if lossless:
                 library = _wand_api().library
                 library.MagickSetOption.argtypes = [c_void_p, c_char_p, c_char_p]
@@ -179,9 +179,29 @@ class WandImage(Image):
                     b"webp:lossless",
                     b"true",
                 )
+            else:
+                converted.compression_quality = quality
             converted.save(file=f)
 
         return WebPImageFile(f)
+
+    @Image.operation
+    def save_as_avif(self, f, quality=80, lossless=False):
+        with self.image.convert("avif") as converted:
+            if lossless:
+                converted.compression_quality = 100
+                library = _wand_api().library
+                library.MagickSetOption.argtypes = [c_void_p, c_char_p, c_char_p]
+                library.MagickSetOption(
+                    converted.wand,
+                    b"heic:lossless",
+                    b"true",
+                )
+            else:
+                converted.compression_quality = quality
+            converted.save(file=f)
+
+        return AvifImageFile(f)
 
     @Image.operation
     def auto_orient(self):
@@ -230,6 +250,7 @@ class WandImage(Image):
     @Image.converter_from(TIFFImageFile, cost=150)
     @Image.converter_from(WebPImageFile, cost=150)
     @Image.converter_from(HeicImageFile, cost=150)
+    @Image.converter_from(AvifImageFile, cost=150)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _wand_image().Image(file=image_file.f)
