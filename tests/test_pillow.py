@@ -3,8 +3,10 @@ import unittest
 
 import filetype
 from PIL import Image as PILImage
+from PIL import ImageChops
 
 from willow.image import (
+    AvifImageFile,
     BadImageOperationError,
     GIFImageFile,
     JPEGImageFile,
@@ -14,6 +16,7 @@ from willow.image import (
 from willow.plugins.pillow import PillowImage, UnsupportedRotation, _PIL_Image
 
 no_webp_support = not PillowImage.is_format_supported("WEBP")
+no_avif_support = not PillowImage.is_format_supported("AVIF")
 
 
 class TestPillowOperations(unittest.TestCase):
@@ -298,27 +301,54 @@ class TestPillowOperations(unittest.TestCase):
         self.assertFalse(image.has_animation())
 
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
-    def test_open_webp_quality(self):
+    def test_save_webp_quality(self):
         high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
         low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
         self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
 
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
-    def test_open_webp_lossless(self):
+    def test_save_webp_lossless(self):
         original_image = self.image.image
+
         lossless_file = self.image.save_as_webp(io.BytesIO(), lossless=True)
         lossless_image = PillowImage.open(lossless_file).image
-        identically = True
-        for x in range(original_image.width):
-            for y in range(original_image.height):
-                original_pixel = original_image.getpixel((x, y))
-                # don't compare fully transparent pixels
-                if original_pixel[3] == 0:
-                    continue
-                if original_pixel != lossless_image.getpixel((x, y)):
-                    identically = False
-                    break
-        self.assertTrue(identically)
+
+        diff = ImageChops.difference(original_image, lossless_image)
+        self.assertIsNone(diff.getbbox())
+
+    @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
+    def test_save_as_avif(self):
+        output = io.BytesIO()
+        return_value = self.image.save_as_avif(output)
+        output.seek(0)
+
+        self.assertEqual(filetype.guess_extension(output), "avif")
+        self.assertIsInstance(return_value, AvifImageFile)
+        self.assertEqual(return_value.f, output)
+
+    @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
+    def test_open_avif(self):
+        with open("tests/images/tree.webp", "rb") as f:
+            image = PillowImage.open(AvifImageFile(f))
+
+        self.assertFalse(image.has_alpha())
+        self.assertFalse(image.has_animation())
+
+    @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
+    def test_save_avif_quality(self):
+        high_quality = self.image.save_as_avif(io.BytesIO(), quality=90)
+        low_quality = self.image.save_as_avif(io.BytesIO(), quality=30)
+        self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
+
+    @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
+    def test_save_avif_lossless(self):
+        original_image = self.image.image
+
+        lossless_file = self.image.save_as_avif(io.BytesIO(), lossless=True)
+        lossless_image = PillowImage.open(lossless_file).image
+
+        diff = ImageChops.difference(original_image, lossless_image)
+        self.assertIsNone(diff.getbbox())
 
 
 class TestPillowImageOrientation(unittest.TestCase):

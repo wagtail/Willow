@@ -3,8 +3,10 @@ import unittest
 
 import filetype
 from PIL import Image as PILImage
+from wand import version as WAND_VERSION
 
 from willow.image import (
+    AvifImageFile,
     BadImageOperationError,
     GIFImageFile,
     JPEGImageFile,
@@ -14,6 +16,7 @@ from willow.image import (
 from willow.plugins.wand import UnsupportedRotation, WandImage, _wand_image
 
 no_webp_support = not WandImage.is_format_supported("WEBP")
+no_avif_support = not WandImage.is_format_supported("AVIF")
 
 
 class TestWandOperations(unittest.TestCase):
@@ -242,7 +245,58 @@ class TestWandOperations(unittest.TestCase):
 
         self.assertIsInstance(wand_image, _wand_image().Image)
 
-    @unittest.skipIf(no_webp_support, "imagemagic was not built with WebP support")
+    @unittest.skipIf(no_avif_support, "ImageMagick was built without AVIF support")
+    def test_open_avif(self):
+        with open("tests/images/tree.avif", "rb") as f:
+            image = WandImage.open(AvifImageFile(f))
+
+        self.assertFalse(image.has_alpha())
+        self.assertFalse(image.has_animation())
+
+    @unittest.skipIf(no_avif_support, "ImageMagick was built without AVIF support")
+    def test_save_as_avif(self):
+        output = io.BytesIO()
+        return_value = self.image.save_as_avif(output)
+        output.seek(0)
+
+        self.assertEqual(filetype.guess_extension(output), "avif")
+        self.assertIsInstance(return_value, AvifImageFile)
+        self.assertEqual(return_value.f, output)
+
+    @unittest.skipIf(no_avif_support, "ImageMagick was built without AVIF support")
+    def test_save_avif_quality(self):
+        high_quality = self.image.save_as_avif(io.BytesIO(), quality=90)
+        low_quality = self.image.save_as_avif(io.BytesIO(), quality=30)
+        self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
+
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without AVIF support")
+    def test_save_avif_lossless(self):
+        original_image = self.image.image
+
+        lossless_file = self.image.save_as_avif(io.BytesIO(), lossless=True)
+        lossless_image = WandImage.open(lossless_file).image
+
+        magick_version = WAND_VERSION.MAGICK_VERSION_INFO
+        if magick_version >= (7, 1):
+            # we allow a small margin of error to account for OS/library version differences
+            # Ref: https://github.com/bigcat88/pillow_heif/blob/3798f0df6b12c19dfa8fd76dd6259b329bf88029/tests/write_test.py#L415-L422
+            _, result_metric = original_image.compare(
+                lossless_image, metric="root_mean_square"
+            )
+            self.assertTrue(result_metric <= 0.02)
+        else:
+            identical = True
+            for x in range(original_image.width):
+                for y in range(original_image.height):
+                    original_pixel = original_image[x, y]
+                    # don't compare fully transparent pixels
+                    if original_pixel.alpha == 0.0:
+                        continue
+                    if original_pixel != lossless_image[x, y]:
+                        break
+            self.assertTrue(identical)
+
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
     def test_save_as_webp(self):
         output = io.BytesIO()
         return_value = self.image.save_as_webp(output)
@@ -252,7 +306,7 @@ class TestWandOperations(unittest.TestCase):
         self.assertIsInstance(return_value, WebPImageFile)
         self.assertEqual(return_value.f, output)
 
-    @unittest.skipIf(no_webp_support, "imagemagic was not built with WebP support")
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
     def test_open_webp(self):
         with open("tests/images/tree.webp", "rb") as f:
             image = WandImage.open(WebPImageFile(f))
@@ -260,7 +314,7 @@ class TestWandOperations(unittest.TestCase):
         self.assertFalse(image.has_alpha())
         self.assertFalse(image.has_animation())
 
-    @unittest.skipIf(no_webp_support, "imagemagic was not built with WebP support")
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
     def test_open_webp_w_alpha(self):
         with open("tests/images/tux_w_alpha.webp", "rb") as f:
             image = WandImage.open(WebPImageFile(f))
@@ -268,28 +322,37 @@ class TestWandOperations(unittest.TestCase):
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
 
-    @unittest.skipIf(no_webp_support, "imagemagic does not have WebP support")
-    def test_open_webp_quality(self):
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
+    def test_save_webp_quality(self):
         high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
         low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
         self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
 
-    @unittest.skipIf(no_webp_support, "imagemagic does not have WebP support")
-    def test_open_webp_lossless(self):
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
+    def test_save_webp_lossless(self):
         original_image = self.image.image
-        lossless_file = self.image.save_as_webp(io.BytesIO(), lossless=True)
+
+        new_f = io.BytesIO()
+        lossless_file = self.image.save_as_webp(new_f, lossless=True)
         lossless_image = WandImage.open(lossless_file).image
-        identically = True
-        for x in range(original_image.width):
-            for y in range(original_image.height):
-                original_pixel = original_image[x, y]
-                # don't compare fully transparent pixels
-                if original_pixel.alpha == 0.0:
-                    continue
-                if original_pixel != lossless_image[x, y]:
-                    identically = False
-                    break
-        self.assertTrue(identically)
+
+        magick_version = WAND_VERSION.MAGICK_VERSION_INFO
+        if magick_version >= (7, 1):
+            _, result_metric = original_image.compare(
+                lossless_image, metric="root_mean_square"
+            )
+            self.assertTrue(result_metric <= 0.001)
+        else:
+            identical = True
+            for x in range(original_image.width):
+                for y in range(original_image.height):
+                    original_pixel = original_image[x, y]
+                    # don't compare fully transparent pixels
+                    if original_pixel.alpha == 0.0:
+                        continue
+                    if original_pixel != lossless_image[x, y]:
+                        break
+            self.assertTrue(identical)
 
 
 class TestWandImageOrientation(unittest.TestCase):
