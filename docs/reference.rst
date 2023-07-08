@@ -291,6 +291,21 @@ Here's a full list of operations provided by Willow out of the box:
             image.save_as_heic(f)
 
 
+.. method:: save_as_avif(file, quality=80, lossless=False)
+
+    (requires the pillow-heif library)
+
+    Saves the image to the specified file-like object in AVIF format.
+    When saving with `lossless=True`, the `quality` value is set to `-1` and `chroma` to `444`.
+
+    returns a ``AvifImageFile`` wrapping the file.
+
+    .. code-block:: python
+
+        with open('out.avif', 'wb') as f:
+            image.save_as_avif(f)
+
+
 .. method:: save_as_svg(file)
 
     (SVG images only)
