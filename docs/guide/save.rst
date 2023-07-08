@@ -7,6 +7,10 @@ In Willow there are separate save operations for each image format:
  - :meth:`~Image.save_as_png`
  - :meth:`~Image.save_as_gif`
  - :meth:`~Image.save_as_webp`
+ - :meth:`~Image.save_as_svg`
+ - :meth:`~Image.save_as_heic`
+ - :meth:`~Image.save_as_avif`
+
 
 All three take one positional argument, the file-like object to write the image
 data to.
@@ -46,14 +50,20 @@ can force Willow to always save a "progressive" JPEG file by setting the
     with open('progressive.jpg', 'wb') as f:
         i.save_as_jpeg(f, progressive=True)
 
-Lossless WebP
+Lossless AVIF, HEIC and WebP
 -----------------
 
-You can encode the image to WebP without any loss by setting the
+You can encode the image to AVIF, HEIC (Pillow-only) and WebP without any loss by setting the
 ``lossless`` keyword argument to ``True``:
 
 .. code-block:: python
 
+    with open('lossless.avif', 'wb') as f:
+        i.save_as_avif(f, lossless=True)
+    
+    with open('lossless.heic', 'wb') as f:
+        i.save_as_heic(f, lossless=True)
+    
     with open('lossless.webp', 'wb') as f:
         i.save_as_webp(f, lossless=True)
 
