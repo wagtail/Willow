@@ -118,6 +118,7 @@ class Image:
             "webp",
             "svg",
             "heic",
+            "avif",
         ]:
             raise ValueError("Unknown image format: %s" % image_format)
 
@@ -264,6 +265,16 @@ class HeicImageFile(ImageFile):
         return "image/heiс"
 
 
+class AvifImageFile(ImageFile):
+    @property
+    def format_name(self):
+        return "avif"
+
+    @property
+    def mime_type(self):
+        return "image/avif"
+
+
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     image_types.Jpeg().extension: JPEGImageFile,
@@ -274,4 +285,5 @@ INITIAL_IMAGE_CLASSES = {
     image_types.Webp().extension: WebPImageFile,
     "svg": SvgImageFile,
     image_types.Heic().extension: HeicImageFile,
+    image_types.Avif().extension: AvifImageFile,
 }

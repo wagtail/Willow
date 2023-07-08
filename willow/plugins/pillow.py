@@ -1,9 +1,10 @@
 try:
-    from pillow_heif import HeifImagePlugin  # noqa: F401
+    from pillow_heif import AvifImagePlugin, HeifImagePlugin  # noqa: F401
 except ImportError:
     pass
 
 from willow.image import (
+    AvifImageFile,
     BadImageOperationError,
     BMPImageFile,
     GIFImageFile,
@@ -228,6 +229,14 @@ class PillowImage(Image):
         return HeicImageFile(f)
 
     @Image.operation
+    def save_as_avif(self, f, quality=80, lossless=False):
+        if lossless:
+            self.image.save(f, "AVIF", quality=-1, chroma=444)
+        else:
+            self.image.save(f, "AVIF", quality=quality)
+        return AvifImageFile(f)
+
+    @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
@@ -279,6 +288,7 @@ class PillowImage(Image):
     @Image.converter_from(TIFFImageFile)
     @Image.converter_from(WebPImageFile)
     @Image.converter_from(HeicImageFile)
+    @Image.converter_from(AvifImageFile)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _PIL_Image().open(image_file.f)
