@@ -8,3 +8,4 @@
 .vscode
 .ruff_cache
 .coverage*
+.DS_Store

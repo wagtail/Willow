@@ -6,6 +6,7 @@ from xml.etree.ElementTree import ParseError as XMLParseError
 import filetype
 
 from willow.image import (
+    AvifImageFile,
     BMPImageFile,
     GIFImageFile,
     HeicImageFile,
@@ -169,6 +170,16 @@ class TestImageFormats(unittest.TestCase):
         self.assertEqual(height, 241)
         self.assertEqual(image.mime_type, "image/heiс")
 
+    def test_avif(self):
+        with open("tests/images/tree.avif", "rb") as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, AvifImageFile)
+        self.assertEqual(width, 320)
+        self.assertEqual(height, 241)
+        self.assertEqual(image.mime_type, "image/avif")
+
 
 class TestSaveImage(unittest.TestCase):
     """
@@ -193,6 +204,16 @@ class TestSaveImage(unittest.TestCase):
             image = Image.open(buf)
             self.assertIsInstance(image, HeicImageFile)
             self.assertEqual(image.mime_type, "image/heiс")
+
+    def test_save_as_avif(self):
+        with open("tests/images/sails.bmp", "rb") as f:
+            image = Image.open(f)
+            buf = io.BytesIO()
+            image.save("avif", buf)
+            buf.seek(0)
+            image = Image.open(buf)
+            self.assertIsInstance(image, AvifImageFile)
+            self.assertEqual(image.mime_type, "image/avif")
 
     def test_save_as_foo(self):
         image = Image()
