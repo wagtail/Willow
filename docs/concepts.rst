@@ -66,6 +66,8 @@ Plugins can be registered even if the underlying library is not installed. This
 allows Willow to generate a useful error message if an operation is requested
 that only exists in a plugin without an underlying library.
 
+.. _concept-optimizers:
+
 Optimizers
 ----------
 

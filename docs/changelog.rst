@@ -6,6 +6,8 @@ Unreleased
  - Configure linting with black, ruff and pre-commit (@zerolab)
  - Switch to flit for packaging, and PyPI trusted publishing (@zerolab)
  - Drop support for Python 3.7
+ - Add AVIF support (Aman Pandey)
+ - Add support for image optimization libraries via :ref:`optmizer classes <concept-optimizers>` (@zerolab)
 
 
 1.5.1 (2023-07-06)

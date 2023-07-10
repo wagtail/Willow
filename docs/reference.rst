@@ -279,7 +279,7 @@ Here's a full list of operations provided by Willow out of the box:
 
 .. method:: save_as_heic(file, quality=80, lossless=False)
 
-    (Pillow only; requires the pillow-heif library)
+    (Pillow only; requires the `pillow-heif <https://pypi.org/project/pillow-heif/>`_ library)
 
     Saves the image to the specified file-like object in HEIF format.
 
@@ -293,7 +293,7 @@ Here's a full list of operations provided by Willow out of the box:
 
 .. method:: save_as_avif(file, quality=80, lossless=False)
 
-    (requires the pillow-heif library)
+    (requires the `pillow-heif <https://pypi.org/project/pillow-heif/>`_ library)
 
     Saves the image to the specified file-like object in AVIF format.
     When saving with `lossless=True`, the `quality` value is set to `-1` and `chroma` to `444`.

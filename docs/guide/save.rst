@@ -51,7 +51,7 @@ can force Willow to always save a "progressive" JPEG file by setting the
         i.save_as_jpeg(f, progressive=True)
 
 Lossless AVIF, HEIC and WebP
------------------
+----------------------------
 
 You can encode the image to AVIF, HEIC (Pillow-only) and WebP without any loss by setting the
 ``lossless`` keyword argument to ``True``:
