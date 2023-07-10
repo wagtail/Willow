@@ -232,7 +232,7 @@ class WandImage(Image):
         return WebPImageFile(f)
 
     @Image.operation
-    def save_as_avif(self, f, quality=80, lossless=False):
+    def save_as_avif(self, f, quality=80, lossless=False, apply_optimizers=True):
         with self.image.convert("avif") as converted:
             if lossless:
                 converted.compression_quality = 100
@@ -246,6 +246,9 @@ class WandImage(Image):
             else:
                 converted.compression_quality = quality
             converted.save(file=f)
+
+        if not lossless and apply_optimizers:
+            self.optimize(f, "avif")
 
         return AvifImageFile(f)
 

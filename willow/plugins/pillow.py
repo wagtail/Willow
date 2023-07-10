@@ -291,16 +291,20 @@ class PillowImage(Image):
             self.image.save(f, "HEIF", quality=-1, chroma=444)
         else:
             self.image.save(f, "HEIF", quality=quality)
-        if apply_optimizers and not lossless:
-            self.optimize(f, "heic")
+            if apply_optimizers:
+                self.optimize(f, "heic")
+
         return HeicImageFile(f)
 
     @Image.operation
-    def save_as_avif(self, f, quality=80, lossless=False):
+    def save_as_avif(self, f, quality=80, lossless=False, apply_optimizers=True):
         if lossless:
             self.image.save(f, "AVIF", quality=-1, chroma=444)
         else:
             self.image.save(f, "AVIF", quality=quality)
+            if apply_optimizers:
+                self.optimize(f, "heic")
+
         return AvifImageFile(f)
 
     @Image.operation
