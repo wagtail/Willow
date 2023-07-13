@@ -30,11 +30,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+heif = [
+    "pillow-heif>=0.10.0,<1.0.0",
+]
 testing = [
     "Pillow>=9.1.0,<11.0.0",
     "Wand>=0.6,<1.0",
     "mock>=3.0,<4.0",
-    "pillow-heif>=0.7.0,<1.0.0",
+    "pillow-heif>=0.10.0,<1.0.0",
     "black==22.3.0",
     "ruff==0.0.275",
     "coverage[toml]>=7.2.7,<8.0",
