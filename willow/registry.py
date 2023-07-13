@@ -94,29 +94,29 @@ class WillowRegistry:
             # try to check Django settings, if used in that context
             from django.conf import settings
 
-            enabled_optimisers = getattr(settings, "WILLOW_OPTIMIZERS", False)
+            enabled_optimizers = getattr(settings, "WILLOW_OPTIMIZERS", False)
         except ImportError:
             # fall back to env vars.
             import os
 
-            enabled_optimisers = os.environ.get("WILLOW_OPTIMIZERS", False)
+            enabled_optimizers = os.environ.get("WILLOW_OPTIMIZERS", False)
 
-        if not enabled_optimisers:
+        if not enabled_optimizers:
             # WILLOW_OPTIMIZERS is either not set, or is set to a false-y value, so skip registration
             return
 
-        if isinstance(enabled_optimisers, str):
-            if enabled_optimisers.lower() == "false":
+        if isinstance(enabled_optimizers, str):
+            if enabled_optimizers.lower() == "false":
                 return
-            elif enabled_optimisers.lower() == "true":
-                enabled_optimisers = True
+            elif enabled_optimizers.lower() == "true":
+                enabled_optimizers = True
             else:
-                enabled_optimisers = enabled_optimisers.split(",")
+                enabled_optimizers = enabled_optimizers.split(",")
 
-        if enabled_optimisers is True:
+        if enabled_optimizers is True:
             add_optimizer = True
         else:
-            add_optimizer = optimizer_class.library_name in enabled_optimisers
+            add_optimizer = optimizer_class.library_name in enabled_optimizers
 
         if (
             add_optimizer
