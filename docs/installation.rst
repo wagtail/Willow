@@ -22,3 +22,19 @@ or Wand.
 
 Note that Pillow doesn't support animated GIFs and Wand isn't as fast.
 Installing both will give best results.
+
+
+HEIC and AVIF support
+^^^^^^^^^^^^^^^^^^^^^
+
+When using Pillow, you need to install ``pillow-heif`` for AVIF and HEIC support:
+
+.. code-block:: shell
+
+    pip install pillow-heif
+    # or
+    pip install Willow[heif]
+
+When using Wand, you will need ImageMagick version 7.0.25 or newer.
+
+Both Pillow and Wand require ``libheif`` to be installed on your system for full HEIC support.
