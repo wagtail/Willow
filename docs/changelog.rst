@@ -3,6 +3,12 @@ Changelog
 
 Unreleased
 
+1.6.1 (2023-07-13)
+----------------
+
+ - Fix ``NUMBER_PATTERN`` regex for parsing SVG viewboxes (Joshua Munn)
+
+
 1.6 (2023-07-13)
 ----------------
 
