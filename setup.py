@@ -19,7 +19,7 @@ except ImportError:
 
 setup(
     name='Willow',
-    version="1.5.1",  # Update willow/__init__.py too!
+    version="1.5.2",  # Update willow/__init__.py too!
     description='A Python image library that sits on top of Pillow, Wand and OpenCV',
     author='Karl Hobley',
     author_email='karl@kaed.uk',
