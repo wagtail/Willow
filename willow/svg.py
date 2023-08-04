@@ -117,9 +117,10 @@ class SvgWrapper:
     UNIT_RE = re.compile(r"(?:em|ex|px|in|cm|mm|pt|pc|%)$")
 
     # https://www.w3.org/TR/SVG11/types.html#DataTypeNumber
+    # https://www.w3.org/TR/2013/WD-SVG2-20130409/types.html#DataTypeNumber
     # This will exclude some inputs that Python will accept (e.g. "1.e9", "1."),
     # but for integration with other tools, we should adhere to the spec
-    NUMBER_PATTERN = r"([+-]?(?:\d*\.)?\d+(?:[Ee]\d+)?)"
+    NUMBER_PATTERN = r"([+-]?(?:\d*\.)?\d+(?:[Ee][+-]?\d+)?)"
 
     # https://www.w3.org/Graphics/SVG/1.1/coords.html#ViewBoxAttribute
     VIEW_BOX_RE = re.compile(
