@@ -3,7 +3,7 @@ Changelog
 
 Unreleased
 
-1.6.1 (2023-07-13)
+1.6.1 (2023-08-04)
 ----------------
 
  - Fix ``NUMBER_PATTERN`` regex for parsing SVG viewboxes (Joshua Munn)
@@ -18,6 +18,12 @@ Unreleased
  - Add AVIF support (Aman Pandey)
  - Add support for image optimization libraries via :ref:`optimizer classes <concept-optimizers>` (@zerolab)
  - Add check for CMYK when saving as PNG (Stan Mattingly, @zerolab)
+
+
+1.5.2 (2023-08-04)
+----------------
+
+ - Fix ``NUMBER_PATTERN`` regex for parsing SVG viewboxes (Joshua Munn)
 
 
 1.5.1 (2023-07-06)
