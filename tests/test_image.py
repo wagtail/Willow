@@ -92,6 +92,7 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
         image = Image.open(f)
         self.assertIsInstance(image, SvgImageFile)
         self.assertEqual(image.format_name, "svg")
+        self.assertEqual(image.mime_type, "image/svg+xml")
 
     def test_invalid_svg_raises(self):
         f = io.BytesIO(b"<svg><")
