@@ -40,6 +40,15 @@ class TestImageFile(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             broken.mime_type
 
+    def test_implementations_have_required_methods(self):
+        for image_class in ImageFile.__subclasses__():
+            if image_class == BrokenImageFileImplementation:
+                continue
+
+            with self.subTest(image_class):
+                self.assertTrue(hasattr(image_class, "mime_type"))
+                self.assertTrue(hasattr(image_class, "format_name"))
+
 
 class TestDetectImageFormatFromStream(unittest.TestCase):
     """
