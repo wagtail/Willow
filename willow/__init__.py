@@ -44,4 +44,4 @@ def setup():
 setup()
 
 
-__version__ = "1.5.2"  # update setup.cfg too!
+__version__ = "1.5.3"  # update setup.py too!
