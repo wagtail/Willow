@@ -25,6 +25,15 @@ class TestImageFile(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             broken.mime_type
 
+    def test_implementations_have_required_methods(self):
+        for image_class in ImageFile.__subclasses__():
+            if image_class == BrokenImageFileImplementation:
+                continue
+
+            with self.subTest(image_class):
+                self.assertTrue(hasattr(image_class, "mime_type"))
+                self.assertTrue(hasattr(image_class, "format_name"))
+
 
 class TestDetectImageFormatFromStream(unittest.TestCase):
     """
@@ -80,6 +89,7 @@ class TestDetectImageFormatFromStream(unittest.TestCase):
         self.assertIsInstance(image, SvgImageFile)
         self.assertEqual(image.format_name, "svg")
         self.assertEqual(image.original_format, "svg")
+        self.assertEqual(image.mime_type, "image/svg+xml")
 
     def test_invalid_svg_raises(self):
         f = io.BytesIO(b"<svg><")

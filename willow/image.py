@@ -244,6 +244,7 @@ class WebPImageFile(ImageFile):
 
 class SvgImageFile(ImageFile):
     format_name = "svg"
+    mime_type = "image/svg+xml"
 
     def __init__(self, f, dom=None):
         if dom is None:
