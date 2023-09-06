@@ -2,9 +2,16 @@ Changelog
 =========
 
 Unreleased
+----------
+
+1.6.2 (2023-09-06)
+------------------
+
+- Ensure SVG files are given a mime type (Jake Howard)
+
 
 1.6.1 (2023-08-04)
-----------------
+------------------
 
  - Fix ``NUMBER_PATTERN`` regex for parsing SVG viewboxes (Joshua Munn)
 
