@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 dynamic = ["version"]  # will read __version__ from willow/__init__.py
@@ -31,7 +32,8 @@ dependencies = [
 
 [project.optional-dependencies]
 heif = [
-    "pillow-heif>=0.10.0,<1.0.0",
+    "pillow-heif>=0.10.0,<1.0.0; python_version < '3.12'",
+    "pillow-heif>=0.13.0,<1.0.0; python_version >= '3.12'",
 ]
 testing = [
     "Pillow>=9.1.0,<11.0.0",
