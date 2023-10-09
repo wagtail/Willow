@@ -40,9 +40,8 @@ heif = [
 
 testing = [
     "willow[pillow,wand,heif]",
-    "black==22.3.0",
-    "ruff==0.0.275",
     "coverage[toml]>=7.2.7,<8.0",
+    "pre-commit>=3.4.0"
 ]
 docs = [
     "Sphinx>=7.0",
