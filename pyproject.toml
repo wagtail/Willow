@@ -31,15 +31,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+pillow = ["Pillow>=9.1.0,<11.0.0"]
+wand = ["Wand>=0.6,<1.0"]
 heif = [
     "pillow-heif>=0.10.0,<1.0.0; python_version < '3.12'",
     "pillow-heif>=0.13.0,<1.0.0; python_version >= '3.12'",
 ]
+
 testing = [
-    "Pillow>=9.1.0,<11.0.0",
-    "Wand>=0.6,<1.0",
-    "mock>=3.0,<4.0",
-    "pillow-heif>=0.10.0,<1.0.0",
+    "willow[pillow,wand,heif]",
     "black==22.3.0",
     "ruff==0.0.275",
     "coverage[toml]>=7.2.7,<8.0",
