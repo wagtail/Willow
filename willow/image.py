@@ -324,7 +324,7 @@ class HeicImageFile(ImageFile):
 
     @property
     def mime_type(self):
-        return "image/heiс"
+        return "image/heic"
 
 
 class AvifImageFile(ImageFile):
