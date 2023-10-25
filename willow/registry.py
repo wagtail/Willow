@@ -157,9 +157,7 @@ class WillowRegistry:
 
             if not image_classes:
                 raise UnrecognisedOperationError(
-                    "Could not find image class with the '{}' operation".format(
-                        with_operation
-                    )
+                    f"Could not find image class with the '{with_operation}' operation"
                 )
 
         if available:
