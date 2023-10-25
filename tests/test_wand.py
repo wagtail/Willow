@@ -273,7 +273,7 @@ class TestWandOperations(unittest.TestCase):
         low_quality = self.image.save_as_avif(io.BytesIO(), quality=30)
         self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
 
-    @unittest.skipIf(no_webp_support, "ImageMagick was built without AVIF support")
+    @unittest.skipIf(no_avif_support, "ImageMagick was built without AVIF support")
     def test_save_avif_lossless(self):
         original_image = self.image.image
 
