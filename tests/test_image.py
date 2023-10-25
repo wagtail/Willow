@@ -182,7 +182,7 @@ class TestImageFormats(unittest.TestCase):
         self.assertIsInstance(image, HeicImageFile)
         self.assertEqual(width, 320)
         self.assertEqual(height, 241)
-        self.assertEqual(image.mime_type, "image/heiс")
+        self.assertEqual(image.mime_type, "image/heic")
 
     def test_avif(self):
         with open("tests/images/tree.avif", "rb") as f:
@@ -217,7 +217,7 @@ class TestSaveImage(unittest.TestCase):
             buf.seek(0)
             image = Image.open(buf)
             self.assertIsInstance(image, HeicImageFile)
-            self.assertEqual(image.mime_type, "image/heiс")
+            self.assertEqual(image.mime_type, "image/heic")
 
     def test_save_as_avif(self):
         with open("tests/images/sails.bmp", "rb") as f:
