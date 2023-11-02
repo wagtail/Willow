@@ -171,8 +171,10 @@ class PillowImage(Image):
         """
         Take over the ICC color profile from the original image
         """
+        print('W I L L O W', 'ADD ICC PROFILE')
         icc_profile = image.info.get('icc_profile')
         if icc_profile is not None:
+            print('W I L L O W', 'ADD ICC PROFILE', 'GOT ICC PROFILE')
             kwargs['icc_profile'] = icc_profile
         return kwargs
 
