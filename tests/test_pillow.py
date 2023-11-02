@@ -211,6 +211,22 @@ class TestPillowOperations(unittest.TestCase):
         self.assertIsInstance(return_value, PNGImageFile)
         self.assertEqual(return_value.f, output)
 
+    def test_save_as_png_with_icc_profile(self):
+        # Testing two different color profiles two cover the standard case and a special one as well
+        images = [
+            'colorchecker_sRGB.jpg', 
+            'colorchecker_ECI_RGB_v2.jpg'
+            ]
+        for img_name in images:
+            with open(f'tests/images/{img_name}', 'rb') as f:
+                image = PillowImage.open(JPEGImageFile(f))
+                icc_profile = PILImage.open(f).info.get('icc_profile')
+                self.assertIsNotNone(icc_profile)
+
+                saved = image.save_as_png(io.BytesIO())
+                saved_icc_profile = PILImage.open(saved.f).info.get('icc_profile')
+                self.assertEqual(saved_icc_profile, icc_profile)
+
     def test_save_as_gif(self):
         output = io.BytesIO()
         return_value = self.image.save_as_gif(output)
@@ -330,6 +346,7 @@ class TestPillowOperations(unittest.TestCase):
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
 
+
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
     def test_save_webp_quality(self):
         high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
@@ -345,6 +362,23 @@ class TestPillowOperations(unittest.TestCase):
 
         diff = ImageChops.difference(original_image, lossless_image)
         self.assertIsNone(diff.getbbox())
+
+    @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
+    def test_save_as_webp_with_icc_profile(self):
+        # Testing two different color profiles two cover the standard case and a special one as well
+        images = [
+            'colorchecker_sRGB.jpg', 
+            'colorchecker_ECI_RGB_v2.jpg'
+            ]
+        for img_name in images:
+            with open(f'tests/images/{img_name}', 'rb') as f:
+                image = PillowImage.open(JPEGImageFile(f))
+                icc_profile = PILImage.open(f).info.get('icc_profile')
+                self.assertIsNotNone(icc_profile)
+
+                saved = image.save_as_webp(io.BytesIO())
+                saved_icc_profile = PILImage.open(saved.f).info.get('icc_profile')
+                self.assertEqual(saved_icc_profile, icc_profile)
 
     @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
     def test_save_as_avif(self):
@@ -471,66 +505,87 @@ class TestPillowImageOrientation(unittest.TestCase):
         self.assertAlmostEqual(colour[1], 93, delta=25)
         self.assertAlmostEqual(colour[2], 65, delta=25)
 
+    def assert_exif_orientation_equals_value(self, image, value):
+        exif = image.image.getexif()
+        self.assertIsNotNone(exif)
+        self.assertEqual(exif.get(0x0112, 1), value) # 0x0112 = Orientation
+
     def test_jpeg_with_orientation_1(self):
         with open("tests/images/orientation/landscape_1.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 1)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_2(self):
         with open("tests/images/orientation/landscape_2.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 2)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_3(self):
         with open("tests/images/orientation/landscape_3.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 3)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_4(self):
         with open("tests/images/orientation/landscape_4.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 4)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_5(self):
         with open("tests/images/orientation/landscape_5.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 5)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_6(self):
         with open("tests/images/orientation/landscape_6.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 6)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_7(self):
         with open("tests/images/orientation/landscape_7.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 7)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)
 
     def test_jpeg_with_orientation_8(self):
         with open("tests/images/orientation/landscape_8.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
+            self.assert_exif_orientation_equals_value(image, 8)
 
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_exif_orientation_equals_value(image, 1)

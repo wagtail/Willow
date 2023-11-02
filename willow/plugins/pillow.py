@@ -294,7 +294,6 @@ class PillowImage(Image):
         kwargs = {"quality": quality, "lossless": lossless}
 
         kwargs = self.add_icc_profile(self.image, kwargs)
-        kwargs = self.add_exif_data(self.image, kwargs)
 
         self.image.save(f, "WEBP", **kwargs)
         if apply_optimizers and not lossless:
