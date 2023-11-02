@@ -266,8 +266,6 @@ class PillowImage(Image):
         if "transparency" in image.info:
             kwargs["transparency"] = image.info["transparency"]
 
-        kwargs = self.add_icc_profile(image, kwargs)
-
         image.save(f, "GIF", **kwargs)
         if apply_optimizers:
             self.optimize(f, "gif")
