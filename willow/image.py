@@ -1,5 +1,3 @@
-# Sanity Check
-
 import os
 import re
 from io import BytesIO

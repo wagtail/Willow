@@ -154,6 +154,32 @@ class TestPillowOperations(unittest.TestCase):
 
         self.assertTrue(PILImage.open(image.f).info["progressive"])
 
+    def test_save_as_jpeg_with_icc_profile(self):
+        # Testing two different color profiles two cover the standard case and a special one as well
+        images = [
+            'colorchecker_sRGB.jpg', 
+            'colorchecker_ECI_RGB_v2.jpg'
+            ]
+        for img_name in images:
+            with open(f'tests/images/{img_name}', 'rb') as f:
+                image = PillowImage.open(JPEGImageFile(f))
+                icc_profile = PILImage.open(f).info.get('icc_profile')
+                self.assertIsNotNone(icc_profile)
+
+                saved = image.save_as_jpeg(io.BytesIO())
+                saved_icc_profile = PILImage.open(saved.f).info.get('icc_profile')
+                self.assertEqual(saved_icc_profile, icc_profile)
+
+    def test_save_as_jpeg_with_exif(self):
+        with open('tests/images/colorchecker_sRGB.jpg', 'rb') as f:
+            image = PillowImage.open(JPEGImageFile(f))
+            exif = PILImage.open(f).info.get('exif')
+            self.assertIsNotNone(exif)
+
+        saved = image.save_as_jpeg(io.BytesIO())
+        saved_exif = PILImage.open(saved.f).info.get('exif')
+        self.assertEqual(saved_exif, exif)
+
     def test_save_as_png(self):
         output = io.BytesIO()
         return_value = self.image.save_as_png(output)

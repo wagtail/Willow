@@ -167,6 +167,24 @@ class PillowImage(Image):
         return PillowImage(new_image.convert("RGB"))
 
     @Image.operation
+    def add_icc_profile(self, image, kwargs):
+        """
+        Take over the ICC color profile from the original image
+        """
+        icc_profile = image.info.get('icc_profile')
+        if icc_profile is not None:
+            kwargs['icc_profile'] = icc_profile
+
+    @Image.operation
+    def add_exif_data(self, image, kwargs):
+        """
+        Take over the EXIF data from the original image
+        """
+        exif = image.info.get('exif')
+        if exif is not None:
+            kwargs['exif'] = exif
+
+    @Image.operation
     def save_as_jpeg(
         self,
         f,
@@ -196,6 +214,9 @@ class PillowImage(Image):
             kwargs["optimize"] = True
         if progressive:
             kwargs["progressive"] = True
+        
+        self.add_icc_profile(image, kwargs)
+        self.add_exif_data(image, kwargs)
 
         image.save(f, "JPEG", **kwargs)
         if apply_optimizers:
@@ -222,6 +243,8 @@ class PillowImage(Image):
         if optimize:
             kwargs["optimize"] = True
 
+        self.add_icc_profile(image, kwargs)
+
         image.save(f, "PNG", **kwargs)
         if apply_optimizers:
             self.optimize(f, "png")
@@ -240,6 +263,10 @@ class PillowImage(Image):
         kwargs = {}
         if "transparency" in image.info:
             kwargs["transparency"] = image.info["transparency"]
+
+        icc_profile = image.info.get('icc_profile')
+        if icc_profile is not None:
+            kwargs['icc_profile'] = icc_profile
 
         image.save(f, "GIF", **kwargs)
         if apply_optimizers:
@@ -264,7 +291,13 @@ class PillowImage(Image):
             Note that when lossless=True, this will be ignored.
         :return: WebPImageFile
         """
-        self.image.save(f, "WEBP", quality=quality, lossless=lossless)
+
+        kwargs = {"quality": quality, "lossless": lossless}
+
+        self.add_icc_profile(image, kwargs)
+        self.add_exif_data(image, kwargs)
+
+        self.image.save(f, "WEBP", kwargs)
         if apply_optimizers and not lossless:
             self.optimize(f, "webp")
         return WebPImageFile(f)
@@ -287,23 +320,32 @@ class PillowImage(Image):
             Note that when lossless=True, this will be ignored.
         :return: HeicImageFile
         """
+        kwargs = {"quality": quality}
         if lossless:
-            self.image.save(f, "HEIF", quality=-1, chroma=444)
-        else:
-            self.image.save(f, "HEIF", quality=quality)
-            if apply_optimizers:
-                self.optimize(f, "heic")
+            kwargs = {"quality": -1, "chroma": 444}    
+            
+        self.add_icc_profile(image, kwargs)
+
+        self.image.save(f, "HEIF", kwargs)
+        
+        if not lossless and apply_optimizers:
+            self.optimize(f, "heic")
 
         return HeicImageFile(f)
 
     @Image.operation
     def save_as_avif(self, f, quality=80, lossless=False, apply_optimizers=True):
+        
+        kwargs = {"quality": quality}
         if lossless:
-            self.image.save(f, "AVIF", quality=-1, chroma=444)
-        else:
-            self.image.save(f, "AVIF", quality=quality)
-            if apply_optimizers:
-                self.optimize(f, "heic")
+            kwargs = {"quality": -1, "chroma": 444}
+
+        self.add_icc_profile(image, kwargs)
+            
+        self.image.save(f, "AVIF", quality=quality)
+        
+        if not lossless and apply_optimizers:
+            self.optimize(f, "heic")
 
         return AvifImageFile(f)
 
