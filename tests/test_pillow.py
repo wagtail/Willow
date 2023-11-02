@@ -156,28 +156,25 @@ class TestPillowOperations(unittest.TestCase):
 
     def test_save_as_jpeg_with_icc_profile(self):
         # Testing two different color profiles two cover the standard case and a special one as well
-        images = [
-            'colorchecker_sRGB.jpg', 
-            'colorchecker_ECI_RGB_v2.jpg'
-            ]
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
-            with open(f'tests/images/{img_name}', 'rb') as f:
+            with open(f"tests/images/{img_name}", "rb") as f:
                 image = PillowImage.open(JPEGImageFile(f))
-                icc_profile = PILImage.open(f).info.get('icc_profile')
+                icc_profile = PILImage.open(f).info.get("icc_profile")
                 self.assertIsNotNone(icc_profile)
 
                 saved = image.save_as_jpeg(io.BytesIO())
-                saved_icc_profile = PILImage.open(saved.f).info.get('icc_profile')
+                saved_icc_profile = PILImage.open(saved.f).info.get("icc_profile")
                 self.assertEqual(saved_icc_profile, icc_profile)
 
     def test_save_as_jpeg_with_exif(self):
-        with open('tests/images/colorchecker_sRGB.jpg', 'rb') as f:
+        with open("tests/images/colorchecker_sRGB.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
-            exif = PILImage.open(f).info.get('exif')
+            exif = PILImage.open(f).info.get("exif")
             self.assertIsNotNone(exif)
 
         saved = image.save_as_jpeg(io.BytesIO())
-        saved_exif = PILImage.open(saved.f).info.get('exif')
+        saved_exif = PILImage.open(saved.f).info.get("exif")
         self.assertEqual(saved_exif, exif)
 
     def test_save_as_png(self):
@@ -213,18 +210,15 @@ class TestPillowOperations(unittest.TestCase):
 
     def test_save_as_png_with_icc_profile(self):
         # Testing two different color profiles two cover the standard case and a special one as well
-        images = [
-            'colorchecker_sRGB.jpg', 
-            'colorchecker_ECI_RGB_v2.jpg'
-            ]
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
-            with open(f'tests/images/{img_name}', 'rb') as f:
+            with open(f"tests/images/{img_name}", "rb") as f:
                 image = PillowImage.open(JPEGImageFile(f))
-                icc_profile = PILImage.open(f).info.get('icc_profile')
+                icc_profile = PILImage.open(f).info.get("icc_profile")
                 self.assertIsNotNone(icc_profile)
 
                 saved = image.save_as_png(io.BytesIO())
-                saved_icc_profile = PILImage.open(saved.f).info.get('icc_profile')
+                saved_icc_profile = PILImage.open(saved.f).info.get("icc_profile")
                 self.assertEqual(saved_icc_profile, icc_profile)
 
     def test_save_as_gif(self):
@@ -346,7 +340,6 @@ class TestPillowOperations(unittest.TestCase):
         self.assertTrue(image.has_alpha())
         self.assertFalse(image.has_animation())
 
-
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
     def test_save_webp_quality(self):
         high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
@@ -366,18 +359,15 @@ class TestPillowOperations(unittest.TestCase):
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
     def test_save_as_webp_with_icc_profile(self):
         # Testing two different color profiles two cover the standard case and a special one as well
-        images = [
-            'colorchecker_sRGB.jpg', 
-            'colorchecker_ECI_RGB_v2.jpg'
-            ]
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
-            with open(f'tests/images/{img_name}', 'rb') as f:
+            with open(f"tests/images/{img_name}", "rb") as f:
                 image = PillowImage.open(JPEGImageFile(f))
-                icc_profile = PILImage.open(f).info.get('icc_profile')
+                icc_profile = PILImage.open(f).info.get("icc_profile")
                 self.assertIsNotNone(icc_profile)
 
                 saved = image.save_as_webp(io.BytesIO())
-                saved_icc_profile = PILImage.open(saved.f).info.get('icc_profile')
+                saved_icc_profile = PILImage.open(saved.f).info.get("icc_profile")
                 self.assertEqual(saved_icc_profile, icc_profile)
 
     @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
@@ -389,6 +379,20 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(filetype.guess_extension(output), "avif")
         self.assertIsInstance(return_value, AvifImageFile)
         self.assertEqual(return_value.f, output)
+
+    @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
+    def test_save_as_avif_with_icc_profile(self):
+        # Testing two different color profiles two cover the standard case and a special one as well
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
+        for img_name in images:
+            with open(f"tests/images/{img_name}", "rb") as f:
+                image = PillowImage.open(JPEGImageFile(f))
+                icc_profile = PILImage.open(f).info.get("icc_profile")
+                self.assertIsNotNone(icc_profile)
+
+                saved = image.save_as_avif(io.BytesIO())
+                saved_icc_profile = PILImage.open(saved.f).info.get("icc_profile")
+                self.assertEqual(saved_icc_profile, icc_profile)
 
     @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
     def test_open_avif(self):
@@ -508,7 +512,7 @@ class TestPillowImageOrientation(unittest.TestCase):
     def assert_exif_orientation_equals_value(self, image, value):
         exif = image.image.getexif()
         self.assertIsNotNone(exif)
-        self.assertEqual(exif.get(0x0112, 1), value) # 0x0112 = Orientation
+        self.assertEqual(exif.get(0x0112, 1), value)  # 0x0112 = Orientation
 
     def test_jpeg_with_orientation_1(self):
         with open("tests/images/orientation/landscape_1.jpg", "rb") as f:

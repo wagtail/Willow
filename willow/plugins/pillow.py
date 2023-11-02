@@ -4,6 +4,7 @@ except ImportError:
     pass
 
 from PIL import ImageOps
+
 from willow.image import (
     AvifImageFile,
     BadImageOperationError,
@@ -172,9 +173,9 @@ class PillowImage(Image):
         """
         Take over the ICC color profile from the original image
         """
-        icc_profile = image.info.get('icc_profile')
+        icc_profile = image.info.get("icc_profile")
         if icc_profile is not None:
-            kwargs['icc_profile'] = icc_profile
+            kwargs["icc_profile"] = icc_profile
         return kwargs
 
     @Image.operation
@@ -182,9 +183,9 @@ class PillowImage(Image):
         """
         Take over the EXIF data from the original image
         """
-        exif = image.info.get('exif')
+        exif = image.info.get("exif")
         if exif is not None:
-            kwargs['exif'] = exif
+            kwargs["exif"] = exif
         return kwargs
 
     @Image.operation
@@ -217,7 +218,7 @@ class PillowImage(Image):
             kwargs["optimize"] = True
         if progressive:
             kwargs["progressive"] = True
-        
+
         kwargs = self.add_icc_profile(image, kwargs)
         kwargs = self.add_exif_data(image, kwargs)
 
@@ -320,12 +321,12 @@ class PillowImage(Image):
         """
         kwargs = {"quality": quality}
         if lossless:
-            kwargs = {"quality": -1, "chroma": 444}    
-            
+            kwargs = {"quality": -1, "chroma": 444}
+
         kwargs = self.add_icc_profile(self.image, kwargs)
 
         self.image.save(f, "HEIF", **kwargs)
-        
+
         if not lossless and apply_optimizers:
             self.optimize(f, "heic")
 
@@ -333,15 +334,14 @@ class PillowImage(Image):
 
     @Image.operation
     def save_as_avif(self, f, quality=80, lossless=False, apply_optimizers=True):
-        
         kwargs = {"quality": quality}
         if lossless:
             kwargs = {"quality": -1, "chroma": 444}
 
         kwargs = self.add_icc_profile(self.image, kwargs)
-            
+
         self.image.save(f, "AVIF", **kwargs)
-        
+
         if not lossless and apply_optimizers:
             self.optimize(f, "heic")
 
