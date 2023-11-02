@@ -173,7 +173,7 @@ class PillowImage(Image):
         """
         icc_profile = image.info.get('icc_profile')
         if icc_profile is not None:
-            return kwargs['icc_profile'] = icc_profile
+            kwargs['icc_profile'] = icc_profile
         return kwargs
 
     @Image.operation
@@ -183,7 +183,7 @@ class PillowImage(Image):
         """
         exif = image.info.get('exif')
         if exif is not None:
-            return kwargs['exif'] = exif
+            kwargs['exif'] = exif
         return kwargs
 
     @Image.operation
