@@ -171,10 +171,8 @@ class PillowImage(Image):
         """
         Take over the ICC color profile from the original image
         """
-        print('W I L L O W', 'ADD ICC PROFILE')
         icc_profile = image.info.get('icc_profile')
         if icc_profile is not None:
-            print('W I L L O W', 'ADD ICC PROFILE', 'GOT ICC PROFILE')
             kwargs['icc_profile'] = icc_profile
         return kwargs
 
@@ -219,7 +217,6 @@ class PillowImage(Image):
         if progressive:
             kwargs["progressive"] = True
         
-        print('W I L L O W', 'SAVE AS JPEG')
         kwargs = self.add_icc_profile(image, kwargs)
         kwargs = self.add_exif_data(image, kwargs)
 
@@ -300,7 +297,7 @@ class PillowImage(Image):
         kwargs = self.add_icc_profile(self.image, kwargs)
         kwargs = self.add_exif_data(self.image, kwargs)
 
-        self.image.save(f, "WEBP", kwargs)
+        self.image.save(f, "WEBP", **kwargs)
         if apply_optimizers and not lossless:
             self.optimize(f, "webp")
         return WebPImageFile(f)
@@ -329,7 +326,7 @@ class PillowImage(Image):
             
         kwargs = self.add_icc_profile(self.image, kwargs)
 
-        self.image.save(f, "HEIF", kwargs)
+        self.image.save(f, "HEIF", **kwargs)
         
         if not lossless and apply_optimizers:
             self.optimize(f, "heic")
@@ -345,7 +342,7 @@ class PillowImage(Image):
 
         kwargs = self.add_icc_profile(self.image, kwargs)
             
-        self.image.save(f, "AVIF", quality=quality)
+        self.image.save(f, "AVIF", **kwargs)
         
         if not lossless and apply_optimizers:
             self.optimize(f, "heic")
