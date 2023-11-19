@@ -4,8 +4,8 @@ import unittest
 from unittest import mock
 
 import filetype
+from PIL import ExifTags, ImageChops
 from PIL import Image as PILImage
-from PIL import ImageChops
 
 from willow.image import (
     AvifImageFile,
@@ -445,6 +445,12 @@ class TestPillowImageOrientation(unittest.TestCase):
         self.assertAlmostEqual(colour[1], 93, delta=25)
         self.assertAlmostEqual(colour[2], 65, delta=25)
 
+    def assert_orientation_metadata_to_be(self, image, expect_orientation):
+        image_exif = image.image.getexif()
+        orientation = image_exif.get(ExifTags.Base.Orientation)
+
+        self.assertEqual(orientation, expect_orientation)
+
     def test_jpeg_with_orientation_1(self):
         with open("tests/images/orientation/landscape_1.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
@@ -453,6 +459,11 @@ class TestPillowImageOrientation(unittest.TestCase):
 
         self.assert_orientation_landscape_image_is_correct(image)
 
+        # This is a special case. The image is already in the correct orientation
+        # so the auto_orient method should not have changed anything.
+        # The default orientation is 1, so we expect that to be the orientation metadata
+        self.assert_orientation_metadata_to_be(image, expect_orientation=1)
+
     def test_jpeg_with_orientation_2(self):
         with open("tests/images/orientation/landscape_2.jpg", "rb") as f:
             image = PillowImage.open(JPEGImageFile(f))
@@ -460,6 +471,7 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
 
     def test_jpeg_with_orientation_3(self):
         with open("tests/images/orientation/landscape_3.jpg", "rb") as f:
@@ -468,6 +480,7 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
 
     def test_jpeg_with_orientation_4(self):
         with open("tests/images/orientation/landscape_4.jpg", "rb") as f:
@@ -476,6 +489,7 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
 
     def test_jpeg_with_orientation_5(self):
         with open("tests/images/orientation/landscape_5.jpg", "rb") as f:
@@ -484,6 +498,7 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
 
     def test_jpeg_with_orientation_6(self):
         with open("tests/images/orientation/landscape_6.jpg", "rb") as f:
@@ -492,6 +507,7 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
 
     def test_jpeg_with_orientation_7(self):
         with open("tests/images/orientation/landscape_7.jpg", "rb") as f:
@@ -500,6 +516,7 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
 
     def test_jpeg_with_orientation_8(self):
         with open("tests/images/orientation/landscape_8.jpg", "rb") as f:
@@ -508,3 +525,4 @@ class TestPillowImageOrientation(unittest.TestCase):
         image = image.auto_orient()
 
         self.assert_orientation_landscape_image_is_correct(image)
+        self.assert_orientation_metadata_to_be(image, None)
