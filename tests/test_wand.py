@@ -158,6 +158,38 @@ class TestWandOperations(unittest.TestCase):
 
         self.assertTrue(PILImage.open(image.f).info["progressive"])
 
+    def test_save_as_jpeg_with_icc_profile(self):
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
+        for img_name in images:
+            with open(f"tests/images/{img_name}", "rb") as f:
+                image = WandImage.open(JPEGImageFile(f))
+
+            icc_profile = image.get_wand_image().profiles["ICC"]
+            self.assertIsNotNone(icc_profile)
+
+            buffer = io.BytesIO()
+            image.save_as_jpeg(buffer)
+            buffer.seek(0)
+
+            saved = WandImage.open(JPEGImageFile(buffer))
+            saved_icc_profile = saved.get_wand_image().profiles["ICC"]
+            self.assertEqual(saved_icc_profile, icc_profile)
+
+    def test_save_as_jpeg_with_exif(self):
+        with open("tests/images/colorchecker_sRGB.jpg", "rb") as f:
+            image = WandImage.open(JPEGImageFile(f))
+
+        exif_datetime = image.get_wand_image().metadata.get("exif:DateTime")
+        self.assertIsNotNone(exif_datetime)
+
+        buffer = io.BytesIO()
+        image.save_as_jpeg(buffer)
+        buffer.seek(0)
+
+        saved = WandImage.open(JPEGImageFile(buffer))
+        saved_exif_datetime = saved.get_wand_image().metadata.get("exif:DateTime")
+        self.assertEqual(saved_exif_datetime, exif_datetime)
+
     def test_save_as_png(self):
         output = io.BytesIO()
         return_value = self.image.save_as_png(output)
@@ -357,6 +389,24 @@ class TestWandOperations(unittest.TestCase):
                     if original_pixel != lossless_image[x, y]:
                         break
             self.assertTrue(identical)
+
+    @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
+    def test_save_as_webp_with_icc_profile(self):
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
+        for img_name in images:
+            with open(f"tests/images/{img_name}", "rb") as f:
+                image = WandImage.open(JPEGImageFile(f))
+
+            icc_profile = image.get_wand_image().profiles["ICC"]
+            self.assertIsNotNone(icc_profile)
+
+            buffer = io.BytesIO()
+            image.save_as_webp(buffer)
+            buffer.seek(0)
+
+            saved = WandImage.open(WebPImageFile(buffer))
+            saved_icc_profile = saved.get_wand_image().profiles["ICC"]
+            self.assertEqual(saved_icc_profile, icc_profile)
 
 
 class TestWandImageWithOptimizers(unittest.TestCase):

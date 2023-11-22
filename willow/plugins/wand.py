@@ -146,6 +146,12 @@ class WandImage(Image):
 
         return clone
 
+    def get_icc_profile(self):
+        return self.image.metadata.get("icc-profile")
+
+    def get_exif_data(self):
+        return self.image.metadata.get("exif")
+
     @Image.operation
     def save_as_jpeg(
         self,
@@ -164,8 +170,18 @@ class WandImage(Image):
         :param apply_optimizers: controls whether to run any configured optimizer libraries
         :return: JPEGImageFile
         """
-        with self.image.convert("pjpeg" if progressive else "jpeg") as converted:
+        with self.image.clone() as converted:
+            converted.format = "pjpeg" if progressive else "jpeg"
             converted.compression_quality = quality
+
+            icc_profile = self.get_icc_profile()
+            if icc_profile is not None:
+                converted.profiles["icc"] = icc_profile
+
+            exif_data = self.get_exif_data()
+            if exif_data is not None:
+                converted.profiles["exif"] = exif_data
+
             converted.save(file=f)
 
         if apply_optimizers:
@@ -215,7 +231,9 @@ class WandImage(Image):
             Note that when lossless=True, this will be ignored.
         :return: WebPImageFile
         """
-        with self.image.convert("webp") as converted:
+        with self.image.clone() as converted:
+            converted.format = "webp"
+
             if lossless:
                 library = _wand_api().library
                 library.MagickSetOption.argtypes = [c_void_p, c_char_p, c_char_p]
@@ -226,7 +244,13 @@ class WandImage(Image):
                 )
             else:
                 converted.compression_quality = quality
+
+            icc_profile = self.get_icc_profile()
+            if icc_profile is not None:
+                converted.profiles["icc"] = icc_profile
+
             converted.save(file=f)
+
         if not lossless and apply_optimizers:
             self.optimize(f, "webp")
         return WebPImageFile(f)
