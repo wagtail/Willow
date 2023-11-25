@@ -164,7 +164,7 @@ class TestWandOperations(unittest.TestCase):
             with open(f"tests/images/{img_name}", "rb") as f:
                 image = WandImage.open(JPEGImageFile(f))
 
-            icc_profile = image.get_wand_image().profiles["ICC"]
+            icc_profile = image.get_icc_profile()
             self.assertIsNotNone(icc_profile)
 
             buffer = io.BytesIO()
@@ -172,7 +172,7 @@ class TestWandOperations(unittest.TestCase):
             buffer.seek(0)
 
             saved = WandImage.open(JPEGImageFile(buffer))
-            saved_icc_profile = saved.get_wand_image().profiles["ICC"]
+            saved_icc_profile = saved.get_icc_profile()
             self.assertEqual(saved_icc_profile, icc_profile)
 
     def test_save_as_jpeg_with_exif(self):
@@ -411,7 +411,7 @@ class TestWandOperations(unittest.TestCase):
             with open(f"tests/images/{img_name}", "rb") as f:
                 image = WandImage.open(JPEGImageFile(f))
 
-            icc_profile = image.get_wand_image().profiles["ICC"]
+            icc_profile = image.get_icc_profile()
             self.assertIsNotNone(icc_profile)
 
             buffer = io.BytesIO()
@@ -419,7 +419,7 @@ class TestWandOperations(unittest.TestCase):
             buffer.seek(0)
 
             saved = WandImage.open(WebPImageFile(buffer))
-            saved_icc_profile = saved.get_wand_image().profiles["ICC"]
+            saved_icc_profile = saved.get_icc_profile()
             self.assertEqual(saved_icc_profile, icc_profile)
 
 
