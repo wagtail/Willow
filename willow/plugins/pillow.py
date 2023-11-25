@@ -242,6 +242,10 @@ class PillowImage(Image):
         if icc_profile is not None:
             kwargs["icc_profile"] = icc_profile
 
+        exif_data = self.get_exif_data()
+        if exif_data is not None:
+            kwargs["exif"] = exif_data
+
         image.save(f, "PNG", **kwargs)
         if apply_optimizers:
             self.optimize(f, "png")
