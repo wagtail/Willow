@@ -198,6 +198,10 @@ class WandImage(Image):
         :return: PNGImageFile
         """
         with self.image.convert("png") as converted:
+            exif_data = self.get_exif_data()
+            if exif_data is not None:
+                converted.profiles["exif"] = exif_data
+
             converted.save(file=f)
 
         if apply_optimizers:

@@ -207,6 +207,20 @@ class TestWandOperations(unittest.TestCase):
         # Optimised image must be smaller than unoptimised image
         self.assertTrue(optimised.f.tell() < unoptimised.f.tell())
 
+    def test_save_as_png_with_exif(self):
+        for img_name in ["colorchecker_sRGB.jpg"]:
+            with open(f"tests/images/{img_name}", "rb") as f:
+                original = WandImage.open(JPEGImageFile(f))
+
+            exif_datetime = original.get_wand_image().metadata.get("exif:DateTime")
+            self.assertIsNotNone(exif_datetime)
+
+            converted = original.save_as_png(io.BytesIO())
+
+            saved = WandImage.open(converted)
+            saved_exif_datetime = saved.get_wand_image().metadata.get("exif:DateTime")
+            self.assertEqual(saved_exif_datetime, exif_datetime)
+
     def test_save_as_gif(self):
         output = io.BytesIO()
         return_value = self.image.save_as_gif(output)
