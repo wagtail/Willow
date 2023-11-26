@@ -3,6 +3,8 @@ try:
 except ImportError:
     pass
 
+from PIL import ImageOps
+
 from willow.image import (
     AvifImageFile,
     BadImageOperationError,
@@ -166,6 +168,12 @@ class PillowImage(Image):
 
         return PillowImage(new_image.convert("RGB"))
 
+    def get_icc_profile(self):
+        return self.image.info.get("icc_profile")
+
+    def get_exif_data(self):
+        return self.image.info.get("exif")
+
     @Image.operation
     def save_as_jpeg(
         self,
@@ -197,6 +205,14 @@ class PillowImage(Image):
         if progressive:
             kwargs["progressive"] = True
 
+        icc_profile = self.get_icc_profile()
+        if icc_profile is not None:
+            kwargs["icc_profile"] = icc_profile
+
+        exif_data = self.get_exif_data()
+        if exif_data is not None:
+            kwargs["exif"] = exif_data
+
         image.save(f, "JPEG", **kwargs)
         if apply_optimizers:
             self.optimize(f, "jpeg")
@@ -221,6 +237,14 @@ class PillowImage(Image):
         kwargs = {}
         if optimize:
             kwargs["optimize"] = True
+
+        icc_profile = self.get_icc_profile()
+        if icc_profile is not None:
+            kwargs["icc_profile"] = icc_profile
+
+        exif_data = self.get_exif_data()
+        if exif_data is not None:
+            kwargs["exif"] = exif_data
 
         image.save(f, "PNG", **kwargs)
         if apply_optimizers:
@@ -264,7 +288,14 @@ class PillowImage(Image):
             Note that when lossless=True, this will be ignored.
         :return: WebPImageFile
         """
-        self.image.save(f, "WEBP", quality=quality, lossless=lossless)
+
+        kwargs = {"quality": quality, "lossless": lossless}
+
+        icc_profile = self.get_icc_profile()
+        if icc_profile is not None:
+            kwargs["icc_profile"] = icc_profile
+
+        self.image.save(f, "WEBP", **kwargs)
         if apply_optimizers and not lossless:
             self.optimize(f, "webp")
         return WebPImageFile(f)
@@ -287,23 +318,35 @@ class PillowImage(Image):
             Note that when lossless=True, this will be ignored.
         :return: HeicImageFile
         """
+        kwargs = {"quality": quality}
         if lossless:
-            self.image.save(f, "HEIF", quality=-1, chroma=444)
-        else:
-            self.image.save(f, "HEIF", quality=quality)
-            if apply_optimizers:
-                self.optimize(f, "heic")
+            kwargs = {"quality": -1, "chroma": 444}
+
+        icc_profile = self.get_icc_profile()
+        if icc_profile is not None:
+            kwargs["icc_profile"] = icc_profile
+
+        self.image.save(f, "HEIF", **kwargs)
+
+        if not lossless and apply_optimizers:
+            self.optimize(f, "heic")
 
         return HeicImageFile(f)
 
     @Image.operation
     def save_as_avif(self, f, quality=80, lossless=False, apply_optimizers=True):
+        kwargs = {"quality": quality}
         if lossless:
-            self.image.save(f, "AVIF", quality=-1, chroma=444)
-        else:
-            self.image.save(f, "AVIF", quality=quality)
-            if apply_optimizers:
-                self.optimize(f, "heic")
+            kwargs = {"quality": -1, "chroma": 444}
+
+        icc_profile = self.get_icc_profile()
+        if icc_profile is not None:
+            kwargs["icc_profile"] = icc_profile
+
+        self.image.save(f, "AVIF", **kwargs)
+
+        if not lossless and apply_optimizers:
+            self.optimize(f, "heic")
 
         return AvifImageFile(f)
 
@@ -311,39 +354,7 @@ class PillowImage(Image):
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
-        image = self.image
-
-        if hasattr(image, "_getexif"):
-            try:
-                exif = image._getexif()
-            except Exception:  # noqa: BLE001
-                # Blanket cover all the ways _getexif can fail in.
-                exif = None
-            if exif is not None:
-                # 0x0112 = Orientation
-                orientation = exif.get(0x0112, 1)
-
-                if 1 <= orientation <= 8:
-                    Image = _PIL_Image()
-                    ORIENTATION_TO_TRANSPOSE = {
-                        1: (),
-                        2: (Image.Transpose.FLIP_LEFT_RIGHT,),
-                        3: (Image.Transpose.ROTATE_180,),
-                        4: (
-                            Image.Transpose.ROTATE_180,
-                            Image.Transpose.FLIP_LEFT_RIGHT,
-                        ),
-                        5: (
-                            Image.Transpose.ROTATE_270,
-                            Image.Transpose.FLIP_LEFT_RIGHT,
-                        ),
-                        6: (Image.Transpose.ROTATE_270,),
-                        7: (Image.Transpose.ROTATE_90, Image.Transpose.FLIP_LEFT_RIGHT),
-                        8: (Image.Transpose.ROTATE_90,),
-                    }
-
-                    for transpose in ORIENTATION_TO_TRANSPOSE[orientation]:
-                        image = image.transpose(transpose)
+        image = ImageOps.exif_transpose(self.image)
 
         return PillowImage(image)
 
