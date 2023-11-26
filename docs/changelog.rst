@@ -4,6 +4,12 @@ Changelog
 Unreleased
 ----------
 
+1.6.3 (2023-11-26)
+------------------
+
+- Replace wrong unicode character in the `image/heic` mime type (Stephan Lachnit)
+- Fix color management by keeping ICC color profiles and EXIF data in addition (André Fuchs, Stefan Istrate)
+
 1.6.2 (2023-09-06)
 ------------------
 
