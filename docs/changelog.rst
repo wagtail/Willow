@@ -4,6 +4,24 @@ Changelog
 Unreleased
 ----------
 
+1.7.0 (2023-11-26)
+------------------
+
+Note: due to various limitations, version 1.6.3 includes some of the fixes present in 1.7.x, most importantly the
+ICC profile and EXIF data when saving a JPEG to PNG, WebP, AVIF.
+
+- Test with Python 3.12 (@zerolab)
+- Add optional dependencies for Pillow/Wand (@zerolab)
+  One can run ``pip install Willow[Pillow]`` or ``Willow[Wand]`` and get the correct Pillow or Wand versions.
+- Replace wrong unicode character in the `image/heic` mime type (Stephan Lachnit)
+- Fix color management by keeping ICC color profiles and EXIF data in addition (André Fuchs, Stefan Istrate)
+
+1.6.3 (2023-11-26)
+------------------
+
+- Replace wrong unicode character in the `image/heic` mime type (Stephan Lachnit)
+- Fix color management by keeping ICC color profiles and EXIF data in addition (André Fuchs, Stefan Istrate)
+
 1.6.2 (2023-09-06)
 ------------------
 
