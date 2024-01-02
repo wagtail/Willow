@@ -52,7 +52,7 @@ ICC profile and EXIF data when saving a JPEG to PNG, WebP, AVIF.
 
 
 1.5.2 (2023-08-04)
-----------------
+------------------
 
  - Fix ``NUMBER_PATTERN`` regex for parsing SVG viewboxes (Joshua Munn)
 
