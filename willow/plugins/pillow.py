@@ -3,8 +3,6 @@ try:
 except ImportError:
     pass
 
-from PIL import ImageOps
-
 from willow.image import (
     AvifImageFile,
     BadImageOperationError,
@@ -354,6 +352,8 @@ class PillowImage(Image):
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
+        from PIL import ImageOps
+
         image = ImageOps.exif_transpose(self.image)
 
         return PillowImage(image)
