@@ -320,6 +320,18 @@ Here's a full list of operations provided by Willow out of the box:
             image.save_as_svg(f)
 
 
+.. method:: save_as_ico(file)
+
+    Saves the image to the specified file-like object in ICO format.
+
+    returns a ``IcoImageFile`` wrapping the file.
+
+    .. code-block:: python
+
+        with open('out.ico', 'w') as f:
+            image.save_as_ico(f)
+
+
 .. method:: get_pillow_image()
 
     (Pillow only)

@@ -125,6 +125,7 @@ class Image:
             "svg",
             "heic",
             "avif",
+            "ico",
         ]:
             raise ValueError("Unknown image format: %s" % image_format)
 
@@ -337,6 +338,11 @@ class AvifImageFile(ImageFile):
         return "image/avif"
 
 
+class IcoImageFile(ImageFile):
+    format_name = "ico"
+    mime_type = "image/x-icon"
+
+
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     image_types.Jpeg().extension: JPEGImageFile,
@@ -348,4 +354,5 @@ INITIAL_IMAGE_CLASSES = {
     "svg": SvgImageFile,
     image_types.Heic().extension: HeicImageFile,
     image_types.Avif().extension: AvifImageFile,
+    image_types.Ico().extension: IcoImageFile,
 }

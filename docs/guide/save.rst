@@ -10,6 +10,7 @@ In Willow there are separate save operations for each image format:
  - :meth:`~Image.save_as_svg`
  - :meth:`~Image.save_as_heic`
  - :meth:`~Image.save_as_avif`
+ - :meth:`~Image.save_as_ico`
 
 
 All three take one positional argument, the file-like object to write the image
@@ -25,10 +26,10 @@ For example, to save an image as a PNG file:
 Changing the quality setting
 ---------------------------------
 
-:meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_webp` takes a ``quality`` 
-keyword argument, which is a number between 1 and 100. It defaults to 85 
-for :meth:`~Image.save_as_jpeg` and 80 for :meth:`~Image.save_as_webp`. 
-Decreasing this number will decrease the output file size at the cost 
+:meth:`~Image.save_as_jpeg` and :meth:`~Image.save_as_webp` takes a ``quality``
+keyword argument, which is a number between 1 and 100. It defaults to 85
+for :meth:`~Image.save_as_jpeg` and 80 for :meth:`~Image.save_as_webp`.
+Decreasing this number will decrease the output file size at the cost
 of losing image quality.
 
 For example, to save an image with low quality:
@@ -60,10 +61,10 @@ You can encode the image to AVIF, HEIC (Pillow-only) and WebP without any loss b
 
     with open('lossless.avif', 'wb') as f:
         i.save_as_avif(f, lossless=True)
-    
+
     with open('lossless.heic', 'wb') as f:
         i.save_as_heic(f, lossless=True)
-    
+
     with open('lossless.webp', 'wb') as f:
         i.save_as_webp(f, lossless=True)
 

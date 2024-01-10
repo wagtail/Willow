@@ -11,6 +11,7 @@ from willow.image import (
     AvifImageFile,
     BadImageOperationError,
     GIFImageFile,
+    IcoImageFile,
     JPEGImageFile,
     PNGImageFile,
     WebPImageFile,
@@ -427,6 +428,22 @@ class TestPillowOperations(unittest.TestCase):
 
         diff = ImageChops.difference(original_image, lossless_image)
         self.assertIsNone(diff.getbbox())
+
+    def test_save_ico(self):
+        output = io.BytesIO()
+        return_value = self.image.save_as_ico(output)
+        output.seek(0)
+
+        self.assertEqual(filetype.guess_extension(output), "ico")
+        self.assertIsInstance(return_value, IcoImageFile)
+        self.assertEqual(return_value.f, output)
+
+    def test_open_ico(self):
+        with open("tests/images/wagtail.ico", "rb") as f:
+            image = PillowImage.open(IcoImageFile(f))
+
+        self.assertTrue(image.has_alpha())
+        self.assertFalse(image.has_animation())
 
 
 class TestPillowImageWithOptimizers(unittest.TestCase):

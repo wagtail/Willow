@@ -11,6 +11,7 @@ from willow.image import (
     AvifImageFile,
     BadImageOperationError,
     GIFImageFile,
+    IcoImageFile,
     JPEGImageFile,
     PNGImageFile,
     WebPImageFile,
@@ -421,6 +422,15 @@ class TestWandOperations(unittest.TestCase):
             saved = WandImage.open(WebPImageFile(buffer))
             saved_icc_profile = saved.get_icc_profile()
             self.assertEqual(saved_icc_profile, icc_profile)
+
+    def test_save_as_ico(self):
+        output = io.BytesIO()
+        return_value = self.image.save_as_ico(output)
+        output.seek(0)
+
+        self.assertEqual(filetype.guess_extension(output), "ico")
+        self.assertIsInstance(return_value, IcoImageFile)
+        self.assertEqual(return_value.f, output)
 
 
 class TestWandImageWithOptimizers(unittest.TestCase):

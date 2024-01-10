@@ -10,10 +10,10 @@ A wrapper that combines the functionality of multiple Python image libraries int
 
 ## Overview
 
-Willow is a simple image library that combines the APIs of [Pillow](https://pillow.readthedocs.io/), [Wand](https://docs.wand-py.org) and [OpenCV](https://opencv.org/). 
+Willow is a simple image library that combines the APIs of [Pillow](https://pillow.readthedocs.io/), [Wand](https://docs.wand-py.org) and [OpenCV](https://opencv.org/).
 It converts the image between the libraries when necessary.
 
-Willow currently has basic resize and crop operations, face and feature detection and animated GIF support. 
+Willow currently has basic resize and crop operations, face and feature detection and animated GIF support.
 New operations and library integrations can also be [easily implemented](https://willow.readthedocs.org/en/latest/guide/extend.html).
 
 The library is written in pure Python and supports versions 3.8 3.9, 3.10, 3.11 and 3.12.
@@ -74,6 +74,7 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 | `save_as_png(file)`                     | ✓      | ✓    |        |
 | `save_as_gif(file)`                     | ✓      | ✓    |        |
 | `save_as_webp(file, quality)`           | ✓      | ✓    |        |
+| `save_as_ico(file)`                     | ✓      | ✓    |        |
 | `save_as_heif(file, quality, lossless)` | ✓⁺     |      |        |
 | `save_as_avif(file, quality, lossless)` | ✓⁺     | ✓⁺   |        |
 | `has_alpha()`                           | ✓      | ✓    | ✓*     |
