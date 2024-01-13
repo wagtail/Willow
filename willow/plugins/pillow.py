@@ -1,3 +1,5 @@
+from io import BytesIO
+
 try:
     from pillow_heif import AvifImagePlugin, HeifImagePlugin  # noqa: F401
 except ImportError:
@@ -27,6 +29,12 @@ def _PIL_Image():
     import PIL.Image
 
     return PIL.Image
+
+
+def _PIL_ImageCms():
+    import PIL.ImageCms
+
+    return PIL.ImageCms
 
 
 class PillowImage(Image):
@@ -171,6 +179,49 @@ class PillowImage(Image):
 
     def get_exif_data(self):
         return self.image.info.get("exif")
+
+    @Image.operation
+    def transform_colorspace_to_srgb(self, rendering_intent=0):
+        """
+        Transforms the color of the image to fit inside sRGB color gamut using the
+        embedded ICC profile. The resulting image will always be in RGB(A) mode
+        and will have a small generic sRGB ICC profile embedded.
+
+        If the image does not have an ICC profile this operation is a no-op.
+        Images without a profile are commonly assumed to be in sRGB color space
+        already.
+
+        :param rendering_intent: Controls how out-of-gamut colors and handled.
+        Defaults to 0 (perceptual) because this is what Pillow defaults to.
+        :return: PillowImage in RGB mode
+        :raises: PIL.ImageCms.PyCMSError
+
+        Further reading:
+            * https://pillow.readthedocs.io/en/stable/reference/ImageCms.html#PIL.ImageCms.profileToProfile
+            * https://www.permajet.com/blog/rendering-intents-explained/
+        """
+        icc_profile = self.get_icc_profile()
+
+        # Can't transform if there is no profile, no-op
+        if icc_profile is None:
+            return self
+
+        ImageCms = _PIL_ImageCms()
+        # ImageCmsProfile expects profile data to be file-like, give it BytesIO that quacks like a file 🦆
+        icc_profile = ImageCms.ImageCmsProfile(BytesIO(icc_profile))
+
+        # Output mode should always be RGB, unless the image has an alpha channel.
+        output_mode = "RGBA" if self.has_alpha() else "RGB"
+
+        # Attempt to convert from the embedded profile of the image to a generic sRGB one
+        image = ImageCms.profileToProfile(
+            self.image,
+            icc_profile,
+            ImageCms.createProfile("sRGB"),
+            renderingIntent=rendering_intent,
+            outputMode=output_mode,
+        )
+        return PillowImage(image)
 
     @Image.operation
     def save_as_jpeg(

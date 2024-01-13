@@ -5,7 +5,7 @@ from unittest import mock
 
 import filetype
 from PIL import Image as PILImage
-from PIL import ImageChops
+from PIL import ImageChops, ImageCms, ImageStat
 
 from willow.image import (
     AvifImageFile,
@@ -123,6 +123,72 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(
             str(e.exception), "the 'color' argument must be a 3-element tuple or list"
         )
+
+    def test_transform_colorspace_to_srgb_noop(self):
+        with open("tests/images/flower.jpg", "rb") as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        transformed_image = image.transform_colorspace_to_srgb()
+
+        # Statistics about color values should be the same - it should be a no-op after all
+        stat = ImageStat.Stat(image.image)
+        stat_transformed = ImageStat.Stat(transformed_image.image)
+        self.assertEqual(stat.sum, stat_transformed.sum)
+
+        self.assertEqual(transformed_image.image.mode, "RGB")
+
+    def test_transform_colorspace_to_srgb_preserve_transparency(self):
+        with open("tests/images/transparent_with_icc_profile.png", "rb") as f:
+            image = PillowImage.open(PNGImageFile(f))
+
+        # The sample image is in RGBA mode, it contains transparent pixels
+        self.assertEqual(image.image.mode, "RGBA")
+
+        transformed_image = image.transform_colorspace_to_srgb()
+        # Image remains in RGBA mode
+        self.assertEqual(transformed_image.image.mode, "RGBA")
+
+        # Check that the alpha of pixel 1,1 is 0
+        self.assertEqual(transformed_image.image.convert("RGBA").getpixel((1, 1))[3], 0)
+
+    def test_transform_colorspace_to_srgb(self):
+        with open("tests/images/dog_and_lake_cmyk_with_icc_profile.jpg", "rb") as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        # The sample image should originally be in CMYK mode
+        self.assertEqual(image.image.mode, "CMYK")
+        self.assertIsNotNone(image.get_icc_profile())
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.get_icc_profile()))
+
+        # The original embedded profile should be called "ISO Coated v2 (built-in)"
+        self.assertEqual(
+            cms_profile.profile.profile_description, "ISO Coated v2 (built-in)"
+        )
+
+        image_srgb = image.transform_colorspace_to_srgb()
+
+        # The image should now be in RGB mode as a result of the operation
+        self.assertEqual(image_srgb.image.mode, "RGB")
+
+        # We verify the result by comparing the squared sum of the color channels
+        # to known good values. This should be accurate enough to detect any major
+        # deviations from the expected result without being too sensitive to minor
+        # differences between systems.
+        stat = ImageStat.Stat(image_srgb.image)
+        expected_sum2 = [1286116001.0, 1222827100.0, 1144012271.0]
+
+        for actual, expected in zip(stat.sum2, expected_sum2):
+            self.assertAlmostEqual(
+                actual,
+                expected,
+                delta=1000,
+                msg="The colors in this image deviate too much from the expected values.",
+            )
+
+        # The image should now have a embedded sRGB profile
+        self.assertIsNotNone(image_srgb.get_icc_profile())
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image_srgb.get_icc_profile()))
+        self.assertEqual(cms_profile.profile.profile_description, "sRGB built-in")
 
     def test_save_as_jpeg(self):
         # Remove alpha channel from image
