@@ -278,18 +278,30 @@ class PillowImage(Image):
         :param apply_optimizers: controls whether to run any configured optimizer libraries
         :return: PNGImageFile
         """
-        if self.image.mode == "CMYK":
-            image = self.image.convert("RGB")
-        else:
-            image = self.image
-        # Pillow only checks presence of optimize kwarg, not its value
-        kwargs = {}
-        if optimize:
-            kwargs["optimize"] = True
 
+        kwargs = {}
+        image = self.image
         icc_profile = self.get_icc_profile()
         if icc_profile is not None:
-            kwargs["icc_profile"] = icc_profile
+            # If the image is in CMYK mode *and* has an ICC profile, we need to be more diligent
+            # about how we handle the color conversion to RGB. We don't want to retain
+            # the color profile as-is because it is not meant for RGB images and
+            # will result in inaccurate colors. The transformation to sRGB should result
+            # in a more accurate representation of the original image, though
+            # it will likely not be perfect.
+            if self.image.mode == "CMYK":
+                pillow_image = self.transform_colorspace_to_srgb()
+                image = pillow_image.image
+                kwargs["icc_profile"] = pillow_image.get_icc_profile()
+            else:
+                kwargs["icc_profile"] = icc_profile
+
+        elif image.mode == "CMYK":
+            image = image.convert("RGB")
+
+        # Pillow only checks presence of optimize kwarg, not its value
+        if optimize:
+            kwargs["optimize"] = True
 
         exif_data = self.get_exif_data()
         if exif_data is not None:
@@ -340,11 +352,24 @@ class PillowImage(Image):
 
         kwargs = {"quality": quality, "lossless": lossless}
 
+        image = self.image
         icc_profile = self.get_icc_profile()
         if icc_profile is not None:
-            kwargs["icc_profile"] = icc_profile
+            # If the image is in CMYK mode *and* has an ICC profile, we need to be more diligent
+            # about how we handle the color space. WEBP will encode as RGB so we need to do extra
+            # work to ensure the colors are as accurate as possible. We don't want to retain
+            # the color profile as-is because it is not meant for RGB images and
+            # will result in inaccurate colors. The transformation to sRGB should result
+            # in a more accurate representation of the original image, though
+            # it will likely not be perfect.
+            if image.mode == "CMYK":
+                pillow_image = self.transform_colorspace_to_srgb()
+                image = pillow_image.image
+                kwargs["icc_profile"] = pillow_image.get_icc_profile()
+            else:
+                kwargs["icc_profile"] = icc_profile
 
-        self.image.save(f, "WEBP", **kwargs)
+        image.save(f, "WEBP", **kwargs)
         if apply_optimizers and not lossless:
             self.optimize(f, "webp")
         return WebPImageFile(f)
@@ -371,11 +396,24 @@ class PillowImage(Image):
         if lossless:
             kwargs = {"quality": -1, "chroma": 444}
 
+        image = self.image
         icc_profile = self.get_icc_profile()
         if icc_profile is not None:
-            kwargs["icc_profile"] = icc_profile
+            # If the image is in CMYK mode *and* has an ICC profile, we need to be more diligent
+            # about how we handle the color space. HEIC will encode as RGB so we need to do extra
+            # work to ensure the colors are as accurate as possible. We don't want to retain
+            # the color profile as-is because it is not meant for RGB images and
+            # will result in inaccurate colors. The transformation to sRGB should result
+            # in a more accurate representation of the original image, though
+            # it will likely not be perfect.
+            if image.mode == "CMYK":
+                pillow_image = self.transform_colorspace_to_srgb()
+                image = pillow_image.image
+                kwargs["icc_profile"] = pillow_image.get_icc_profile()
+            else:
+                kwargs["icc_profile"] = icc_profile
 
-        self.image.save(f, "HEIF", **kwargs)
+        image.save(f, "HEIF", **kwargs)
 
         if not lossless and apply_optimizers:
             self.optimize(f, "heic")
@@ -388,11 +426,24 @@ class PillowImage(Image):
         if lossless:
             kwargs = {"quality": -1, "chroma": 444}
 
+        image = self.image
         icc_profile = self.get_icc_profile()
         if icc_profile is not None:
-            kwargs["icc_profile"] = icc_profile
+            # If the image is in CMYK mode *and* has an ICC profile, we need to be more diligent
+            # about how we handle the color space. AVIF will encode as RGB so we need to do extra
+            # work to ensure the colors are as accurate as possible. We don't want to retain
+            # the color profile as-is because it is not meant for RGB images and
+            # will result in inaccurate colors. The transformation to sRGB should result
+            # in a more accurate representation of the original image, though
+            # it will likely not be perfect.
+            if image.mode == "CMYK":
+                pillow_image = self.transform_colorspace_to_srgb()
+                image = pillow_image.image
+                kwargs["icc_profile"] = pillow_image.get_icc_profile()
+            else:
+                kwargs["icc_profile"] = icc_profile
 
-        self.image.save(f, "AVIF", **kwargs)
+        image.save(f, "AVIF", **kwargs)
 
         if not lossless and apply_optimizers:
             self.optimize(f, "heic")
