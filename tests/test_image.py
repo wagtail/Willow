@@ -5,8 +5,6 @@ from tempfile import NamedTemporaryFile, SpooledTemporaryFile
 from unittest import mock
 from xml.etree.ElementTree import ParseError as XMLParseError
 
-import filetype
-
 from willow.image import (
     AvifImageFile,
     BMPImageFile,
@@ -306,23 +304,3 @@ class TestOptimizeImage(unittest.TestCase):
             self.image.optimize(f, "jpeg")
         mock_process.assert_called_with("tests/images/people.jpg")
         mock_unlink.assert_not_called()
-
-
-class TestImghdrJPEGPatch(unittest.TestCase):
-    def test_detects_photoshop3_jpeg(self):
-        f = io.BytesIO()
-        f.write(b"\xff\xd8\xff\xed\x00,Photoshop 3.0\x00")
-        f.seek(0)
-
-        image_format = filetype.guess_extension(f)
-
-        self.assertEqual(image_format, "jpg")
-
-    def test_junk(self):
-        f = io.BytesIO()
-        f.write(b"Not an image")
-        f.seek(0)
-
-        image_format = filetype.guess_extension(f)
-
-        self.assertIsNone(image_format)
