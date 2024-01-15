@@ -171,19 +171,15 @@ class TestPillowOperations(unittest.TestCase):
         # The image should now be in RGB mode as a result of the operation
         self.assertEqual(image_srgb.image.mode, "RGB")
 
-        # We verify the result by comparing the squared sum of the color channels
-        # to known good values. This should be accurate enough to detect any major
-        # deviations from the expected result without being too sensitive to minor
-        # differences between systems.
+        # We verify the result by comparing the sum of all color values in the image
         stat = ImageStat.Stat(image_srgb.image)
-        expected_sum2 = [1286116001.0, 1222827100.0, 1144012271.0]
+        expected_sum = [8617671.0, 8074576.0, 6869829.0]
 
-        for actual, expected in zip(stat.sum2, expected_sum2):
-            self.assertAlmostEqual(
+        for actual, expected in zip(stat.sum, expected_sum):
+            self.assertEqual(
                 actual,
                 expected,
-                delta=1000,
-                msg="The colors in this image deviate too much from the expected values.",
+                msg="The colors in the transformed image don't match with expectations. Did the sample image change or is there a bug?",
             )
 
         # The image should now have a embedded sRGB profile
