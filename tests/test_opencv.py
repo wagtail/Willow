@@ -71,4 +71,5 @@ class TestOpenCVOperations(unittest.TestCase):
         self.assertIsInstance(faces, list)
         # There are two faces in the image
         self.assertEqual(len(faces), 2)
-        assert_allclose(faces, self.expected_faces, atol=2)
+        # Sort out list as there is no preferred order of the faces
+        assert_allclose(sorted(faces), sorted(self.expected_faces), atol=2)
