@@ -172,6 +172,47 @@ Here's a full list of operations provided by Willow out of the box:
         # Set the background color of the image to white
         image = source_image.set_background_color_rgb((255, 255, 255))
 
+.. method:: transform_colorspace_to_srgb(rendering_intent=0)
+
+    (Pillow only)
+
+    Note: This operation has no effect if the image does not have an embedded ICC color profile.
+
+    Transforms the colors of the image to fit inside sRGB color gamut using data
+    from the embedded ICC profile. The resulting image will always be in RGB format
+    (or RGBA for images with transparency) and will have a small generic sRGB
+    ICC profile embedded.
+
+    A large number of devices lack the capability to display images
+    in color spaces other than sRGB and will automatically squash the colors
+    to fit inside sRGB gamut. In order to do this accurately, the device uses
+    the embedded ICC profile. You can use this operation to do the same thing
+    upfront and save on image size by replacing the (large) embedded profile with a
+    small generic sRGB profile. Keep in mind that this operation is lossy, devices
+    that *do* support wider color gamuts, like DCI-P3 or Adobe RGB, will not be
+    able to display the image in its original colors if the original colors were
+    outside of sRGB gamut.
+
+    The ``rendering_intent`` parameter specifies the rendering intent to use.
+    It defaults to 0 (perceptual). This controls how out-of-gamut colors are handled.
+
+    It can be one of the following values:
+
+    * ``0`` - Perceptual (default)
+    * ``1`` - Relative colorimetric
+    * ``2`` - Saturation
+    * ``3`` - Absolute colorimetric
+
+    .. code-block:: python
+
+        image = image.transform_colorspace_to_srgb()
+
+    `Read more about rendering intents on Wikipedia
+    <https://en.wikipedia.org/wiki/Rendering_intent>`_.
+
+    `Read more about color spaces on the web in this WebKit blog post
+    <https://webkit.org/blog/6682/improving-color-on-the-web/>`_.
+
 .. method:: auto_orient()
 
     (Pillow/Wand only)

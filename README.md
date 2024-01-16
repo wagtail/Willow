@@ -61,28 +61,29 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 
 [Documentation](https://willow.readthedocs.org/en/latest/reference.html#builtin-operations)
 
-| Operation                               | Pillow | Wand | OpenCV |
-|-----------------------------------------|--------|------|--------|
-| `get_size()`                            | ✓      | ✓    | ✓      |
-| `get_frame_count()`                     | ✓**    | ✓    | ✓**    |
-| `resize(size)`                          | ✓      | ✓    |        |
-| `crop(rect)`                            | ✓      | ✓    |        |
-| `rotate(angle)`                         | ✓      | ✓    |        |
-| `set_background_color_rgb(color)`       | ✓      | ✓    |        |
-| `auto_orient()`                         | ✓      | ✓    |        |
-| `save_as_jpeg(file, quality)`           | ✓      | ✓    |        |
-| `save_as_png(file)`                     | ✓      | ✓    |        |
-| `save_as_gif(file)`                     | ✓      | ✓    |        |
-| `save_as_webp(file, quality)`           | ✓      | ✓    |        |
-| `save_as_ico(file)`                     | ✓      | ✓    |        |
-| `save_as_heif(file, quality, lossless)` | ✓⁺     |      |        |
-| `save_as_avif(file, quality, lossless)` | ✓⁺     | ✓⁺   |        |
-| `has_alpha()`                           | ✓      | ✓    | ✓*     |
-| `has_animation()`                       | ✓*     | ✓    | ✓*     |
-| `get_pillow_image()`                    | ✓      |      |        |
-| `get_wand_image()`                      |        | ✓    |        |
-| `detect_features()`                     |        |      | ✓      |
-| `detect_faces(cascade_filename)`        |        |      | ✓      |
+| Operation                                        | Pillow | Wand | OpenCV |
+| ------------------------------------------------ | ------ | ---- | ------ |
+| `get_size()`                                     | ✓      | ✓    | ✓      |
+| `get_frame_count()`                              | ✓\*\*  | ✓    | ✓\*\*  |
+| `resize(size)`                                   | ✓      | ✓    |        |
+| `crop(rect)`                                     | ✓      | ✓    |        |
+| `rotate(angle)`                                  | ✓      | ✓    |        |
+| `set_background_color_rgb(color)`                | ✓      | ✓    |        |
+| `transform_colorspace_to_srgb(rendering_intent)` | ✓      |      |        |
+| `auto_orient()`                                  | ✓      | ✓    |        |
+| `save_as_jpeg(file, quality)`                    | ✓      | ✓    |        |
+| `save_as_png(file)`                              | ✓      | ✓    |        |
+| `save_as_gif(file)`                              | ✓      | ✓    |        |
+| `save_as_webp(file, quality)`                    | ✓      | ✓    |        |
+| `save_as_heif(file, quality, lossless)`          | ✓⁺     |      |        |
+| `save_as_avif(file, quality, lossless)`          | ✓⁺     | ✓⁺   |        |
+| `save_as_ico(file)`                              | ✓      | ✓    |        |
+| `has_alpha()`                                    | ✓      | ✓    | ✓\*    |
+| `has_animation()`                                | ✓\*    | ✓    | ✓\*    |
+| `get_pillow_image()`                             | ✓      |      |        |
+| `get_wand_image()`                               |        | ✓    |        |
+| `detect_features()`                              |        |      | ✓      |
+| `detect_faces(cascade_filename)`                 |        |      | ✓      |
 
 \* Always returns `False`
 
