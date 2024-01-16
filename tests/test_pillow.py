@@ -5,7 +5,7 @@ from unittest import mock
 
 import filetype
 from PIL import Image as PILImage
-from PIL import ImageChops
+from PIL import ImageChops, ImageCms, ImageStat
 
 from willow.image import (
     AvifImageFile,
@@ -21,6 +21,7 @@ from willow.registry import registry
 
 no_webp_support = not PillowImage.is_format_supported("WEBP")
 no_avif_support = not PillowImage.is_format_supported("AVIF")
+no_heif_support = not PillowImage.is_format_supported("HEIF")
 
 
 class TestPillowOperations(unittest.TestCase):
@@ -123,6 +124,68 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(
             str(e.exception), "the 'color' argument must be a 3-element tuple or list"
         )
+
+    def test_transform_colorspace_to_srgb_noop(self):
+        with open("tests/images/flower.jpg", "rb") as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        transformed_image = image.transform_colorspace_to_srgb()
+
+        # Statistics about color values should be the same - it should be a no-op after all
+        stat = ImageStat.Stat(image.image)
+        stat_transformed = ImageStat.Stat(transformed_image.image)
+        self.assertEqual(stat.sum, stat_transformed.sum)
+
+        self.assertEqual(transformed_image.image.mode, "RGB")
+
+    def test_transform_colorspace_to_srgb_preserve_transparency(self):
+        with open("tests/images/transparent_with_icc_profile.png", "rb") as f:
+            image = PillowImage.open(PNGImageFile(f))
+
+        # The sample image is in RGBA mode, it contains transparent pixels
+        self.assertEqual(image.image.mode, "RGBA")
+
+        transformed_image = image.transform_colorspace_to_srgb()
+        # Image remains in RGBA mode
+        self.assertEqual(transformed_image.image.mode, "RGBA")
+
+        # Check that the alpha of pixel 1,1 is 0
+        self.assertEqual(transformed_image.image.convert("RGBA").getpixel((1, 1))[3], 0)
+
+    def test_transform_colorspace_to_srgb(self):
+        with open("tests/images/dog_and_lake_cmyk_with_icc_profile.jpg", "rb") as f:
+            image = PillowImage.open(JPEGImageFile(f))
+
+        # The sample image should originally be in CMYK mode
+        self.assertEqual(image.image.mode, "CMYK")
+        self.assertIsNotNone(image.get_icc_profile())
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.get_icc_profile()))
+
+        # The original embedded profile should be called "ISO Coated v2 (built-in)"
+        self.assertEqual(
+            cms_profile.profile.profile_description, "ISO Coated v2 (built-in)"
+        )
+
+        image_srgb = image.transform_colorspace_to_srgb()
+
+        # The image should now be in RGB mode as a result of the operation
+        self.assertEqual(image_srgb.image.mode, "RGB")
+
+        # We verify the result by comparing the sum of all color values in the image
+        stat = ImageStat.Stat(image_srgb.image)
+        expected_sum = [8617671.0, 8074576.0, 6869829.0]
+
+        for actual, expected in zip(stat.sum, expected_sum):
+            self.assertEqual(
+                actual,
+                expected,
+                msg="The colors in the transformed image don't match with expectations. Did the sample image change or is there a bug?",
+            )
+
+        # The image should now have a embedded sRGB profile
+        self.assertIsNotNone(image_srgb.get_icc_profile())
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image_srgb.get_icc_profile()))
+        self.assertEqual(cms_profile.profile.profile_description, "sRGB built-in")
 
     def test_save_as_jpeg(self):
         # Remove alpha channel from image
@@ -499,6 +562,104 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
         with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
             image.save_as_webp(io.BytesIO(), apply_optimizers=False)
             mock_optimize.assert_not_called()
+
+
+class TestPillowCMYKImageAutomaticSRGBTransformOnSave(unittest.TestCase):
+    """Test that CMYK images with a color profile are converted to sRGB when saved as anything other than JPEG."""
+
+    EXPECTED_PROFILE_DESCRIPTION = "sRGB built-in"
+
+    def setUp(self):
+        with open("tests/images/dog_and_lake_cmyk_with_icc_profile.jpg", "rb") as f:
+            self.image = PillowImage.open(JPEGImageFile(f))
+
+            self.assertEqual(self.image.image.mode, "CMYK")
+
+    def test_save_as_jpeg(self):
+        output = io.BytesIO()
+        self.image.transform_colorspace_to_srgb = mock.Mock(
+            wraps=self.image.transform_colorspace_to_srgb
+        )
+        return_value = self.image.save_as_jpeg(output)
+
+        image = PillowImage.open(return_value)
+
+        # JPEG is special. It is the only format that Pillow supports saving in CMYK mode.
+        # Thus we don't need to convert the image to sRGB.
+        self.assertEqual(image.image.mode, "CMYK")
+        self.image.transform_colorspace_to_srgb.assert_not_called()
+
+        # The JPEG should have the original ICC profile embedded
+        self.assertEqual(image.get_icc_profile(), self.image.get_icc_profile())
+
+    @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
+    def test_save_as_webp(self):
+        self.image.transform_colorspace_to_srgb = mock.Mock(
+            wraps=self.image.transform_colorspace_to_srgb
+        )
+        return_value = self.image.save_as_webp(io.BytesIO())
+
+        image = PillowImage.open(return_value)
+        self.image.transform_colorspace_to_srgb.assert_called_once()
+        self.assertEqual(image.image.mode, "RGB")
+
+        # The expected ICC profile should be embedded
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.get_icc_profile()))
+        self.assertEqual(
+            cms_profile.profile.profile_description, self.EXPECTED_PROFILE_DESCRIPTION
+        )
+
+    @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
+    def test_save_as_avif(self):
+        self.image.transform_colorspace_to_srgb = mock.Mock(
+            wraps=self.image.transform_colorspace_to_srgb
+        )
+        return_value = self.image.save_as_avif(io.BytesIO())
+
+        image = PillowImage.open(return_value)
+
+        self.image.transform_colorspace_to_srgb.assert_called_once()
+        self.assertEqual(image.image.mode, "RGB")
+
+        # The expected ICC profile should be embedded
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.get_icc_profile()))
+        self.assertEqual(
+            cms_profile.profile.profile_description, self.EXPECTED_PROFILE_DESCRIPTION
+        )
+
+    @unittest.skipIf(no_heif_support, "Pillow does not have HEIC support")
+    def test_save_as_heic(self):
+        self.image.transform_colorspace_to_srgb = mock.Mock(
+            wraps=self.image.transform_colorspace_to_srgb
+        )
+        return_value = self.image.save_as_heic(io.BytesIO())
+
+        image = PillowImage.open(return_value)
+
+        self.image.transform_colorspace_to_srgb.assert_called_once()
+        self.assertEqual(image.image.mode, "RGB")
+
+        # The expected ICC profile should be embedded
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.get_icc_profile()))
+        self.assertEqual(
+            cms_profile.profile.profile_description, self.EXPECTED_PROFILE_DESCRIPTION
+        )
+
+    def test_save_as_png(self):
+        self.image.transform_colorspace_to_srgb = mock.Mock(
+            wraps=self.image.transform_colorspace_to_srgb
+        )
+        return_value = self.image.save_as_png(io.BytesIO())
+        image = PillowImage.open(return_value)
+
+        self.image.transform_colorspace_to_srgb.assert_called_once()
+        self.assertEqual(image.image.mode, "RGB")
+
+        # The expected ICC profile should be embedded
+        cms_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.get_icc_profile()))
+        self.assertEqual(
+            cms_profile.profile.profile_description, self.EXPECTED_PROFILE_DESCRIPTION
+        )
 
 
 class TestPillowImageOrientation(unittest.TestCase):
