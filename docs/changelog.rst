@@ -4,6 +4,19 @@ Changelog
 Unreleased
 ----------
 
+1.8.0 (2024-01-17)
+------------------
+
+- Fix sphinx build errors
+- Remove old imghdr patch test (Storm Heg)
+- Update the OpenCV detect_faces test for determinism (Stephan Lachnit)
+- Add `transform_colorspace_to_srgb` operation and use it to fix inaccurate colors when saving specific image files (Storm Heg)
+
+  Note: this forces conversion to sRGB for CMYK images with an ICC profile as CMYK is not supported by PNG, WEBP, AVIF and HEIC Pillow encoders.
+  Otherwise, when a CMYK image is encoded, it gets converted to RGB resulting in inaccurate colors because Pillow ignores the ICC profile when performing the conversion.
+  So, as a workaround, we manually force an accurate conversion to RGB before encoding the image. This results in a much more accurate representation of the original CMYK image.
+- Add support for ICO images (Jake Howard)
+
 1.7.0 (2023-11-26)
 ------------------
 
