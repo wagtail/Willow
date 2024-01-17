@@ -24,7 +24,6 @@ jobs:
       - name: ⬇️ Install build dependencies
         run: |
           python -m pip install flit
-          python -m flit install --symlink
 
       - name: 🏗️ Build
         run: python -m flit build
