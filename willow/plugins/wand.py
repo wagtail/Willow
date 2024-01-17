@@ -7,6 +7,7 @@ from willow.image import (
     BMPImageFile,
     GIFImageFile,
     HeicImageFile,
+    IcoImageFile,
     Image,
     JPEGImageFile,
     PNGImageFile,
@@ -278,6 +279,16 @@ class WandImage(Image):
         return AvifImageFile(f)
 
     @Image.operation
+    def save_as_ico(self, f, apply_optimizers=True):
+        with self.image.convert("ico") as converted:
+            converted.save(file=f)
+
+        if apply_optimizers:
+            self.optimize(f, "ico")
+
+        return IcoImageFile(f)
+
+    @Image.operation
     def auto_orient(self):
         image = self.image
 
@@ -325,6 +336,7 @@ class WandImage(Image):
     @Image.converter_from(WebPImageFile, cost=150)
     @Image.converter_from(HeicImageFile, cost=150)
     @Image.converter_from(AvifImageFile, cost=150)
+    @Image.converter_from(IcoImageFile, cost=150)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _wand_image().Image(file=image_file.f)

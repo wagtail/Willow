@@ -10,6 +10,7 @@ from willow.image import (
     BMPImageFile,
     GIFImageFile,
     HeicImageFile,
+    IcoImageFile,
     Image,
     ImageFile,
     JPEGImageFile,
@@ -192,6 +193,16 @@ class TestImageFormats(unittest.TestCase):
         self.assertEqual(height, 241)
         self.assertEqual(image.mime_type, "image/avif")
 
+    def test_ico(self):
+        with open("tests/images/wagtail.ico", "rb") as f:
+            image = Image.open(f)
+            width, height = image.get_size()
+
+        self.assertIsInstance(image, IcoImageFile)
+        self.assertEqual(width, 48)
+        self.assertEqual(height, 48)
+        self.assertEqual(image.mime_type, "image/x-icon")
+
 
 class TestSaveImage(unittest.TestCase):
     """
@@ -226,6 +237,16 @@ class TestSaveImage(unittest.TestCase):
             image = Image.open(buf)
             self.assertIsInstance(image, AvifImageFile)
             self.assertEqual(image.mime_type, "image/avif")
+
+    def test_save_as_ico(self):
+        with open("tests/images/sails.bmp", "rb") as f:
+            image = Image.open(f)
+            buf = io.BytesIO()
+            image.save("ico", buf)
+            buf.seek(0)
+            image = Image.open(buf)
+            self.assertIsInstance(image, IcoImageFile)
+            self.assertEqual(image.mime_type, "image/x-icon")
 
     def test_save_as_foo(self):
         image = Image()

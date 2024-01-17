@@ -9,6 +9,7 @@ def setup():
         BMPImageFile,
         GIFImageFile,
         HeicImageFile,
+        IcoImageFile,
         JPEGImageFile,
         PNGImageFile,
         RGBAImageBuffer,
@@ -34,6 +35,7 @@ def setup():
     registry.register_image_class(SvgImageFile)
     registry.register_image_class(SvgImage)
     registry.register_image_class(AvifImageFile)
+    registry.register_image_class(IcoImageFile)
 
     registry.register_plugin(pillow)
     registry.register_plugin(wand)

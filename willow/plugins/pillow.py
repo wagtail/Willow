@@ -11,6 +11,7 @@ from willow.image import (
     BMPImageFile,
     GIFImageFile,
     HeicImageFile,
+    IcoImageFile,
     Image,
     JPEGImageFile,
     PNGImageFile,
@@ -451,6 +452,15 @@ class PillowImage(Image):
         return AvifImageFile(f)
 
     @Image.operation
+    def save_as_ico(self, f, apply_optimizers=True):
+        self.image.save(f, "ICO")
+
+        if apply_optimizers:
+            self.optimize(f, "ico")
+
+        return IcoImageFile(f)
+
+    @Image.operation
     def auto_orient(self):
         # JPEG files can be orientated using an EXIF tag.
         # Make sure this orientation is applied to the data
@@ -473,6 +483,7 @@ class PillowImage(Image):
     @Image.converter_from(WebPImageFile)
     @Image.converter_from(HeicImageFile)
     @Image.converter_from(AvifImageFile)
+    @Image.converter_from(IcoImageFile)
     def open(cls, image_file):
         image_file.f.seek(0)
         image = _PIL_Image().open(image_file.f)
