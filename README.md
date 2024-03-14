@@ -6,7 +6,7 @@
 
 A wrapper that combines the functionality of multiple Python image libraries into one API.
 
-[Documentation](https://willow.readthedocs.io/en/latest/index.html)
+[Documentation](https://willow.wagtail.org)
 
 ## Overview
 
@@ -14,7 +14,7 @@ Willow is a simple image library that combines the APIs of [Pillow](https://pill
 It converts the image between the libraries when necessary.
 
 Willow currently has basic resize and crop operations, face and feature detection and animated GIF support.
-New operations and library integrations can also be [easily implemented](https://willow.readthedocs.org/en/latest/guide/extend.html).
+New operations and library integrations can also be [easily implemented](https://willow.wagtail.org/latest/guide/extend.html).
 
 The library is written in pure Python and supports versions 3.8 3.9, 3.10, 3.11 and 3.12.
 
@@ -59,7 +59,7 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 
 ## Available operations
 
-[Documentation](https://willow.readthedocs.org/en/latest/reference.html#builtin-operations)
+[Documentation](https://willow.wagtail.org/latest/guide/operations.html)
 
 | Operation                                        | Pillow | Wand | OpenCV |
 | ------------------------------------------------ | ------ | ---- | ------ |
