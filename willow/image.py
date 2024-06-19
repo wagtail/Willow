@@ -171,7 +171,7 @@ class Image:
 
             else:
                 raise TypeError(
-                    f"Cannot optimise {type(image_file)}. Must be a readable object, or a path to a file"
+                    f"Cannot optimise {type(image_file)}. It must be a readable object, or a path to a file"
                 )
 
             for optimizer in optimizers:
