@@ -1,6 +1,7 @@
 import os
 import re
 from io import BytesIO
+from shutil import copyfileobj
 from tempfile import NamedTemporaryFile, SpooledTemporaryFile
 from typing import Optional
 
@@ -147,30 +148,31 @@ class Image:
 
         named_file_created = False
         try:
-            if isinstance(image_file, SpooledTemporaryFile):
-                file = image_file._file
+            if isinstance(image_file, (SpooledTemporaryFile, BytesIO)):
                 with NamedTemporaryFile(delete=False) as named_file:
-                    if hasattr(file, "getvalue"):  # e.g. BytesIO
-                        named_file.write(file.getvalue())
-                    else:  # e.g. BufferedRandom
-                        file.seek(0)
-                        named_file.write(file.read())
+                    named_file_created = True
+
+                    image_file.seek(0)
+                    copyfileobj(image_file, named_file)
+
                     file_path = named_file.name
-                named_file_created = True
-            elif isinstance(image_file, BytesIO):
-                with NamedTemporaryFile(delete=False) as named_file:
-                    named_file.write(image_file.getvalue())
-                    file_path = named_file.name
-                named_file_created = True
+
             elif hasattr(image_file, "name"):
                 file_path = image_file.name
+
             elif isinstance(image_file, str):
                 file_path = image_file
+
             elif isinstance(image_file, bytes):
                 with NamedTemporaryFile(delete=False) as named_file:
                     named_file.write(image_file)
                     file_path = named_file.name
                     named_file_created = True
+
+            else:
+                raise TypeError(
+                    f"Cannot optimise {type(image_file)}. Must be a readable object, or a path to a file"
+                )
 
             for optimizer in optimizers:
                 optimizer.process(file_path)
@@ -179,10 +181,11 @@ class Image:
                 # rewind and replace the image file with the optimized version
                 image_file.seek(0)
                 with open(file_path, "rb") as f:
-                    image_file.write(f.read())
+                    copyfileobj(f, image_file)
 
-                if hasattr(image_file, "truncate"):
-                    image_file.truncate()  # bring the file size down to the actual image size
+            if hasattr(image_file, "truncate"):
+                image_file.truncate()  # bring the file size down to the actual image size
+
         finally:
             if named_file_created:
                 os.unlink(file_path)
