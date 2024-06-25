@@ -282,6 +282,13 @@ class TestOptimizeImage(unittest.TestCase):
         self.image.optimize("outfile", "jpeg")
         mock_process.assert_called_with("outfile")
 
+    def test_optimize_with_unrecognised_type(self, mock_process):
+        with self.assertRaises(TypeError):
+            self.image.optimize(None, "jpeg")
+        with self.assertRaises(TypeError):
+            self.image.optimize(io.StringIO(), "jpeg")
+        mock_process.assert_not_called()
+
     @mock.patch("willow.image.NamedTemporaryFile")
     @mock.patch("willow.image.os.unlink")
     def test_optimize_with_bytes(

@@ -554,11 +554,11 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
     @unittest.skipIf(not Gifsicle.check_library(), "gifsicle not installed")
     def test_save_as_gif(self):
         with open("tests/images/transparent.gif", "rb") as f:
-            original_size = f.tell()
+            original_size = os.fstat(f.fileno()).st_size
             image = PillowImage.open(GIFImageFile(f))
 
         return_value = image.save_as_gif(io.BytesIO())
-        self.assertTrue(original_size < return_value.f.tell())
+        self.assertTrue(original_size < return_value.f.seek(0, io.SEEK_END))
 
         with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
             image.save_as_gif(io.BytesIO(), apply_optimizers=False)
@@ -574,7 +574,7 @@ class TestPillowImageWithOptimizers(unittest.TestCase):
             image = PillowImage.open(WebPImageFile(f))
 
         return_value = image.save_as_gif(io.BytesIO())
-        self.assertTrue(original_size < return_value.f.tell())
+        self.assertTrue(original_size < return_value.f.seek(0, io.SEEK_END))
 
         with mock.patch("willow.plugins.pillow.PillowImage.optimize") as mock_optimize:
             image.save_as_webp(io.BytesIO(), apply_optimizers=False)
