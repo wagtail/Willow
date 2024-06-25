@@ -4,6 +4,8 @@ Changelog
 Unreleased
 ----------
 
+- Improve type handling when running optimisers (Jake Howard)
+
 1.8.0 (2024-01-17)
 ------------------
 
