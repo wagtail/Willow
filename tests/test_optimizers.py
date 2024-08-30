@@ -74,13 +74,6 @@ class DefaultOptimizerTestBase:
             cls.optimized_size = os.fstat(f.fileno()).st_size
             cls.optimized_image = f.read()
 
-    def _fairly_equal(self, a, b, tolerance=0.001):
-        """
-        Checks that two number are within a certain tolerance of each other.
-        We want to account for slight variations in how the libraries optimize the images under different OSes.
-        """
-        return abs(a - b) <= tolerance * a
-
     def test_process_optimizes_image(self):
         try:
             with NamedTemporaryFile(delete=False) as named_temporary_file:
@@ -90,10 +83,8 @@ class DefaultOptimizerTestBase:
             self.optimizer.process(image_file)
 
             with open(image_file, "rb") as f:
-                self.assertTrue(
-                    self._fairly_equal(
-                        self.optimized_size, os.fstat(f.fileno()).st_size
-                    )
+                self.assertAlmostEqual(
+                    self.optimized_size, os.fstat(f.fileno()).st_size, delta=60
                 )
         finally:
             os.unlink(image_file)
