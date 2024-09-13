@@ -12,7 +12,7 @@ env:
   TOX_TESTENV_PASSENV: FORCE_COLOR
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
-  PYTHON_LATEST: "3.11"
+  PYTHON_LATEST: "3.12"
 
 jobs:
   lint:
@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{env.PYTHON_LATEST}}
+          python-version: ${{ env.PYTHON_LATEST }}
       - uses: pre-commit/action@v3.0.1
   test:
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{env.PYTHON_LATEST}}
+          python-version: ${{ env.PYTHON_LATEST }}
           cache: pip
 
       - name: Download coverage data
