@@ -1,1 +1,1 @@
-The changelog has moved to https://willow.readthedocs.org/en/latest/changelog.html
+The changelog has moved to https://willow.wagtail.org/latest/changelog.html
