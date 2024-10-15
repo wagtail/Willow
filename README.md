@@ -75,7 +75,7 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 | `save_as_png(file)`                              | ✓      | ✓    |        |
 | `save_as_gif(file)`                              | ✓      | ✓    |        |
 | `save_as_webp(file, quality)`                    | ✓      | ✓    |        |
-| `save_as_heif(file, quality, lossless)`          | ✓⁺     |      |        |
+| `save_as_heic(file, quality, lossless)`          | ✓⁺     |      |        |
 | `save_as_avif(file, quality, lossless)`          | ✓⁺     | ✓⁺   |        |
 | `save_as_ico(file)`                              | ✓      | ✓    |        |
 | `has_alpha()`                                    | ✓      | ✓    | ✓\*    |
