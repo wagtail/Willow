@@ -227,9 +227,9 @@ class TestGetConverter(RegistryTestCase):
         def test_converter(image):
             pass
 
-        self.registry._registered_converters[
-            self.TestImage, self.AnotherTestImage
-        ] = test_converter
+        self.registry._registered_converters[self.TestImage, self.AnotherTestImage] = (
+            test_converter
+        )
 
         self.assertEqual(
             test_converter,
@@ -252,15 +252,15 @@ class TestGetConvertersFrom(RegistryTestCase):
         def test_converter_3(image):
             return image
 
-        self.registry._registered_converters[
-            self.TestImage, self.AnotherTestImage
-        ] = test_converter
+        self.registry._registered_converters[self.TestImage, self.AnotherTestImage] = (
+            test_converter
+        )
         self.registry._registered_converters[
             self.TestImage, self.UnregisteredTestImage
         ] = test_converter_2
-        self.registry._registered_converters[
-            self.AnotherTestImage, self.TestImage
-        ] = test_converter_3
+        self.registry._registered_converters[self.AnotherTestImage, self.TestImage] = (
+            test_converter_3
+        )
 
         result = list(self.registry.get_converters_from(self.TestImage))
         self.assertIn((test_converter, self.AnotherTestImage), result)

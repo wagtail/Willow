@@ -13,7 +13,7 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
   COVERAGE_CORE: sysmon # Only supported on Python 3.12+, ignore on older versions
-  PYTHON_LATEST: "3.12"
+  PYTHON_LATEST: "3.13"
 
 jobs:
   lint:
@@ -31,11 +31,11 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - name: Install optimizers
-        run: | 
+        run: |
           sudo apt-get install -y jpegoptim pngquant gifsicle optipng libjpeg-progs webp
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5

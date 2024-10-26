@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from .base import OptimizerBase
 
@@ -12,7 +12,7 @@ class Gifsicle(OptimizerBase):
     image_format: ClassVar[str] = "gif"
 
     @classmethod
-    def get_command_arguments(cls, file_path: str) -> List[str]:
+    def get_command_arguments(cls, file_path: str) -> list[str]:
         return [
             "-b",  # required parameter for the package
             "-O3",  # slowest, but produces best results

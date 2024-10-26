@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from .base import OptimizerBase
 
@@ -12,14 +12,14 @@ class Cwebp(OptimizerBase):
     image_format: ClassVar[str] = "webp"
 
     @classmethod
-    def get_check_library_arguments(cls) -> List[str]:
+    def get_check_library_arguments(cls) -> list[str]:
         # running just cwebp gives basic infor and returns a zero exit code
         return []
 
     @classmethod
     def get_command_arguments(
         cls, file_path: str, progressive: bool = False
-    ) -> List[str]:
+    ) -> list[str]:
         return [
             "-m",
             "6",  # inspect all encoding possibilities for best file size

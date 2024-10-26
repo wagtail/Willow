@@ -5,6 +5,9 @@ Unreleased
 ----------
 
 - Improve type handling when running optimisers (Jake Howard)
+- Add support for Pillow 11 (Storm Heg)
+- Add support for Python 3.13 (Storm Heg)
+- Drop support for Python 3.8 (Storm Heg)
 
 1.8.0 (2024-01-17)
 ------------------

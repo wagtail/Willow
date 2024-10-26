@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from .base import OptimizerBase
 
@@ -12,7 +12,7 @@ class Optipng(OptimizerBase):
     image_format: ClassVar[str] = "png"
 
     @classmethod
-    def get_command_arguments(cls, file_path: str) -> List[str]:
+    def get_command_arguments(cls, file_path: str) -> list[str]:
         return [
             "-quiet",
             "-o2",  # optimization level 2 (out of 7)

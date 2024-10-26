@@ -16,7 +16,7 @@ It converts the image between the libraries when necessary.
 Willow currently has basic resize and crop operations, face and feature detection and animated GIF support.
 New operations and library integrations can also be [easily implemented](https://willow.wagtail.org/latest/guide/extend.html).
 
-The library is written in pure Python and supports versions 3.8 3.9, 3.10, 3.11 and 3.12.
+The library is written in pure Python and supports versions 3.9, 3.10, 3.11, 3.12, and 3.13.
 
 ## Examples
 
@@ -39,7 +39,6 @@ with open('test_thumbnail.png', 'wb') as out:
 This will open the image file with Pillow or Wand (if Pillow is unavailable).
 
 It will then resize it to 100x100 pixels and save it back out as a PNG file.
-
 
 ### Detecting faces
 
@@ -87,6 +86,6 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 
 \* Always returns `False`
 
-\** Always returns `1`
+\*\* Always returns `1`
 
 ⁺ Requires the [pillow-heif](https://pypi.org/project/pillow-heif/) library

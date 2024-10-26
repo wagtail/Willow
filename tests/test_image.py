@@ -326,8 +326,9 @@ class TestOptimizeImage(unittest.TestCase):
         # let's preserve the original file by mocking the open call with it so we don't end up changing it.
         with open("tests/images/people.jpg", "rb") as f:
             original_value = f.read()
-        with open("tests/images/people.jpg", "wb") as f, mock.patch(
-            "builtins.open", mock.mock_open(read_data=original_value)
+        with (
+            open("tests/images/people.jpg", "wb") as f,
+            mock.patch("builtins.open", mock.mock_open(read_data=original_value)),
         ):
             self.image.optimize(f, "jpeg")
         mock_process.assert_called_with("tests/images/people.jpg")

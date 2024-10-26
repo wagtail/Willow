@@ -1,6 +1,6 @@
 import logging
 import subprocess
-from typing import ClassVar, List
+from typing import ClassVar
 
 logger = logging.getLogger("willow")
 
@@ -17,7 +17,7 @@ class OptimizerBase:
         return image_format.lower() == cls.image_format.lower()
 
     @classmethod
-    def get_check_library_arguments(cls) -> List[str]:
+    def get_check_library_arguments(cls) -> list[str]:
         """
         Return a list of arguments to check if the library exists.
 
@@ -35,7 +35,7 @@ class OptimizerBase:
             return False
 
     @classmethod
-    def get_command_arguments(cls, file_path: str) -> List[str]:
+    def get_command_arguments(cls, file_path: str) -> list[str]:
         """Return a list of arguments for the given optimizer library."""
         return []
 
