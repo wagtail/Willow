@@ -75,7 +75,6 @@ exclude = [
     "tests/",
     "CHANGELOG.txt",
     "Dockerfile.py3",
-    "ruff.toml",
     "runtests.py",
 ]
 
@@ -114,4 +113,19 @@ exclude_lines = [
 
     # Nor complain about type checking
     "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+target-version = "py39"  # minimum target version
+
+# E501: Line too long
+lint.ignore = ["E501"]
+lint.select = [
+    "E", # pycodestyle errors
+    "F", # pyflakes
+    "I", # isort
+    "T20", # flake8-print
+    "BLE", # flake8-blind-except
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]

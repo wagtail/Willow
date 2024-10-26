@@ -1,13 +1,9 @@
-default_language_version:
-  python: python3
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
 repos:
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 23.10.1
-    hooks:
-      - id: black
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.1.2'
+    rev: "v0.7.1"
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
