@@ -4,10 +4,14 @@ Changelog
 Unreleased
 ----------
 
+1.9.0 (2024-10-26)
+------------------
+
 - Improve type handling when running optimisers (Jake Howard)
-- Add support for Pillow 11 (Storm Heg)
-- Add support for Python 3.13 (Storm Heg)
+- Add support for Pillow 11, Python 3.13 (Storm Heg)
 - Drop support for Python 3.8 (Storm Heg)
+- Docs: Fix incorrect method name for ``save_as_heic`` in README (Sage Abdullah)
+- Docs: Fix link to changelog (Matt Westcott)
 
 1.8.0 (2024-01-17)
 ------------------
@@ -15,7 +19,7 @@ Unreleased
 - Fix sphinx build errors
 - Remove old imghdr patch test (Storm Heg)
 - Update the OpenCV detect_faces test for determinism (Stephan Lachnit)
-- Add `transform_colorspace_to_srgb` operation and use it to fix inaccurate colors when saving specific image files (Storm Heg)
+- Add ``transform_colorspace_to_srgb`` operation and use it to fix inaccurate colors when saving specific image files (Storm Heg)
 
   Note: this forces conversion to sRGB for CMYK images with an ICC profile as CMYK is not supported by PNG, WEBP, AVIF and HEIC Pillow encoders.
   Otherwise, when a CMYK image is encoded, it gets converted to RGB resulting in inaccurate colors because Pillow ignores the ICC profile when performing the conversion.
@@ -31,13 +35,13 @@ ICC profile and EXIF data when saving a JPEG to PNG, WebP, AVIF.
 - Test with Python 3.12 (@zerolab)
 - Add optional dependencies for Pillow/Wand (@zerolab)
   One can run ``pip install Willow[Pillow]`` or ``Willow[Wand]`` and get the correct Pillow or Wand versions.
-- Replace wrong unicode character in the `image/heic` mime type (Stephan Lachnit)
+- Replace wrong unicode character in the ``image/heic`` mime type (Stephan Lachnit)
 - Fix color management by keeping ICC color profiles and EXIF data in addition (André Fuchs, Stefan Istrate)
 
 1.6.3 (2023-11-26)
 ------------------
 
-- Replace wrong unicode character in the `image/heic` mime type (Stephan Lachnit)
+- Replace wrong unicode character in the ``image/heic`` mime type (Stephan Lachnit)
 - Fix color management by keeping ICC color profiles and EXIF data in addition (André Fuchs, Stefan Istrate)
 
 1.6.2 (2023-09-06)
