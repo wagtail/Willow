@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from .base import OptimizerBase
 
@@ -14,7 +14,7 @@ class Pngquant(OptimizerBase):
     @classmethod
     def get_command_arguments(
         cls, file_path: str, progressive: bool = False
-    ) -> List[str]:
+    ) -> list[str]:
         return [
             "--force",  # allow overwriting existing files
             "--strip",  # remove optional metadata

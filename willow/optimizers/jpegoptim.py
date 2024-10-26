@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from .base import OptimizerBase
 
@@ -12,7 +12,7 @@ class Jpegoptim(OptimizerBase):
     image_format: ClassVar[str] = "jpeg"
 
     @classmethod
-    def get_command_arguments(cls, file_path: str) -> List[str]:
+    def get_command_arguments(cls, file_path: str) -> list[str]:
         return [
             "--strip-all",  # strip out all text information like comments and EXIF data
             "--max=85",  # set maximum quality

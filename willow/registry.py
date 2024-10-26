@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .optimizers import OptimizerBase
@@ -38,7 +38,7 @@ class WillowRegistry:
         self._registered_operations = defaultdict(dict)
         self._registered_converters = {}
         self._registered_converter_costs = {}
-        self._registered_optimizers: List["OptimizerBase"] = []
+        self._registered_optimizers: list[OptimizerBase] = []
 
     def register_operation(self, image_class, operation_name, func):
         self._registered_operations[image_class][operation_name] = func
@@ -171,9 +171,7 @@ class WillowRegistry:
                 raise UnavailableOperationError(
                     "\n".join(
                         [
-                            "The operation '{}' is available in the following image classes but they all raised errors:".format(
-                                with_operation
-                            )
+                            f"The operation '{with_operation}' is available in the following image classes but they all raised errors:"
                         ]
                         + [
                             "{image_class_name}: {error_message}".format(
@@ -193,7 +191,7 @@ class WillowRegistry:
         else:
             return image_classes
 
-    def get_optimizers_for_format(self, image_format: str) -> List["OptimizerBase"]:
+    def get_optimizers_for_format(self, image_format: str) -> list["OptimizerBase"]:
         optimizers = []
         for optimizer in self._registered_optimizers:
             if optimizer.applies_to(image_format):

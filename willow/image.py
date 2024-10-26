@@ -128,7 +128,7 @@ class Image:
             "avif",
             "ico",
         ]:
-            raise ValueError("Unknown image format: %s" % image_format)
+            raise ValueError(f"Unknown image format: {image_format}")
 
         operation_name = "save_as_" + image_format
         return getattr(self, operation_name)(output, apply_optimizers=apply_optimizers)
