@@ -40,7 +40,6 @@ This will open the image file with Pillow or Wand (if Pillow is unavailable).
 
 It will then resize it to 100x100 pixels and save it back out as a PNG file.
 
-
 ### Detecting faces
 
 ```python
@@ -87,6 +86,6 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 
 \* Always returns `False`
 
-\** Always returns `1`
+\*\* Always returns `1`
 
 ⁺ Requires the [pillow-heif](https://pypi.org/project/pillow-heif/) library
