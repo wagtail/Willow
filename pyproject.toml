@@ -52,7 +52,7 @@ docs = [
 
 [project.urls]
 Source = "https://github.com/wagtail/Willow"
-Changelog = "https://github.com/wagtail/Willow/blob/main/CHANGELOG.txt"
+Changelog = "https://willow.wagtail.org/latest/changelog.html"
 Documentation = "https://willow.wagtail.org/"
 
 
