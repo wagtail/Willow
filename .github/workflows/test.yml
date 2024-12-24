@@ -34,8 +34,12 @@ jobs:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-      - name: Install optimizers
+      - name: Install required system packages
         run: |
+          sudo apt-get update -y
+          # For Wand tests
+          sudo apt-get install -y imagemagick
+          # For testing optimizers
           sudo apt-get install -y jpegoptim pngquant gifsicle optipng libjpeg-progs webp
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
