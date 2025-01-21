@@ -27,7 +27,7 @@ jobs:
           python-version: ${{ env.PYTHON_LATEST }}
       - uses: pre-commit/action@v3.0.1
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Testsuite fails on 24.04 due to issues related to ImageMagick
     needs: lint
     strategy:
       matrix:
