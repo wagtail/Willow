@@ -47,10 +47,10 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: |
-          python -Im pip install --upgrade pip
+          python -Im pip install --upgrade pip opencv-python-headless
           python -Im pip install -e .[testing]
       - name: Test
-        run: coverage run --parallel-mode -m runtests
+        run: coverage run --parallel-mode -m runtests --opencv
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
