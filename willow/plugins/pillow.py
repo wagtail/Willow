@@ -1,7 +1,7 @@
 from io import BytesIO
 
 try:
-    from pillow_heif import AvifImagePlugin, HeifImagePlugin  # noqa: F401
+    from pillow_heif import HeifImagePlugin  # noqa: F401
 except ImportError:
     pass
 
@@ -425,7 +425,12 @@ class PillowImage(Image):
     def save_as_avif(self, f, quality=80, lossless=False, apply_optimizers=True):
         kwargs = {"quality": quality}
         if lossless:
-            kwargs = {"quality": -1, "chroma": 444}
+            kwargs = {
+                # Quality of 100 implies lossless (according to libavif documentation)
+                "quality": 100,
+                # When encoding lossless images, don't use chroma subsampling (4:4:4 retains the most information)
+                "subsampling": "4:4:4",
+            }
 
         image = self.image
         icc_profile = self.get_icc_profile()

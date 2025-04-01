@@ -337,7 +337,7 @@ Here's a full list of operations provided by Willow out of the box:
     (requires the `pillow-heif <https://pypi.org/project/pillow-heif/>`_ library)
 
     Saves the image to the specified file-like object in AVIF format.
-    When saving with `lossless=True`, the `quality` value is set to `-1` and `chroma` to `444`.
+    When saving with `lossless=True`, no `chroma subsampling <https://en.wikipedia.org/wiki/Chroma_subsampling>` is used (4:4:4 instead of the default 4:2:0).
 
     returns a ``AvifImageFile`` wrapping the file.
 
