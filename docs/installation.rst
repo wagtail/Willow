@@ -33,10 +33,10 @@ Note that Pillow doesn't support animated GIFs and Wand isn't as fast.
 Installing both will give best results.
 
 
-HEIC and AVIF support
-^^^^^^^^^^^^^^^^^^^^^
+HEIC support
+^^^^^^^^^^^^
 
-When using Pillow, you need to install ``pillow-heif`` for AVIF and HEIC support:
+When using Pillow, you need to install ``pillow-heif`` for HEIC support:
 
 .. code-block:: shell
 
