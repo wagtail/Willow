@@ -6,6 +6,7 @@ import unittest
 from tests.test_image import *  # noqa: F403
 from tests.test_optimizers import *  # noqa: F403
 from tests.test_pillow import *  # noqa: F403
+from tests.test_pillow_avif_plugin import *  # noqa: F403
 from tests.test_registry import *  # noqa: F403
 from tests.test_svg_coordinate_transforms import *  # noqa: F403
 from tests.test_svg_image import *  # noqa: F403

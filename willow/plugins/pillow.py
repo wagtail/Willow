@@ -1,7 +1,11 @@
 from io import BytesIO
 
 try:
-    from pillow_heif import AvifImagePlugin, HeifImagePlugin  # noqa: F401
+    # Need to import Pillow's AVIF plugin here to make it register. The next import
+    # will replace the default AVIF plugin with pillow_heif's.
+    # Otherwise the inverse might happen and the wrong AVIF plugin will be used.
+    from PIL import AvifImagePlugin  # noqa: F401
+    from pillow_heif import AvifImagePlugin, HeifImagePlugin  # noqa: F811, F401
 except ImportError:
     pass
 
