@@ -4,6 +4,13 @@ Changelog
 Unreleased
 ----------
 
+1.10.0 (2025-04-22)
+-------------------
+
+- Fix ``PIL.UnidentifiedImageError`` when operating on AVIF images with Pillow 11.2.1 (Storm Heg)
+- Pinned ``pillow_heif`` upper version limit to v0.22.0 to ensure AVIF support is available, we will unpin it once we no longer rely on the AVIF support it provides - you may see a warning about AVIF support being deprecated by `pillow_heif` in the meantime (Storm Heg)
+- Maintenance: run OpenCV testsuite in GitHub Actions (Storm Heg)
+
 1.9.0 (2024-10-26)
 ------------------
 
