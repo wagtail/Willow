@@ -304,6 +304,14 @@ class PillowImage(Image):
         elif image.mode == "CMYK":
             image = image.convert("RGB")
 
+        # Pillow 11.2 and older used to silently clip 32-bit I-mode images to 16
+        # bits, which is the maximum PNG supports. This is silent behavior
+        # deprecated in Pillow 11.3 but we explicitly want to retain it for
+        # backwards compatibility.
+        # See: https://pillow.readthedocs.io/en/stable/releasenotes/11.3.0.html#saving-i-mode-images-as-png
+        if image.mode == "I":
+            image = image.convert("I;16")
+
         # Pillow only checks presence of optimize kwarg, not its value
         if optimize:
             kwargs["optimize"] = True

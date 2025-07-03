@@ -250,6 +250,22 @@ class TestPillowOperations(unittest.TestCase):
         self.assertIsInstance(return_value, PNGImageFile)
         self.assertEqual(return_value.f, output)
 
+    def test_save_as_png_32bits_to_16bits(self):
+        """This tests checks that behavior from Pillow 11.2 and older is preserved for backwards compatibility."""
+        output = io.BytesIO()
+        image = PillowImage(_PIL_Image().new("I", (1, 1)))  # A 32-bit image
+
+        return_value = image.save_as_png(output)
+        output.seek(0)
+
+        self.assertEqual(filetype.guess_extension(output), "png")
+        self.assertIsInstance(return_value, PNGImageFile)
+        self.assertEqual(return_value.f, output)
+
+        # Check that the image was saved in 16-bit mode
+        pillow_image = _PIL_Image().open(output)
+        self.assertEqual(pillow_image.mode, "I;16")
+
     def test_save_as_png_optimised(self):
         unoptimised = self.image.save_as_png(io.BytesIO())
         optimised = self.image.save_as_png(io.BytesIO(), optimize=True)
