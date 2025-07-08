@@ -7,7 +7,9 @@ Unreleased
 1.11.0 - UNRELEASED
 -------------------
 
-- Nothing yet
+- Switch AVIF support to use Pillow's built-in AVIF support instead of ``pillow_heif`` (Storm Heg)
+- Minimum supported Pillow version is now 11.3.0 (Storm Heg)
+- Unpin ``pillow_heif`` upper version limit, no longer required (Storm Heg)
 
 1.10.0 (2025-04-22)
 -------------------
