@@ -31,12 +31,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pillow = ["Pillow>=9.1.0,<12.0.0"]
+pillow = ["Pillow>=11.3.0,<12.0.0"]
 wand = ["Wand>=0.6,<1.0"]
 heif = [
-    # Pinned because pillow-heif 0.23+ has dropped AVIF support but we still rely on it.
-    "pillow-heif>=0.10.0,<0.22.0; python_version < '3.12'",
-    "pillow-heif>=0.13.0,<0.22.0; python_version >= '3.12'",
+    "pillow-heif>=0.10.0; python_version < '3.12'",
+    "pillow-heif>=0.13.0; python_version >= '3.12'",
 ]
 
 testing = [
