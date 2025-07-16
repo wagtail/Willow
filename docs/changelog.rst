@@ -4,18 +4,19 @@ Changelog
 Unreleased
 ----------
 
-1.11.0 - UNRELEASED
+1.11.0 (2025-07-16)
 -------------------
 
 - Switch AVIF support to use Pillow's built-in AVIF support instead of ``pillow_heif`` (Storm Heg)
-- Minimum supported Pillow version is now 11.3.0 (Storm Heg)
+- Minimum required Pillow version is now 11.3.0 (Storm Heg)
 - Unpin ``pillow_heif`` upper version limit, no longer required (Storm Heg)
+- Adopt (deprecated) Pillow PNG channel clipping as expected behavior, see PR `#171 <https://github.com/wagtail/Willow/pull/171>`_ for details (Storm Heg)
 
 1.10.0 (2025-04-22)
 -------------------
 
 - Fix ``PIL.UnidentifiedImageError`` when operating on AVIF images with Pillow 11.2.1 (Storm Heg)
-- Pinned ``pillow_heif`` upper version limit to v0.22.0 to ensure AVIF support is available, we will unpin it once we no longer rely on the AVIF support it provides - you may see a warning about AVIF support being deprecated by `pillow_heif` in the meantime (Storm Heg)
+- Pinned ``pillow_heif`` upper version limit to v0.22.0 to ensure AVIF support is available, we will unpin it once we no longer rely on the AVIF support it provides - you may see a warning about AVIF support being deprecated by ``pillow_heif`` in the meantime (Storm Heg)
 - Maintenance: run OpenCV testsuite in GitHub Actions (Storm Heg)
 
 1.9.0 (2024-10-26)
