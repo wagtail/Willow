@@ -12,7 +12,7 @@ env:
   TOX_TESTENV_PASSENV: FORCE_COLOR
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   COVERAGE_CORE: sysmon # Only supported on Python 3.12+, ignore on older versions
-  PYTHON_LATEST: "3.13"
+  PYTHON_LATEST: "3.14"
 
 jobs:
   lint:
