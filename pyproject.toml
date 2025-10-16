@@ -16,7 +16,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -25,7 +24,7 @@ classifiers = [
 ]
 
 dynamic = ["version"]  # will read __version__ from willow/__init__.py
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "filetype>=1.0.10,!=1.1.0",
     "defusedxml>=0.7,<1.0",
@@ -117,7 +116,7 @@ exclude_lines = [
 ]
 
 [tool.ruff]
-target-version = "py39"  # minimum target version
+target-version = "py310"  # minimum target version
 
 # E501: Line too long
 lint.ignore = ["E501"]

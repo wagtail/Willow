@@ -16,7 +16,7 @@ It converts the image between the libraries when necessary.
 Willow currently has basic resize and crop operations, face and feature detection and animated GIF support.
 New operations and library integrations can also be [easily implemented](https://willow.wagtail.org/latest/guide/extend.html).
 
-The library is written in pure Python and supports versions 3.9, 3.10, 3.11, 3.12, and 3.13.
+The library is written in pure Python and supports versions 3.10, 3.11, 3.12, and 3.13.
 
 ## Examples
 

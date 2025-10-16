@@ -5,6 +5,7 @@ Changelog
 -------------------
 
 - Add provisional support for Python 3.14 pending its general release (Storm Heg)
+- Drop support for Python 3.9 (Storm Heg)
 
 1.11.0 (2025-07-16)
 -------------------
