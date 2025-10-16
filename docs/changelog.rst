@@ -7,6 +7,7 @@ Changelog
 - Add support for Python 3.14 (Storm Heg)
 - Drop support for Python 3.9 (Storm Heg)
 - The minimum required pillow-heif version is now 1.0.0 (Storm Heg)
+- Add support for Pillow 12 (Storm Heg)
 
 1.11.0 (2025-07-16)
 -------------------
