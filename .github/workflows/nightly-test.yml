@@ -1,0 +1,120 @@
+name: Nightly test
+
+# This workflow tests Willow against the nightly builds of Pillow.
+# The goal of this workflow is to catch potential incompatibilities
+# with upcoming Pillow releases before they are officially released.
+
+# This workflow runs on Sunday every week, approximately 12 hours
+# after Pillow's own nightly build is scheduled to complete. This dependency
+# is necessary because we rely on nightly Pillow wheels published to Anaconda
+# https://anaconda.org/scientific-python-nightly-wheels/pillow
+# We need the wheels because we don't want to build Pillow from source, since
+# this requires keeping this workflow up-to-date with Pillow's build requirements.
+
+env:
+  PYTHON_LATEST: "3.14"
+on:
+  schedule:
+    # Pillow runs its nightly builds on Sunday at 01:42 UTC
+    # We run this workflow 12 hours later to give ample time for their builds to complete.
+    # The assumption we make is that Pillow is not going to change its schedule
+    # often and these assumptions remain valid for the foreseeable future.
+    # Look here for their workflow: https://github.com/python-pillow/Pillow/blob/main/.github/workflows/wheels.yml
+    - cron: "42 13 * * 0" # At 13:42 UTC every Sunday
+  workflow_dispatch:
+
+jobs:
+  test-nightly:
+    name: Nightly test against nightly Pillow build
+    # There is an issue with Wand / ImageMagick using the Ubuntu 24.04 image
+    # See https://github.com/wagtail/Willow/issues/161
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "${{ env.PYTHON_LATEST }}"
+          allow-prereleases: true
+          cache: "pip"
+          cache-dependency-path: "**/pyproject.toml"
+
+      - name: Install optimizers
+        run: |
+          sudo apt-get install -y jpegoptim pngquant gifsicle optipng libjpeg-progs webp
+
+      - name: Install dependencies
+        run: |
+          python -Im pip install --upgrade pip
+          python -Im pip install -e .[testing]
+
+      - name: Install nightly Pillow
+        run: |
+          pip install --force-reinstall --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple pillow --pre
+
+      - name: Retrieve Pillow build info from Anaconda
+        id: pillow-info
+        run: |
+          VERSION=$(python -c "import PIL; print(PIL.__version__)")
+
+          RELEASE_DATE=$(curl -s https://api.anaconda.org/package/scientific-python-nightly-wheels/pillow | jq -r '.files | sort_by(.upload_time) | last(.[]) | .upload_time')
+
+          # Check how old the wheel is
+          RELEASE_EPOCH=$(date -d "$RELEASE_DATE" +%s)
+          NOW_EPOCH=$(date +%s)
+          DIFF_DAYS=$(( (NOW_EPOCH - RELEASE_EPOCH) / 86400 ))
+          echo "Wheel age in days: $DIFF_DAYS"
+          if [ "$DIFF_DAYS" -gt 7 ]; then
+            WHEEL_TOO_OLD="true"
+          else
+            WHEEL_TOO_OLD="false"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "release_date=$RELEASE_DATE" >> $GITHUB_OUTPUT
+          echo "wheel_too_old=$WHEEL_TOO_OLD" >> $GITHUB_OUTPUT
+          echo "wheel_age_days=$DIFF_DAYS" >> $GITHUB_OUTPUT
+
+      - name: Write summary of Pillow nightly build info
+        env:
+          RELEASE_TIMESTAMP: ${{ steps.pillow-info.outputs.release_date }}
+          PILLOW_VERSION: ${{ steps.pillow-info.outputs.version }}
+          WHEEL_TOO_OLD: ${{ steps.pillow-info.outputs.wheel_too_old }}
+          WHEEL_AGE_DAYS: ${{ steps.pillow-info.outputs.wheel_age_days }}
+        run: |
+          # Convert release timestamp to readable format
+          RELEASE_DATE=$(date -d "$RELEASE_TIMESTAMP" +"%Y-%m-%d %H:%M")
+          {
+            echo "### Pillow nightly build info"
+            echo ""
+            echo "- Pillow Version: $PILLOW_VERSION"
+            echo "- Pillow wheel release date: $RELEASE_DATE"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+
+          # Call out the age of the wheel if necessary
+          if [ "$WHEEL_TOO_OLD" = "true" ]; then
+            {
+              echo "## :warning: WARNING: Pillow nightly wheel is $WHEEL_AGE_DAYS days old!"
+              echo "It may indicate that nightly wheels are no longer being published to Anaconda."
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        run: |
+          python -Im runtests
+
+      - name: Send Slack notification on failure
+        if: steps.test.outcome == 'failure' || steps.pillow-info.outputs.wheel_too_old == 'true'
+        run: |
+          pip install requests
+          python .github/report_nightly_build_failure.py
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
