@@ -16,7 +16,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -25,19 +24,16 @@ classifiers = [
 ]
 
 dynamic = ["version"]  # will read __version__ from willow/__init__.py
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "filetype>=1.0.10,!=1.1.0",
     "defusedxml>=0.7,<1.0",
 ]
 
 [project.optional-dependencies]
-pillow = ["Pillow>=11.3.0,<12.0.0"]
+pillow = ["Pillow>=11.3.0"]
 wand = ["Wand>=0.6,<1.0"]
-heif = [
-    "pillow-heif>=0.10.0; python_version < '3.12'",
-    "pillow-heif>=0.13.0; python_version >= '3.12'",
-]
+heif = ["pillow-heif>=1.0.0"]
 
 testing = [
     "willow[pillow,wand,heif]",
@@ -117,7 +113,7 @@ exclude_lines = [
 ]
 
 [tool.ruff]
-target-version = "py39"  # minimum target version
+target-version = "py310"  # minimum target version
 
 # E501: Line too long
 lint.ignore = ["E501"]
