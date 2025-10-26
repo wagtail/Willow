@@ -25,6 +25,9 @@ on:
 
 jobs:
   test-nightly:
+    # Cannot check the existence of secrets, so limiting to repository name to prevent all forks to run nightly.
+    # See: https://github.com/actions/runner/issues/520
+    if: ${{ github.repository == 'wagtail/Willow' }}
     name: Nightly test against nightly Pillow build
     # There is an issue with Wand / ImageMagick using the Ubuntu 24.04 image
     # See https://github.com/wagtail/Willow/issues/161
