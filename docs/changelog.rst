@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.12.0 (UNRELEASED)
+1.12.0 (2025-10-26)
 -------------------
 
 - Add support for Python 3.14 (Storm Heg)
