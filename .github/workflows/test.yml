@@ -33,10 +33,10 @@ jobs:
         python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v5
-      - name: Install optimizers
+      - name: Install system dependencies
         uses: gerlero/apt-install@a0d81074b838120197865dc2576f67c4f40044b2
         with:
-          packages: jpegoptim pngquant gifsicle optipng libjpeg-progs webp
+          packages: jpegoptim pngquant gifsicle optipng libjpeg-progs webp libheif-dev libheif-plugin-aomenc libheif-plugin-x265
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v6
         with:
