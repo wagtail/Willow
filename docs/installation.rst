@@ -46,4 +46,10 @@ When using Pillow, you need to install ``pillow-heif`` for HEIC support:
 
 When using Wand, you will need ImageMagick version 7.0.25 or newer.
 
-Both Pillow and Wand require ``libheif`` to be installed on your system for full HEIC support.
+Wand requires ``libheif`` and appropriate decoder/encoder plugins to be installed on your system to support HEIC and AVIF formats.
+
+On Debian/Ubuntu, you can install support for both HEIC and AVIF with the following command:
+
+.. code-block:: shell
+
+    sudo apt-get install libheif-dev libheif-plugin-aomenc libheif-plugin-x265
