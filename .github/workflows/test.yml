@@ -34,8 +34,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Install optimizers
-        run: |
-          sudo apt-get install -y jpegoptim pngquant gifsicle optipng libjpeg-progs webp
+        uses: gerlero/apt-install@a0d81074b838120197865dc2576f67c4f40044b2
+        with:
+          packages: jpegoptim pngquant gifsicle optipng libjpeg-progs webp
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v6
         with:
