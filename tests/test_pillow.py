@@ -434,7 +434,11 @@ class TestPillowOperations(unittest.TestCase):
     def test_save_webp_quality(self):
         high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
         low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
-        self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
+        self.assertLess(
+            low_quality.f.tell(),
+            high_quality.f.tell(),
+            "Low quality WebP should be smaller than high quality WebP.",
+        )
 
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
     def test_save_webp_lossless(self):
