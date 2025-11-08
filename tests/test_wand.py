@@ -1,5 +1,6 @@
 import io
 import os
+import sys
 import unittest
 from unittest import mock
 
@@ -375,9 +376,24 @@ class TestWandOperations(unittest.TestCase):
 
     @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
     def test_save_webp_quality(self):
-        high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
-        low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
-        self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
+        try:
+            high_quality = self.image.save_as_webp(io.BytesIO(), quality=90)
+            low_quality = self.image.save_as_webp(io.BytesIO(), quality=30)
+            self.assertLess(
+                low_quality.f.tell(),
+                high_quality.f.tell(),
+                "Low quality WebP should be smaller than high quality WebP. Possibly the WEBP library ImageMagick was built with does not support quality settings?",
+            )
+        except AssertionError:
+            if sys.platform == "linux":
+                # This test fails in our CI because the GitHub Actions Ubuntu 24.04 runner
+                # is affected by a bug in the ImageMagick package.
+                # See https://bugs.launchpad.net/ubuntu/+source/imagemagick/+bug/2098541
+                # Remove this bailout code when above bug is fixed.
+                self.skipTest(
+                    "Ignoring test outcome due to known ImageMagick bug on Ubuntu 24.04"
+                )
+            raise
 
     @unittest.skipIf(no_webp_support, "ImageMagick was built without WebP support")
     def test_save_webp_lossless(self):

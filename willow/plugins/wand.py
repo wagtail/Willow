@@ -1,4 +1,5 @@
 import functools
+import io
 from ctypes import c_char_p, c_void_p
 
 from willow.image import (
@@ -61,8 +62,27 @@ class WandImage(Image):
         return WandImage(self.image.clone())
 
     @classmethod
-    def is_format_supported(cls, image_format):
-        return bool(_wand_version().formats(image_format))
+    def is_format_supported(cls, image_format, *, raise_exception=False):
+        wand_indicates_support = bool(_wand_version().formats(image_format))
+        if not wand_indicates_support:
+            return False
+
+        # Don't take Wand's word for it - double check that we can actually read and write the format
+        try:
+            with _wand_image().Image(width=1, height=1, background="white") as img:
+                img.format = image_format
+                # Write test
+                buf = io.BytesIO()
+                img.save(file=buf)
+
+                # Read test
+                buf.seek(0)
+                _wand_image().Image(file=buf)
+        except BaseException:
+            if raise_exception:
+                raise
+            return False
+        return True
 
     @Image.operation
     def get_size(self):
