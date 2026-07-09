@@ -7,6 +7,7 @@ from unittest import TestCase, mock
 
 from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Pngquant
 from willow.optimizers.base import OptimizerBase
+from willow.optimizers.cjxl import Cjxl
 from willow.registry import WillowRegistry
 
 
@@ -177,5 +178,54 @@ class CwebpOptimizer(DefaultOptimizerTestBase, TestCase):
     def get_check_library_command_arguments(self):
         self.assertListEqual(
             Cwebp.get_check_library_arguments(),
+            [],
+        )
+
+
+@unittest.skipUnless(Cjxl.check_library(), "cjxl not installed")
+class CjxlOptimizer(DefaultOptimizerTestBase, TestCase):
+    extension = "jxl"
+    optimizer = Cjxl
+
+    def test_applies_to(self):
+        self.assertTrue(Cjxl.applies_to("jxl"))
+        for ext in ("png", "jpeg", "gif", "tiff", "bmp"):
+            self.assertFalse(Cjxl.applies_to(ext))
+
+    def test_get_command_arguments(self):
+        self.assertListEqual(
+            Cjxl.get_command_arguments("file.jxl"),
+            [
+                "file.jxl",
+                "file.jxl",
+                "-e",
+                "9",
+                "--brotli_effort",
+                "11",
+                "--num_threads",
+                "-1",
+            ],
+        )
+        self.assertListEqual(
+            Cjxl.get_command_arguments(
+                "file.jxl", lossless=True, progressive=True, effort=10
+            ),
+            [
+                "file.jxl",
+                "file.jxl",
+                "-e",
+                "10",
+                "--brotli_effort",
+                "11",
+                "--num_threads",
+                "-1",
+                "--progressive",
+                "--distance=0",
+            ],
+        )
+
+    def get_check_library_command_arguments(self):
+        self.assertListEqual(
+            Cjxl.get_check_library_arguments(),
             [],
         )

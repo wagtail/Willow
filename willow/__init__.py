@@ -20,7 +20,7 @@ def setup():
         TIFFImageFile,
         WebPImageFile,
     )
-    from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
+    from willow.optimizers import Cjxl, Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
     from willow.plugins import opencv, pillow, wand
     from willow.registry import registry
     from willow.svg import SvgImage
@@ -45,6 +45,7 @@ def setup():
     registry.register_plugin(opencv)
 
     registry.register_optimizer(Cwebp)
+    registry.register_optimizer(Cjxl)
     registry.register_optimizer(Gifsicle)
     registry.register_optimizer(Jpegoptim)
     registry.register_optimizer(Optipng)
