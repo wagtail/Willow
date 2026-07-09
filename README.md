@@ -71,6 +71,7 @@ As neither Pillow nor Wand support detecting faces, Willow would automatically c
 | `transform_colorspace_to_srgb(rendering_intent)` | ✓      |      |        |
 | `auto_orient()`                                  | ✓      | ✓    |        |
 | `save_as_jpeg(file, quality)`                    | ✓      | ✓    |        |
+| `save_as_jxl(file, quality, lossless)`           | ✓      |      |        |
 | `save_as_png(file)`                              | ✓      | ✓    |        |
 | `save_as_gif(file)`                              | ✓      | ✓    |        |
 | `save_as_webp(file, quality)`                    | ✓      | ✓    |        |
