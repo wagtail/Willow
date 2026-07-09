@@ -37,8 +37,9 @@ optional-dependencies.docs = [
   "sphinxcontrib-spelling>=8,<9"
 ]
 optional-dependencies.heif = [ "pillow-heif>=1" ]
+optional-dependencies.jxl = [ "pillow-jxl-plugin>=1.3.7" ]
 optional-dependencies.pillow = [ "pillow>=11.3" ]
-optional-dependencies.testing = [ "coverage[toml]>=7.2.7,<8", "pre-commit>=3.4", "willow[heif,pillow,wand]" ]
+optional-dependencies.testing = [ "coverage[toml]>=7.2.7,<8", "pre-commit>=3.4", "willow[heif,jxl,pillow,wand]" ]
 optional-dependencies.wand = [ "wand>=0.6,<1" ]
 urls.Changelog = "https://willow.wagtail.org/stable/changelog.html"
 urls.Documentation = "https://willow.wagtail.org/stable/"
