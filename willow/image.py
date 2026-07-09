@@ -9,6 +9,8 @@ import filetype
 from defusedxml import ElementTree
 from filetype.types import image as image_types
 
+from willow.utils.compat import Jxl
+
 from .registry import registry
 
 
@@ -349,6 +351,7 @@ class IcoImageFile(ImageFile):
 INITIAL_IMAGE_CLASSES = {
     # A mapping of image formats to their initial class
     image_types.Jpeg().extension: JPEGImageFile,
+    Jxl().extension: JXLImageFile,
     image_types.Png().extension: PNGImageFile,
     image_types.Gif().extension: GIFImageFile,
     image_types.Bmp().extension: BMPImageFile,
