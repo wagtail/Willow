@@ -13,6 +13,7 @@ from willow.image import (
     GIFImageFile,
     IcoImageFile,
     JPEGImageFile,
+    JXLImageFile,
     PNGImageFile,
     WebPImageFile,
 )
@@ -23,6 +24,7 @@ from willow.registry import registry
 no_webp_support = not PillowImage.is_format_supported("WEBP")
 no_avif_support = not PillowImage.is_format_supported("AVIF")
 no_heif_support = not PillowImage.is_format_supported("HEIF")
+no_jxl_support = not PillowImage.is_format_supported("JXL")
 
 
 class TestPillowOperations(unittest.TestCase):
@@ -239,6 +241,71 @@ class TestPillowOperations(unittest.TestCase):
 
         saved = image.save_as_jpeg(io.BytesIO())
         saved_exif = PILImage.open(saved.f).info.get("exif")
+        self.assertEqual(saved_exif, exif)
+
+    @unittest.skipIf(no_jxl_support, "Pillow does not have JXL support")
+    def test_save_as_jxl(self):
+        output = io.BytesIO()
+        self.assertTrue(self.image.has_alpha())
+        return_value = self.image.save_as_jxl(output)
+        output.seek(0)
+
+        self.assertEqual(filetype.guess_extension(output), "jxl")
+        self.assertIsInstance(return_value, JXLImageFile)
+        self.assertEqual(return_value.f, output)
+        # JPEG-XL preserves transparency, so the saved image should still have an alpha channel
+        self.assertTrue(PillowImage.open(return_value).has_alpha())
+
+    @unittest.skipIf(no_jxl_support, "Pillow does not have JXL support")
+    def test_save_as_jxl_quality(self):
+        high_quality = self.image.save_as_jxl(io.BytesIO(), quality=90)
+        low_quality = self.image.save_as_jxl(io.BytesIO(), quality=30)
+        self.assertTrue(low_quality.f.tell() < high_quality.f.tell())
+
+    @unittest.skipIf(no_jxl_support, "Pillow does not have JXL support")
+    def test_save_as_jxl_lossless(self):
+        original_image = self.image.image
+
+        lossless_file = self.image.save_as_jxl(io.BytesIO(), lossless=True)
+        lossless_image = PillowImage.open(lossless_file).image
+
+        diff = ImageChops.difference(original_image, lossless_image)
+        self.assertIsNone(diff.getbbox())
+
+    @unittest.skipIf(no_jxl_support, "Pillow does not have JXL support")
+    def test_save_as_jxl_with_icc_profile(self):
+        # Testing two different color profiles two cover the standard case and a special one as well
+        images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
+        for img_name in images:
+            with open(f"tests/images/{img_name}", "rb") as f:
+                image = PillowImage.open(JPEGImageFile(f))
+                icc_profile = PILImage.open(f).info.get("icc_profile")
+                self.assertIsNotNone(icc_profile)
+
+                saved = image.save_as_jxl(io.BytesIO())
+                saved_icc_profile = PILImage.open(saved.f).info.get("icc_profile")
+
+                # The jpegxl-rs encoder, by default, replaces ICC profiles with
+                # its own internal profile. Hence we cannot compare the raw
+                # bytes of the ICC profiles. Instead, we do validity checks
+                # on the saved ICC profile.
+                self.assertIsNotNone(saved_icc_profile)
+
+                # The profile should be parsable
+                ImageCms.ImageCmsProfile(io.BytesIO(saved_icc_profile))
+
+    @unittest.skipIf(no_jxl_support, "Pillow does not have JXL support")
+    def test_save_as_jxl_with_exif(self):
+        with open("tests/images/colorchecker_sRGB.jpg", "rb") as f:
+            image = PillowImage.open(JPEGImageFile(f))
+            exif = PILImage.open(f).getexif()
+            self.assertIsNotNone(exif)
+
+        saved = image.save_as_jxl(io.BytesIO())
+        saved_exif = PILImage.open(saved.f).getexif()
+
+        # Compare parsed PIL.Image.Exif objects instead of raw bytes, as the
+        # encoder may reorder tags and change the byte representation
         self.assertEqual(saved_exif, exif)
 
     def test_save_as_png(self):
@@ -628,6 +695,22 @@ class TestPillowCMYKImageAutomaticSRGBTransformOnSave(unittest.TestCase):
 
         # The JPEG should have the original ICC profile embedded
         self.assertEqual(image.get_icc_profile(), self.image.get_icc_profile())
+
+    @unittest.skipIf(no_jxl_support, "Pillow does not have JPEG-XL support")
+    def test_save_as_jxl(self):
+        self.image.transform_colorspace_to_srgb = mock.Mock(
+            wraps=self.image.transform_colorspace_to_srgb
+        )
+        return_value = self.image.save_as_jxl(io.BytesIO())
+
+        image = PillowImage.open(return_value)
+        self.image.transform_colorspace_to_srgb.assert_called_once()
+        self.assertEqual(image.image.mode, "RGB")
+
+        # The jpegxl-rs encoder defaults to replacing ICC profiles with a fixed
+        # internal one (to optimize for size). We can't expect our profile to
+        # have been embedded, but there should be one present.
+        self.assertIsNotNone(image.get_icc_profile())
 
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
     def test_save_as_webp(self):
