@@ -1,4 +1,4 @@
-from willow.image import JXLImageFile
+from willow.image import Image  # noqa: F401
 from willow.utils.compat import _patch_filetype_with_jxl
 
 
@@ -12,6 +12,7 @@ def setup():
         HeicImageFile,
         IcoImageFile,
         JPEGImageFile,
+        JXLImageFile,
         PNGImageFile,
         RGBAImageBuffer,
         RGBImageBuffer,

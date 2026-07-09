@@ -5,6 +5,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from pillow_jxl import JpegXLImagePlugin  # noqa: F401
+except ImportError:
+    pass
+
 from willow.image import (
     AvifImageFile,
     BadImageOperationError,
@@ -14,6 +19,7 @@ from willow.image import (
     IcoImageFile,
     Image,
     JPEGImageFile,
+    JXLImageFile,
     PNGImageFile,
     RGBAImageBuffer,
     RGBImageBuffer,
@@ -267,6 +273,63 @@ class PillowImage(Image):
         if apply_optimizers:
             self.optimize(f, "jpeg")
         return JPEGImageFile(f)
+
+    @Image.operation
+    def save_as_jxl(
+        self,
+        f,
+        quality: int = 90,
+        lossless: bool = False,
+        apply_optimizers: bool = True,
+    ):
+        """
+        Save the image as a JPEG-XL file.
+
+        Note: progressive encoding is currently not supported for JXL files.
+
+        :param f: the file or file-like object to save to
+        :param quality: the image quality, ignored when lossless is set to True
+        :param lossless: whether to save as lossless JXL file. When set, quality
+            is ignored.
+        :param apply_optimizers: controls whether to run any configured
+            optimizer libraries.
+        :return: JXLImageFile
+        """
+
+        if self.image.mode in ["1", "P"]:
+            image = self.image.convert("RGB")
+        else:
+            image = self.image
+
+        if lossless:
+            kwargs = {"lossless": True}
+        else:
+            kwargs = {"quality": quality}
+
+        icc_profile = self.get_icc_profile()
+        # NOTE: pillow_jxl encoder does not currently implement CMYK support, though the JXL format itself does.
+        # If CMYK support is made available in the future, this should be updated
+        if icc_profile is not None:
+            # If the image is in CMYK mode *and* has an ICC profile, we need to be more diligent
+            # about how we handle the color conversion to RGB. We don't want to retain
+            # the color profile as-is because it is not meant for RGB images and
+            # will result in inaccurate colors. The transformation to sRGB should result
+            # in a more accurate representation of the original image, though
+            # it will likely not be perfect.
+            if self.image.mode == "CMYK":
+                pillow_image = self.transform_colorspace_to_srgb()
+                image = pillow_image.image
+                image.info["icc_profile"] = pillow_image.get_icc_profile()
+            else:
+                image.info["icc_profile"] = icc_profile
+
+        elif image.mode == "CMYK":
+            image = image.convert("RGB")
+
+        image.save(f, "JXL", **kwargs)
+        if apply_optimizers:
+            self.optimize(f, "jxl")
+        return JXLImageFile(f)
 
     @Image.operation
     def save_as_png(self, f, optimize: bool = False, apply_optimizers: bool = True):

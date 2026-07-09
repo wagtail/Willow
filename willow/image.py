@@ -258,6 +258,16 @@ class JPEGImageFile(ImageFile):
         return "image/jpeg"
 
 
+class JXLImageFile(ImageFile):
+    @property
+    def format_name(self):
+        return "jxl"
+
+    @property
+    def mime_type(self):
+        return "image/jxl"
+
+
 class PNGImageFile(ImageFile):
     @property
     def format_name(self):
