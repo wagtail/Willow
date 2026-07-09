@@ -221,7 +221,7 @@ class TestPillowOperations(unittest.TestCase):
         self.assertTrue(PILImage.open(image.f).info["progressive"])
 
     def test_save_as_jpeg_with_icc_profile(self):
-        # Testing two different color profiles two cover the standard case and a special one as well
+        # Testing two different color profiles to cover the standard case and a special one as well
         images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
             with open(f"tests/images/{img_name}", "rb") as f:
@@ -274,7 +274,7 @@ class TestPillowOperations(unittest.TestCase):
 
     @unittest.skipIf(no_jxl_support, "Pillow does not have JXL support")
     def test_save_as_jxl_with_icc_profile(self):
-        # Testing two different color profiles two cover the standard case and a special one as well
+        # Testing two different color profiles to cover the standard case and a special one as well
         images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
             with open(f"tests/images/{img_name}", "rb") as f:
@@ -356,7 +356,7 @@ class TestPillowOperations(unittest.TestCase):
         self.assertEqual(return_value.f, output)
 
     def test_save_as_png_with_icc_profile(self):
-        # Testing two different color profiles two cover the standard case and a special one as well
+        # Testing two different color profiles to cover the standard case and a special one as well
         images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
             with open(f"tests/images/{img_name}", "rb") as f:
@@ -519,7 +519,7 @@ class TestPillowOperations(unittest.TestCase):
 
     @unittest.skipIf(no_webp_support, "Pillow does not have WebP support")
     def test_save_as_webp_with_icc_profile(self):
-        # Testing two different color profiles two cover the standard case and a special one as well
+        # Testing two different color profiles to cover the standard case and a special one as well
         images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
             with open(f"tests/images/{img_name}", "rb") as f:
@@ -543,7 +543,7 @@ class TestPillowOperations(unittest.TestCase):
 
     @unittest.skipIf(no_avif_support, "Pillow does not have AVIF support")
     def test_save_as_avif_with_icc_profile(self):
-        # Testing two different color profiles two cover the standard case and a special one as well
+        # Testing two different color profiles to cover the standard case and a special one as well
         images = ["colorchecker_sRGB.jpg", "colorchecker_ECI_RGB_v2.jpg"]
         for img_name in images:
             with open(f"tests/images/{img_name}", "rb") as f:
