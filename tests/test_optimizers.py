@@ -223,9 +223,51 @@ class CjxlOptimizer(DefaultOptimizerTestBase, TestCase):
                 "--distance=1",
             ],
         )
-
     def get_check_library_command_arguments(self):
         self.assertListEqual(
             Cjxl.get_check_library_arguments(),
             [],
         )
+
+
+class CjxlCommandTest(TestCase):
+    def test_get_command_arguments_accepts_output_path(self):
+        self.assertListEqual(
+            Cjxl.get_command_arguments("file.jxl", output_file_path="output.jxl"),
+            [
+                "file.jxl",
+                "output.jxl",
+                "-e",
+                "9",
+                "--brotli_effort",
+                "11",
+                "--num_threads",
+                "-1",
+            ],
+        )
+
+    @mock.patch("willow.optimizers.cjxl.os.path.exists", return_value=False)
+    @mock.patch("willow.optimizers.cjxl.os.replace")
+    @mock.patch("willow.optimizers.cjxl.subprocess.check_output")
+    def test_process_uses_temp_output_file(
+        self, mock_check_output, mock_replace, _mock_exists
+    ):
+        with mock.patch("willow.optimizers.cjxl.NamedTemporaryFile") as mock_temp_file:
+            mock_temp_file.return_value.__enter__.return_value.name = "temp-output.jxl"
+            Cjxl.process("file.jxl")
+
+        mock_check_output.assert_called_once_with(
+            [
+                "cjxl",
+                "file.jxl",
+                "temp-output.jxl",
+                "-e",
+                "9",
+                "--brotli_effort",
+                "11",
+                "--num_threads",
+                "-1",
+            ],
+            stderr=STDOUT,
+        )
+        mock_replace.assert_called_once_with("temp-output.jxl", "file.jxl")
