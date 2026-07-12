@@ -46,7 +46,7 @@ jobs:
       - name: Install system dependencies
         uses: gerlero/apt-install@a0d81074b838120197865dc2576f67c4f40044b2
         with:
-          packages: jpegoptim pngquant gifsicle optipng libjpeg-progs webp libheif-dev libheif-plugin-aomenc libheif-plugin-x265
+          packages: jpegoptim pngquant gifsicle optipng libjpeg-progs webp libheif-dev libheif-plugin-aomenc libheif-plugin-x265 libjxl-tools
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
