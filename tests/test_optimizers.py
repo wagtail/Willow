@@ -220,7 +220,7 @@ class CjxlOptimizer(DefaultOptimizerTestBase, TestCase):
                 "--num_threads",
                 "-1",
                 "--progressive",
-                "--distance=0",
+                "--distance=1",
             ],
         )
 

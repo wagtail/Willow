@@ -33,5 +33,5 @@ class Cjxl(OptimizerBase):
         if progressive:
             options.append("--progressive")
         if lossless:
-            options.append("--distance=0")  # Mathematical lossless compression
+            options.append("--distance=1")  # Visually lossless compression
         return options
