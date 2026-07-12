@@ -31,10 +31,11 @@ dependencies = [
   "filetype>=1.0.10,!=1.1",
 ]
 optional-dependencies.docs = [
+  "myst-parser>=5.1,<6",
   "sphinx>=7",
   "sphinx-copybutton>=0.5",
   "sphinx-wagtail-theme>=6.1.1,<7",
-  "sphinxcontrib-spelling>=8,<9"
+  "sphinxcontrib-spelling>=8,<9",
 ]
 optional-dependencies.heif = [ "pillow-heif>=1" ]
 optional-dependencies.pillow = [ "pillow>=11.3" ]

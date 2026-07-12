@@ -23,6 +23,7 @@ extensions = [
     "sphinxcontrib.spelling",
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
+    "myst_parser",
 ]
 
 intersphinx_mapping = {

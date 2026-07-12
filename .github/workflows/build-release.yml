@@ -1,0 +1,115 @@
+name: Prepare release
+on:
+  push:
+    tags:
+      - "*" # Any tag will trigger
+
+concurrency:
+  group: "publish-build-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions: {}
+
+env:
+  PYTHONNOUSERSITE: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  build:
+    name: Build release distributions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Needed to download source code
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.x"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install flit
+
+      - name: Build distributions
+        run: python -m flit build
+
+      - name: Extract release notes section from changelog
+        env:
+          # Get tag from push event, for example "v0.9.0"
+          TAG: ${{ github.ref_name }}
+        run: |
+          python .github/extract_changelog.py $TAG > RELEASE_NOTES.md
+
+      - name: Run twine check
+        run: |
+          python -m pip install twine
+          python -m twine check dist/*
+
+      - name: Install the wheel in a virtual environment and run smoke test
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install dist/*.whl
+          python -c "import willow; print(willow.__version__)"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        name: Upload distribution files and release notes
+        with:
+          name: dist
+          path: |
+            dist/*.tar.gz
+            dist/*.whl
+            RELEASE_NOTES.md
+          if-no-files-found: error
+
+  prepare-release:
+    needs: ["build"]
+    name: Sign distribution files and create draft GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to create/update release and upload assets
+      id-token: write # Allow minting of OIDC tokens to request Sigstore certificate
+      attestations: write # Needed to persist attestations in GitHub
+      artifact-metadata: write # Needed to create artifact storage record
+    steps:
+      - name: Download release assets
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+
+      - name: Sign release assets
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
+
+      - name: Create GitHub Release ${{ github.ref_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "Release $TAG does not exist. Creating a new draft release."
+            gh release create -d -t "$TAG" "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file RELEASE_NOTES.md
+            exit 0
+          else
+            echo "Release $TAG already exists. Checking if it's a draft to determine if it can be deleted."
+            gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft' | grep true || (echo "Release $TAG is not a draft and cannot be deleted." && exit 1)
+            echo "Release $TAG is a draft and can be deleted."
+            gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes
+            echo "Creating a new draft release $TAG."
+            gh release create -d -t "$TAG" "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file RELEASE_NOTES.md
+            exit 0
+          fi
+
+      - name: Publish release assets to GitHub Release ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" dist/*.whl dist/*.tar.gz --clobber

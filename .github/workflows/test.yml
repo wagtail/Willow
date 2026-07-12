@@ -44,7 +44,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install system dependencies
-        uses: gerlero/apt-install@a0d81074b838120197865dc2576f67c4f40044b2
+        uses: gerlero/apt-install@c0fa73fe5c4a22deecf6d629565be92a15dd2026 # v1.3.12
         with:
           packages: jpegoptim pngquant gifsicle optipng libjpeg-progs webp libheif-dev libheif-plugin-aomenc libheif-plugin-x265
       - name: Set up Python ${{ matrix.python }}
