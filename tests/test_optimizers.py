@@ -223,6 +223,7 @@ class CjxlOptimizer(DefaultOptimizerTestBase, TestCase):
                 "--distance=1",
             ],
         )
+
     def get_check_library_command_arguments(self):
         self.assertListEqual(
             Cjxl.get_check_library_arguments(),
