@@ -1,4 +1,5 @@
 from willow.image import Image  # noqa: F401
+from willow.utils.compat import _patch_filetype_with_jxl
 
 
 def setup():
@@ -11,6 +12,7 @@ def setup():
         HeicImageFile,
         IcoImageFile,
         JPEGImageFile,
+        JXLImageFile,
         PNGImageFile,
         RGBAImageBuffer,
         RGBImageBuffer,
@@ -18,12 +20,13 @@ def setup():
         TIFFImageFile,
         WebPImageFile,
     )
-    from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
+    from willow.optimizers import Cjxl, Cwebp, Gifsicle, Jpegoptim, Optipng, Pngquant
     from willow.plugins import opencv, pillow, wand
     from willow.registry import registry
     from willow.svg import SvgImage
 
     registry.register_image_class(JPEGImageFile)
+    registry.register_image_class(JXLImageFile)
     registry.register_image_class(PNGImageFile)
     registry.register_image_class(GIFImageFile)
     registry.register_image_class(BMPImageFile)
@@ -42,6 +45,7 @@ def setup():
     registry.register_plugin(opencv)
 
     registry.register_optimizer(Cwebp)
+    registry.register_optimizer(Cjxl)
     registry.register_optimizer(Gifsicle)
     registry.register_optimizer(Jpegoptim)
     registry.register_optimizer(Optipng)
@@ -50,6 +54,8 @@ def setup():
     # Prevents etree from prefixing XML tag names with anonymous
     # namespaces, e.g. "<ns0:svg ..."
     ElementTree.register_namespace("", "http://www.w3.org/2000/svg")
+
+    _patch_filetype_with_jxl()
 
 
 setup()

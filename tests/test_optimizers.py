@@ -7,6 +7,7 @@ from unittest import TestCase, mock
 
 from willow.optimizers import Cwebp, Gifsicle, Jpegoptim, Pngquant
 from willow.optimizers.base import OptimizerBase
+from willow.optimizers.cjxl import Cjxl
 from willow.registry import WillowRegistry
 
 
@@ -83,9 +84,23 @@ class DefaultOptimizerTestBase:
             self.optimizer.process(image_file)
 
             with open(image_file, "rb") as f:
-                self.assertAlmostEqual(
-                    self.optimized_size, os.fstat(f.fileno()).st_size, delta=60
-                )
+                processed_image_size = os.fstat(f.fileno()).st_size
+
+                # If the image is larger than we expect based on the reference
+                # target size we have, allow a delta of 60 bytes to account for
+                # any minor differences in optimization.
+                if processed_image_size > self.optimized_size:
+                    self.assertAlmostEqual(
+                        self.optimized_size, processed_image_size, delta=60
+                    )
+                # Smaller images can happen. Optimizers can get more efficient
+                # over time. But if the image is *much* smaller than expected,
+                # it could indicate a problem worth investigating.
+                else:
+                    # We allow a 10% difference
+                    self.assertGreaterEqual(
+                        processed_image_size, self.optimized_size * 0.9
+                    )
         finally:
             os.unlink(image_file)
 
@@ -96,9 +111,12 @@ class GifsicleOptimizer(DefaultOptimizerTestBase, TestCase):
     optimizer = Gifsicle
 
     def test_applies_to(self):
-        self.assertTrue(Gifsicle.applies_to("gif"))
+        with self.subTest("applies to", ext="gif"):
+            self.assertTrue(Gifsicle.applies_to("gif"))
+
         for ext in ("png", "jpeg", "webp", "tiff", "bmp"):
-            self.assertFalse(Gifsicle.applies_to(ext))
+            with self.subTest("does not apply to", ext=ext):
+                self.assertFalse(Gifsicle.applies_to(ext))
 
     def test_get_command_arguments(self):
         self.assertListEqual(
@@ -112,9 +130,12 @@ class JpegoptimOptimizer(DefaultOptimizerTestBase, TestCase):
     optimizer = Jpegoptim
 
     def test_applies_to(self):
-        self.assertTrue(Jpegoptim.applies_to("jpeg"))
+        with self.subTest("applies to", ext="jpeg"):
+            self.assertTrue(Jpegoptim.applies_to("jpeg"))
+
         for ext in ("png", "gif", "webp", "tiff", "bmp"):
-            self.assertFalse(Jpegoptim.applies_to(ext))
+            with self.subTest("does not apply to", ext=ext):
+                self.assertFalse(Jpegoptim.applies_to(ext))
 
     def test_get_command_arguments(self):
         self.assertListEqual(
@@ -153,9 +174,12 @@ class CwebpOptimizer(DefaultOptimizerTestBase, TestCase):
     optimizer = Cwebp
 
     def test_applies_to(self):
-        self.assertTrue(Cwebp.applies_to("webp"))
+        with self.subTest("applies to", ext="webp"):
+            self.assertTrue(Cwebp.applies_to("webp"))
+
         for ext in ("png", "jpeg", "gif", "tiff", "bmp"):
-            self.assertFalse(Cwebp.applies_to(ext))
+            with self.subTest("does not apply to", ext=ext):
+                self.assertFalse(Cwebp.applies_to(ext))
 
     def test_get_command_arguments(self):
         self.assertListEqual(
@@ -177,5 +201,57 @@ class CwebpOptimizer(DefaultOptimizerTestBase, TestCase):
     def get_check_library_command_arguments(self):
         self.assertListEqual(
             Cwebp.get_check_library_arguments(),
+            [],
+        )
+
+
+@unittest.skipUnless(Cjxl.check_library(), "cjxl not installed")
+class CjxlOptimizer(DefaultOptimizerTestBase, TestCase):
+    extension = "jxl"
+    optimizer = Cjxl
+
+    def test_applies_to(self):
+        with self.subTest("applies to", ext="jxl"):
+            self.assertTrue(Cjxl.applies_to("jxl"))
+
+        for ext in ("png", "jpeg", "gif", "tiff", "bmp"):
+            with self.subTest("does not apply to", ext=ext):
+                self.assertFalse(Cjxl.applies_to(ext))
+
+    def test_get_command_arguments(self):
+        self.assertListEqual(
+            Cjxl.get_command_arguments("file.jxl"),
+            [
+                "file.jxl",
+                "file.jxl",
+                "-e",
+                "9",
+                "--brotli_effort",
+                "11",
+                "--num_threads",
+                "-1",
+            ],
+        )
+        self.assertListEqual(
+            Cjxl.get_command_arguments(
+                "file.jxl", lossless=True, progressive=True, effort=10
+            ),
+            [
+                "file.jxl",
+                "file.jxl",
+                "-e",
+                "10",
+                "--brotli_effort",
+                "11",
+                "--num_threads",
+                "-1",
+                "--progressive",
+                "--distance=1",
+            ],
+        )
+
+    def get_check_library_command_arguments(self):
+        self.assertListEqual(
+            Cjxl.get_check_library_arguments(),
             [],
         )
