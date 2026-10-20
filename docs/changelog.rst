@@ -4,7 +4,9 @@ Changelog
 1.13.0 (UNRELEASED)
 -------------------
 
-- Nothing yet.
+- Add support for Python 3.15 (Storm Heg)
+- Drop support for Python 3.10 (Storm Heg)
+- Minimum required Pillow version is now 13.0 (Storm Heg)
 
 1.12.0 (2025-10-26)
 -------------------
