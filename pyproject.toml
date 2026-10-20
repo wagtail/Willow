@@ -10,18 +10,18 @@ keywords = [ "Imaging" ]
 license = "BSD-3-Clause"
 maintainers = [ { name = "Wagtail Core team", email = "hello@wagtail.org" } ]
 authors = [ { name = "Karl Hobley", email = "karl@kaed.uk" } ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Topic :: Multimedia :: Graphics",
   "Topic :: Multimedia :: Graphics :: Graphics Conversion",
 ]
@@ -37,9 +37,9 @@ optional-dependencies.docs = [
   "sphinxcontrib-spelling>=8,<9"
 ]
 optional-dependencies.heif = [ "pillow-heif>=1" ]
-optional-dependencies.pillow = [ "pillow>=11.3" ]
+optional-dependencies.pillow = [ "pillow>=13" ]
 optional-dependencies.testing = [ "coverage[toml]>=7.2.7,<8", "pre-commit>=3.4", "willow[heif,pillow,wand]" ]
-optional-dependencies.wand = [ "wand>=0.6,<1" ]
+optional-dependencies.wand = [ "wand>=0.7.2,<1" ]
 urls.Changelog = "https://willow.wagtail.org/stable/changelog.html"
 urls.Documentation = "https://willow.wagtail.org/stable/"
 urls.Source = "https://github.com/wagtail/Willow"
