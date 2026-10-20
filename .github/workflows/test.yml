@@ -17,7 +17,7 @@ env:
   FORCE_COLOR: "1" # Make tools pretty.
   TOX_TESTENV_PASSENV: FORCE_COLOR
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PYTHON_LATEST: "3.14"
+  PYTHON_LATEST: "3.15"
 
 jobs:
   lint:
@@ -38,7 +38,7 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        python: ["3.11", "3.12", "3.13", "3.14"]
+        python: ["3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:

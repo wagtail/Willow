@@ -12,7 +12,7 @@ name: Nightly test
 # this requires keeping this workflow up-to-date with Pillow's build requirements.
 
 env:
-  PYTHON_LATEST: "3.14"
+  PYTHON_LATEST: "3.15"
 on:
   schedule:
     # Pillow runs its nightly builds on Sunday at 01:42 UTC
